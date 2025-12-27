@@ -1,0 +1,17 @@
+# Chạy experiment với cấu hình mặc định (K=5,10,15,20, trials=5, epochs=1250)
+python experiment.py
+
+# Chạy với K values tùy chỉnh
+python experiment.py --k-list 5 10 15 20
+
+# Chạy với nhiều trials hơn để có kết quả chính xác hơn
+python experiment.py --k-list 5 10 --trials 10 --epochs 2500
+
+# Chạy với target accuracy cao hơn
+python experiment.py --k-list 5 10 --target-acc 0.95 --trials 5
+
+# Chạy nhanh để test (ít trials, ít epochs)
+python experiment.py --k-list 5 --trials 2 --epochs 500 --target-acc 0.85
+
+# Chạy experiment đầy đủ như paper
+python experiment.py --k-list 5 10 15 20 --trials 10 --epochs 2500 --target-acc 0.9
