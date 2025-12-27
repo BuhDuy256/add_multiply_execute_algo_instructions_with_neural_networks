@@ -40,11 +40,14 @@ def get_accuracy(all_preds, Y_truth):
     predictions = (ensemble_mean > 0).float()
     return (predictions == Y_truth.to(device)).all(dim=1).float().mean().item()
 
-def run_combined_experiment(k_list, target_acc, trials, epochs, output_dir):
+def run_combined_experiment(k_list, target_acc, trials, epochs, output_dir, hidden_dim_override=None):
     """
     Thực hiện song song:
     1. Thí nghiệm 1: Tìm N tối thiểu để đạt target_acc.
     2. Thí nghiệm 2: Lưu dữ liệu tăng trưởng Accuracy theo từng n để vẽ đường cong.
+    
+    Args:
+        hidden_dim_override: Nếu được cung cấp, dùng giá trị này thay vì k*1000 cho TẤT CẢ K values
     """
     print(f"\n{'='*60}")
     print(f"Thí nghiệm Tổng hợp: Required N & Accuracy Curve")
@@ -54,7 +57,9 @@ def run_combined_experiment(k_list, target_acc, trials, epochs, output_dir):
     
     for k in k_list:
         print(f"\nProcessing K = {k}")
-        hidden_dim = k * 1000 #
+        # Cho phép override hidden_dim, nếu không thì dùng k * 1000
+        hidden_dim = hidden_dim_override if hidden_dim_override is not None else k * 1000
+        print(f"Hidden dim: {hidden_dim}")
         
         # Tạo folder cho K này
         k_dir = output_dir / f"k_{k}"
@@ -141,10 +146,16 @@ def run_combined_experiment(k_list, target_acc, trials, epochs, output_dir):
 
 def main():
     parser = argparse.ArgumentParser(description='NTK Combined Experiment')
-    parser.add_argument("--k-list", type=int, nargs="+", default=[5, 10, 15, 20])
-    parser.add_argument("--trials", type=int, default=5)
-    parser.add_argument("--epochs", type=int, default=1250)
-    parser.add_argument("--target-acc", type=float, default=0.9)
+    parser.add_argument("--k-list", type=int, nargs="+", default=[5, 10, 15, 20],
+                        help="List of K values to test")
+    parser.add_argument("--trials", type=int, default=5,
+                        help="Number of trials per K value")
+    parser.add_argument("--epochs", type=int, default=1250,
+                        help="Number of epochs per model training")
+    parser.add_argument("--target-acc", type=float, default=0.9,
+                        help="Target accuracy to reach (default: 0.9)")
+    parser.add_argument("--hidden-dim", type=int, default=None,
+                        help="Fixed hidden dimension for all K values. If not specified, uses k*1000")
     args = parser.parse_args()
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -152,7 +163,13 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
     
     print(f"Dữ liệu được lưu tại: {output_dir}")
-    run_combined_experiment(args.k_list, args.target_acc, args.trials, args.epochs, output_dir)
+    if args.hidden_dim:
+        print(f"Using fixed hidden_dim = {args.hidden_dim} for all K values")
+    else:
+        print(f"Using auto-scaling hidden_dim = k * 1000")
+    
+    run_combined_experiment(args.k_list, args.target_acc, args.trials, args.epochs, 
+                           output_dir, args.hidden_dim)
 
 if __name__ == "__main__":
     main()

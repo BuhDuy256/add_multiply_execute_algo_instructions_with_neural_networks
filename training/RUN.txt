@@ -15,3 +15,6 @@ python experiment.py --k-list 5 --trials 2 --epochs 500 --target-acc 0.85
 
 # Chạy experiment đầy đủ như paper
 python experiment.py --k-list 5 10 15 20 --trials 10 --epochs 2500 --target-acc 0.9
+
+# Ra được kết quả của paper
+python experiment.py --k-list 5 10 15 20 25 30 --trials 1 --epochs 10000 --target-acc 0.999 --hidden-dim 50000
