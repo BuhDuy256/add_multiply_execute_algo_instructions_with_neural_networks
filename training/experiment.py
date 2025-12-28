@@ -13,7 +13,7 @@ from tqdm import tqdm
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-def train_single_model(train_loader, k, hidden_dim, epochs=2500, lr=0.1):
+def train_single_model(train_loader, k, hidden_dim, epochs=2500, lr=0.1, show_progress=False):
     """
     Huấn luyện một mô hình NTKMLP trên basis vectors.
     Kiến trúc mạng 2 lớp không bias.
@@ -23,14 +23,21 @@ def train_single_model(train_loader, k, hidden_dim, epochs=2500, lr=0.1):
     criterion = torch.nn.MSELoss()
     
     model.train()
-    for _ in range(epochs):
+    epoch_iterator = tqdm(range(epochs), desc="    Training", leave=False, disable=not show_progress)
+    for epoch in epoch_iterator:
+        total_loss = 0
         for x, y in train_loader:
             x, y = x.to(device), y.to(device)
             optimizer.zero_grad()
             loss = criterion(model(x), y)
             loss.backward()
             optimizer.step()
-    return model.eval()
+            total_loss += loss.item()
+        
+        if show_progress and epoch % 100 == 0:
+            epoch_iterator.set_postfix({'loss': f'{total_loss:.6f}'})
+    
+    return model.eval(), total_loss
 
 def get_accuracy(all_preds, Y_truth):
     """
@@ -40,7 +47,7 @@ def get_accuracy(all_preds, Y_truth):
     predictions = (ensemble_mean > 0).float()
     return (predictions == Y_truth.to(device)).all(dim=1).float().mean().item()
 
-def run_combined_experiment(k_list, target_acc, trials, epochs, output_dir, hidden_dim_override=None):
+def run_combined_experiment(k_list, target_acc, trials, epochs, output_dir, hidden_dim_override=None, lr=0.1):
     """
     Thực hiện song song:
     1. Thí nghiệm 1: Tìm N tối thiểu để đạt target_acc.
@@ -107,7 +114,13 @@ def run_combined_experiment(k_list, target_acc, trials, epochs, output_dir, hidd
                 
                 while acc < target_acc and n < 5000:
                     n += 1
-                    model = train_single_model(train_loader, k, hidden_dim, epochs)
+                    # Show progress every 10th model to monitor training
+                    show_progress = (n % 10 == 1)
+                    model, final_loss = train_single_model(train_loader, k, hidden_dim, epochs, lr=lr, show_progress=show_progress)
+                    
+                    # Warn if model didn't converge properly
+                    if final_loss > 0.01:
+                        print(f"\n    ⚠️  WARNING: Model {n} has high final loss={final_loss:.6f} - may not have converged!")
                     
                     with torch.no_grad():
                         pred = model(X_test_norm).detach()
@@ -156,6 +169,8 @@ def main():
                         help="Target accuracy to reach (default: 0.9)")
     parser.add_argument("--hidden-dim", type=int, default=None,
                         help="Fixed hidden dimension for all K values. If not specified, uses k*1000")
+    parser.add_argument("--lr", type=float, default=0.1,
+                        help="Learning rate for SGD optimizer (default: 0.1)")
     args = parser.parse_args()
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -167,9 +182,10 @@ def main():
         print(f"Using fixed hidden_dim = {args.hidden_dim} for all K values")
     else:
         print(f"Using auto-scaling hidden_dim = k * 1000")
+    print(f"Learning rate: {args.lr}")
     
     run_combined_experiment(args.k_list, args.target_acc, args.trials, args.epochs, 
-                           output_dir, args.hidden_dim)
+                           output_dir, args.hidden_dim, args.lr)
 
 if __name__ == "__main__":
     main()

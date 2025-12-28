@@ -1,26 +1,131 @@
-# Chạy experiment với cấu hình mặc định (K=5,10,15,20, trials=5, epochs=1250)
-python experiment.py
+# ============================================================
+# CÁC LỆNH TỐI ƯU CHO CPU - HOÀN THÀNH TRONG 6 TIẾNG
+# ============================================================
+# NOTE: Learning rate mặc định là 0.1 (code hiện tại)
+# Để đạt kết quả tốt hơn, dùng --lr 0.001 (như code gốc)
+# ============================================================
 
-# Chạy với K values tùy chỉnh
-python experiment.py --k-list 5 10 15 20
+# ------------------------------------------------------------
+# 1. TEST NHANH - Chạy trước để verify code (10-20 phút)
+# ------------------------------------------------------------
+python experiment.py --k-list 5 --trials 1 --epochs 1000 --target-acc 0.90 --hidden-dim 3000 --lr 0.001
 
-# Chạy với nhiều trials hơn để có kết quả chính xác hơn
-python experiment.py --k-list 5 10 --trials 10 --epochs 2500
+# ------------------------------------------------------------
+# 2. CONFIG NHỎ - Kết quả trong 1-2 giờ
+# ------------------------------------------------------------
+# Target: accuracy ~0.95, K=5
+python experiment.py --k-list 5 --trials 1 --epochs 3000 --target-acc 0.95 --hidden-dim 5000 --lr 0.001
 
-# Chạy với target accuracy cao hơn
-python experiment.py --k-list 5 10 --target-acc 0.95 --trials 5
+# ------------------------------------------------------------
+# 3. CONFIG TRUNG BÌNH - Kết quả trong 3-4 giờ  
+# ------------------------------------------------------------
+# Target: accuracy ~0.98, K=5
+python experiment.py --k-list 5 --trials 1 --epochs 5000 --target-acc 0.98 --hidden-dim 8000 --lr 0.001
 
-# Chạy nhanh để test (ít trials, ít epochs)
-python experiment.py --k-list 5 --trials 2 --epochs 500 --target-acc 0.85
+# Test cả K=5 và K=10 (4-5 giờ)
+python experiment.py --k-list 5 10 --trials 1 --epochs 4000 --target-acc 0.97 --hidden-dim 7000 --lr 0.001
 
-# Chạy experiment đầy đủ như paper
-python experiment.py --k-list 5 10 15 20 --trials 10 --epochs 2500 --target-acc 0.9
+# ------------------------------------------------------------
+# 4. CONFIG CAO NHẤT CHO CPU - Kết quả trong 5-6 giờ
+# ------------------------------------------------------------
+# Target: accuracy ~0.99, K=5 (chất lượng cao nhất với CPU)
+python experiment.py --k-list 5 --trials 1 --epochs 6000 --target-acc 0.99 --hidden-dim 10000 --lr 0.001
 
-# Ra được kết quả của paper
-python experiment.py --k-list 5 10 15 20 25 30 --trials 1 --epochs 10000 --target-acc 0.999 --hidden-dim 50000
+# ------------------------------------------------------------
+# 5. CONFIG CHO TỪNG K VALUE RIÊNG LẺ (5-6 giờ mỗi K)
+# ------------------------------------------------------------
+# K=5 - Config tốt nhất (5-6 giờ)
+python experiment.py --k-list 5 --trials 1 --epochs 6000 --target-acc 0.99 --hidden-dim 10000 --lr 0.001
 
-# Chạy trước đề verify
-python experiment.py --k-list 5 10 --trials 1 --epochs 10000 --target-acc 0.999 --hidden-dim 50000
+# K=10 - Config tốt (5-6 giờ, hidden_dim theo tỉ lệ k*1000)
+python experiment.py --k-list 10 --trials 1 --epochs 5000 --target-acc 0.98 --hidden-dim 10000 --lr 0.001
 
-# Nếu OK thì chạy tiếp
-python experiment.py --k-list 15 20 25 30 --trials 1 --epochs 10000 --target-acc 0.999 --hidden-dim 50000
+# K=15 - Config vừa phải (5-6 giờ)
+python experiment.py --k-list 15 --trials 1 --epochs 4000 --target-acc 0.97 --hidden-dim 12000 --lr 0.001
+
+# K=20 - Config nhẹ hơn (5-6 giờ)
+python experiment.py --k-list 20 --trials 1 --epochs 3500 --target-acc 0.96 --hidden-dim 12000 --lr 0.001
+
+# K=25 - Config thấp (4-5 giờ, K lớn khó hơn)
+python experiment.py --k-list 25 --trials 1 --epochs 3000 --target-acc 0.95 --hidden-dim 12000 --lr 0.001
+
+# K=30 - Config tối thiểu (4-5 giờ)
+python experiment.py --k-list 30 --trials 1 --epochs 2500 --target-acc 0.94 --hidden-dim 12000 --lr 0.001
+
+# ------------------------------------------------------------
+# 6. CONFIG ĐA K VALUES - Chạy qua đêm (8-12 giờ)
+# ------------------------------------------------------------
+# Test nhiều K values nhỏ với accuracy cao
+python experiment.py --k-list 5 10 15 --trials 1 --epochs 4000 --target-acc 0.97 --hidden-dim 8000 --lr 0.001
+
+# Test range K values trung bình (10-15 giờ)
+python experiment.py --k-list 5 10 15 20 --trials 1 --epochs 3000 --target-acc 0.95 --hidden-dim 10000 --lr 0.001
+
+# Test toàn bộ K values (20-30 giờ - chạy cuối tuần)
+python experiment.py --k-list 5 10 15 20 25 30 --trials 1 --epochs 3000 --target-acc 0.94 --hidden-dim 10000 --lr 0.001
+
+# ------------------------------------------------------------
+# 6. CONFIG PAPER (CẦN GPU!) - Không khả thi với CPU
+# ------------------------------------------------------------
+# CẢNH BÁO: Các config dưới đây CẦN GPU, với CPU sẽ mất 2-5 NGÀY!
+# python experiment.py --k-list 5 10 --trials 1 --epochs 10000 --target-acc 0.999 --hidden-dim 50000 --lr 0.001
+# python experiment.py --k-list 5 10 15 20 25 30 --trials 1 --epochs 10000 --target-acc 0.999 --hidden-dim 50000 --lr 0.001
+
+# ============================================================
+# KHUYẾN NGHỊ CHO CPU (TRONG 6 TIẾNG):
+# ============================================================
+
+# TỐT NHẤT - Chọn 1 K value để có accuracy cao nhất:
+# K=5 (dễ nhất, accuracy cao nhất ~0.99):
+python experiment.py --k-list 5 --trials 1 --epochs 6000 --target-acc 0.99 --hidden-dim 10000 --lr 0.001
+
+# K=10 (trung bình, accuracy ~0.98):
+python experiment.py --k-list 10 --trials 1 --epochs 5000 --target-acc 0.98 --hidden-dim 10000 --lr 0.001
+
+# K=15 (khó hơn, accuracy ~0.97):
+python experiment.py --k-list 15 --trials 1 --epochs 4000 --target-acc 0.97 --hidden-dim 12000 --lr 0.001
+
+# CÂN BẰNG - Test nhiều K cùng lúc nhưng accuracy thấp hơn:
+# K=5,10 (2 values, ~7-8 giờ):
+python experiment.py --k-list 5 10 --trials 1 --epochs 4000 --target-acc 0.97 --hidden-dim 8000 --lr 0.001
+
+# K=5,10,15 (3 values, ~10-12 giờ - qua đêm):
+python experiment.py --k-list 5 10 15 --trials 1 --epochs 3500 --target-acc 0.96 --hidden-dim 8000 --lr 0.001
+
+# ============================================================
+# GHI CHÚ:
+# ============================================================
+# - Với CPU, KHÔNG NÊN dùng hidden_dim > 15000 (quá chậm)
+# - Với CPU, KHÔNG NÊN target accuracy > 0.99 (cần quá nhiều models)
+# - Để đạt paper results (0.999), PHẢI dùng GPU (Google Colab free)
+# - Learning rate 0.001 tốt hơn 0.1 cho convergence
+#
+# K VALUES VÀ ĐỘ KHÓ:
+# - K càng lớn = bài toán càng khó = cần nhiều models hơn
+# - K=5: Dễ nhất, có thể đạt 0.99 với ~20-40 models
+# - K=10: Trung bình, cần ~40-80 models để đạt 0.98
+# - K=15-20: Khó, cần ~60-120 models để đạt 0.97
+# - K=25-30: Rất khó với CPU, nên giảm target accuracy
+#
+# TRADE-OFF:
+# - 1 K value + accuracy cao = Tốt cho phân tích sâu
+# - Nhiều K values + accuracy thấp = Tốt cho so sánh xu hướng
+# ============================================================
+
+# ============================================================
+# VẼ BIỂU ĐỒ KẾT QUẢ:
+# ============================================================
+# Sau khi chạy experiment xong, sử dụng plot_results.py để vẽ biểu đồ
+
+# Vẽ cả 2 biểu đồ (Experiment 1 và 2):
+# python plot_results.py --results-dir results/combined_run_YYYYMMDD_HHMMSS
+
+# Ví dụ cụ thể:
+# python plot_results.py --results-dir results/combined_run_20231228_120000
+
+# Vẽ chỉ 1 biểu đồ:
+# python plot_results.py --results-dir results/combined_run_20231228_120000 --plot-type exp1
+# python plot_results.py --results-dir results/combined_run_20231228_120000 --plot-type exp2
+
+# Xem thêm: PLOT_GUIDE.md
+# ============================================================
