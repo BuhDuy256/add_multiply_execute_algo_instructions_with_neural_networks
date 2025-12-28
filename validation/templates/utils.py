@@ -19,6 +19,9 @@ def flatten_blocks(blocks):
             flatted_result.append(block)
     return flatted_result
 
+# Alias for upstream compatibility (multiplication.py uses this name)
+flatten_sample = flatten_blocks
+
 def match_template(xhat, templates):
     matches = []
     for i, template in enumerate(templates):
