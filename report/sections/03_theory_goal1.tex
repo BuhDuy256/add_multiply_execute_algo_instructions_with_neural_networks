@@ -1,0 +1,61 @@
+\section{Mục tiêu 1: Output Dynamics}
+\begin{frame}{Mục tiêu 1: Động lực học output trên tập train}
+  Gradient flow trên tham số:
+  \[
+    \frac{d\theta(t)}{dt}
+    = -\nabla_\theta L(\theta(t)).
+  \]
+
+  Tính gradient của loss:
+  \[
+    L(\theta) = \tfrac12\|\mathbf f(\theta) - \mathbf y\|^2
+    = \tfrac12 (\mathbf f(\theta) - \mathbf y)^\top (\mathbf f(\theta) - \mathbf y).
+  \]
+  \[
+    \nabla_\theta L(\theta)
+    = J(\theta)^\top (\mathbf f(\theta) - \mathbf y),
+  \]
+  với
+  \[
+    J(\theta) := \nabla_\theta \mathbf f(\theta)
+    \in\mathbb R^{n\times P},
+  \]
+  dòng thứ $i$ của $J$ là $\nabla_\theta f_m(x_i;\theta)^\top$.
+
+  \[
+    => \frac{d\theta(t)}{dt}
+    = -J(\theta(t))^\top(\mathbf f(\theta(t)) - \mathbf y).
+  \]
+\end{frame}
+
+\begin{frame}{Mục tiêu 1:}
+  Xét đầu ra:
+  \[
+    \mathbf f(t) := \mathbf f(\theta(t)).
+  \]
+  Áp dụng chain rule cho hàm hợp $\mathbf f(\theta(t))$:
+  \[
+    \frac{d\mathbf f(t)}{dt}
+    = \nabla_\theta \mathbf f(\theta(t))\cdot \frac{d\theta(t)}{dt}
+    = J(\theta(t)) \frac{d\theta(t)}{dt}.
+  \]
+
+  Thay biểu thức gradient flow đã có:
+  \[
+    \frac{d\mathbf f(t)}{dt}
+    = J(\theta(t))\big[-J(\theta(t))^\top(\mathbf f(t) - \mathbf y)\big]
+    = -J(\theta(t))J(\theta(t))^\top(\mathbf f(t) - \mathbf y).
+  \]
+
+  Đặt:
+  \[
+    K(\theta) := J(\theta)J(\theta)^\top,
+  \]
+  ta thu được:
+  \[
+    \boxed{
+      \frac{d\mathbf f(t)}{dt}
+      = -K(\theta(t))(\mathbf f(t) - \mathbf y)
+    }
+  \]
+\end{frame}

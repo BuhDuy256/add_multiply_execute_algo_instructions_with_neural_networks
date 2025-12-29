@@ -1,0 +1,64 @@
+\documentclass[12pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{bm}
+\usepackage{pgfplots}
+\usepackage{enumitem}
+\pgfplotsset{compat=1.17}
+
+% Fix enumerate to use 1. 2. 3. style
+\setlist[enumerate]{label=\arabic*.}
+
+\usetheme{Madrid}
+
+% Hiển thị tên phần ở footer mỗi slide
+\setbeamertemplate{footline}{
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+      \usebeamerfont{author in head/foot}\insertsection
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+      \usebeamerfont{title in head/foot}\insertshortauthor
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+      \usebeamerfont{date in head/foot}\insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+    \end{beamercolorbox}}%
+  \vskip0pt%
+}
+
+\title[Exact Learning with NTK]{Learning to Add, Multiply, and Execute Algorithmic Instructions Exactly with Neural Networks}
+\author{Back de Luca, Giapitzakis, Fountoulakis (2025)\\[0.3em]\small Presented by: [Your Name]}
+\date{\today}
+
+\begin{document}
+
+% Title Page
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Table of Contents
+\begin{frame}{Nội dung trình bày}
+  \tableofcontents
+\end{frame}
+
+% ==================== PHẦN 1: GIỚI THIỆU ====================
+\input{sections/01_intro.tex}
+
+% ==================== PHẦN 2: CHỨNG MINH LÝ THUYẾT NTK ====================
+\input{sections/02_ntk_full.tex}
+
+% ==================== PHẦN 3: TEMPLATE MATCHING ====================
+\input{sections/03_template_matching.tex}
+
+% ==================== PHẦN 4: EXACT LEARNABILITY ====================
+\input{sections/04_exact_learnability.tex}
+
+% ==================== PHẦN 5: THỰC NGHIỆM & KẾT LUẬN ====================
+\input{sections/05_experiments_conclusion.tex}
+
+\end{document}

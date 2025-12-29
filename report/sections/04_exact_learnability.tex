@@ -1,0 +1,128 @@
+\section{Exact Learnability}
+
+% ==================== PART I: NTK PREDICTOR BEHAVIOR ====================
+\begin{frame}{Part I: Orthonormalized Training}
+  \textbf{Mã hóa Template thành Training Data:}
+  \begin{itemize}
+    \item Template $(x^{(i,j)}, y^{(i,j)}) \in T_i$ $\to$ vector $q_{ij} \in \mathbb{R}^{k'}$
+    \item $q_{ij}$ có cấu trúc block-partitioned: chỉ block $i$ khác 0
+    \item Các $q_{ij}$ được \textbf{trực giao hóa} trong mỗi block
+  \end{itemize}
+
+  \vspace{0.3cm}
+  $\Rightarrow$ NTK matrix $\Theta(X,X)$ = \textbf{scaled identity + rank-1 noise}
+\end{frame}
+
+\begin{frame}{Test Input Structure}
+  \textbf{Cấu trúc:} $\hat{x} = \frac{1}{\sqrt{n_{\hat{x}}}} (\hat{x}_1, \ldots, \hat{x}_b)^\top$
+  
+  \begin{itemize}
+    \item Mỗi block $\hat{x}_i$ = 0 hoặc match một sample trong $X$
+    \item $n_{\hat{x}}$ = số blocks active
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Quan trọng:}
+  \begin{itemize}
+    \item Training: $O(b)$ samples
+    \item Test: $O(2^b)$ possible inputs (exponentially lớn hơn!)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Theorem 5.1: Điều kiện Học Chính xác (Exact Learnability)}
+  \textbf{Định lý:}
+  Với mọi input $\hat{x}$, nếu số lượng các mẫu gây nhiễu (interfering patterns) $N_{bad}$ thỏa mãn điều kiện:
+  \[
+    N_{bad} < -\frac{w_1}{w_0}
+  \]
+  (trong đó $w_1 > 0$ là kernel "đúng", $w_0 < 0$ là kernel "nhiễu")
+  
+  Thì NTK predictor $\mu(\hat{x})$ sẽ \textbf{bảo toàn dấu} của ground truth:
+  \[
+    \text{sgn}(\mu(\hat{x})_i) = \text{sgn}(f(\hat{x})_i - 0.5)
+  \]
+  
+  $\Rightarrow$ Việc làm tròn (Rounding) output sẽ khôi phục chính xác thuật toán gốc.
+\end{frame}
+
+\begin{frame}{Proof Sketch của Theorem 5.1}
+  NTK predictor có dạng:
+  \[
+    \mu(\hat{x})_i = \sum_{(j,l) \in I^+} f(q_{jl})_i \cdot w_1 + \sum_{(j,l) \in I^-} f(q_{jl})_i \cdot w_0
+  \]
+  
+  Trong đó:
+  \begin{itemize}
+    \item $I^+$: training samples match $\hat{x}$ ($w_1 > 0$)
+    \item $I^-$: training samples không match ($w_0 \le 0$)
+  \end{itemize}
+  
+  \vspace{0.2cm}
+  Assumption 5.1: $|I^-_1| < -w_1/w_0$ $\Rightarrow$ dấu được bảo toàn.
+\end{frame}
+
+% ==================== PART II: ENSEMBLE COMPLEXITY ====================
+\begin{frame}{Part II: Ensemble Complexity}
+  \textbf{Vấn đề:} Theorem 5.1 đúng cho \emph{kỳ vọng} $\mu(\hat{x})$.
+  
+  Thực tế: mỗi model có variance $\sigma^2(\hat{x})$.
+
+  \vspace{0.3cm}
+  \textbf{Giải pháp:} Ensemble $N$ models:
+  \[
+    G(\hat{x}) = \frac{1}{N}\sum_{j=1}^N F^j(\hat{x})
+  \]
+  
+  Rounding $G(\hat{x})$ cho xác suất cao nếu $N$ đủ lớn.
+\end{frame}
+
+\begin{frame}{Công thức Ensemble Complexity (Equation 8)}
+  \textbf{Bound:}
+  \[
+    \boxed{N \ge 8 \max_{\hat{x}, i \in [k]} \left\{ \frac{\sigma^2(\hat{x})}{\mu^2(\hat{x})_i} \right\} \ln\left(\frac{2k'}{\delta}\right)}
+  \]
+
+  Với xác suất $1 - \delta$, rounding ensemble mean cho kết quả \textbf{chính xác}.
+\end{frame}
+
+\begin{frame}{Lemma 6.1: Asymptotic Orders}
+  \textbf{Variance:} $\sigma^2(\hat{x}) \in O(1/k')$
+  
+  \textbf{Mean:} $|\mu(\hat{x})_i|$ phụ thuộc vào $n_{\hat{x}}$:
+  \begin{itemize}
+    \item $n_{\hat{x}}$ const: $|\mu| \in \Theta(1/k')$ hoặc $\Theta(1)$
+    \item $n_{\hat{x}} = ck'$: $|\mu| \in \Theta(1/\sqrt{k'})$
+  \end{itemize}
+  
+  \vspace{0.3cm}
+  $\Rightarrow$ $\frac{\sigma^2}{\mu^2} \in O(k')$ $\Rightarrow$ $N \in O(k' \log k')$
+\end{frame}
+
+\begin{frame}{Remark 6.1: Kết quả chính}
+  \textbf{Ensemble Complexity cho các tác vụ:}
+  
+  \vspace{0.3cm}
+  \begin{center}
+  \begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Task} & $b$ & $k'$ & $N$ \\
+    \hline
+    Permutation & $\ell$ & $\ell$ & $O(\ell^2)$ \\
+    Addition & $2\ell$ & $4\ell$ & $O(\ell^2)$ \\
+    Multiplication & $11\ell$ & $21\ell$ & $O(\ell^2)$ \\
+    \hline
+  \end{tabular}
+  \end{center}
+  
+  \vspace{0.3cm}
+  Trong đó $\ell$ = số bit của input.
+\end{frame}
+
+% ===== SLIDE CHUYỂN TIẾP SANG PHẦN 5 =====
+\begin{frame}{}
+  \centering
+  \vfill
+  {\Huge \textbf{Phần 5}}\\[0.5cm]
+  {\Large Thực nghiệm \& Kết luận}
+  \vfill
+\end{frame}

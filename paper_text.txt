@@ -1,0 +1,2479 @@
+Learning to Add, Multiply, and Execute Algorithmic Instructions
+Exactly with Neural Networks
+Artur Back de Luca∗
+George Giapitzakis∗
+Kimon Fountoulakis
+University of Waterloo
+{abackdel, ggiapitz, kimon.fountoulakis}@uwaterloo.ca
+Abstract
+Neural networks are known for their ability to approximate smooth functions, yet they fail to
+generalize perfectly to unseen inputs when trained on discrete operations. Such operations lie at the heart
+of algorithmic tasks such as arithmetic, which is often used as a test bed for algorithmic execution in
+neural networks. In this work, we ask: can neural networks learn to execute binary-encoded algorithmic
+instructions exactly?
+We use the Neural Tangent Kernel (NTK) framework to study the training
+dynamics of two-layer fully connected networks in the infinite-width limit and show how a sufficiently large
+ensemble of such models can be trained to execute exactly, with high probability, four fundamental tasks:
+binary permutations, binary addition, binary multiplication, and Subtract and Branch if Negative (SBN)
+instructions. Since SBN is Turing-complete, our framework extends to computable functions. We show
+how this can be efficiently achieved using only logarithmically many training data. Our approach relies
+on two techniques: structuring the training data to isolate bit-level rules, and controlling correlations in
+the NTK regime to align model predictions with the target algorithmic executions.
+1
+Introduction
+There has been growing interest in the computational capabilities and efficiency of neural networks both
+from a theoretical and empirical perspective Giannou et al. [2023], Kaiser and Sutskever [2016], McLeish
+et al. [2024], Pérez et al. [2021], Saxton et al. [2019], Siegelmann and Sontag [1995]. Most works have either
+demonstrated the expressive power of different architectures through simulation results or learnability from
+a probably approximately correct (PAC) viewpoint. While important, the mere existence of parameter
+configurations that realize a specific computation or a generalization bound does not offer insight into the
+ability to learn to execute an algorithm through gradient-based training. In fact, simulating algorithmic
+instructions with neural networks often involves approximating discontinuous functions that gradient descent
+is difficult to converge to with standard training datasets [Back De Luca and Fountoulakis, 2024].
+By modeling training with the Neural Tangent Kernel (NTK), we prove that two-layer fully connected
+networks in the infinite-width limit can learn to iteratively execute binary permutations, binary addition,
+binary multiplication, and SBN instructions with a logarithmic number of examples, or equivalently, a number
+of examples polynomial in the input bit size. Rather than training on traditional input-output pairs, we
+exploit the locality of these algorithms by casting each step as a set of templates. We show that training with
+these local templates is sufficient for full algorithmic execution when composed across iterations of a loop. To
+our knowledge, this is the first NTK-based proof of exact learnability for these tasks. A high-level overview
+of our approach is shown in Figure 1.
+*Equal contribution.
+1
+arXiv:2502.16763v3  [cs.LG]  22 Oct 2025
+Algorithm
+Representation
+Execution
+for i=1 to  :
+ 
+end for
+return 
+bitwise sum
+carry
+propagation
+1 function binary_addition(p,q)
+2  # p,q 
+3  c =
+4  for i=1 to  :
+5   c,p,q = bitwise_sum(p,q)
+6   c,p,q = carry_propagation(p,q)
+7  end for
+8  return 
+bitwise_sum(p,q)
+carry_propagation(p,q)
+Figure 1: Simplified illustration of the framework used in our analysis. The left panel shows an example
+algorithm (binary addition) where each function, highlighted in blue and red, is translated into binary training
+instructions shown in the central panel with matching colors. Each instruction specifies a condition over
+part of the current algorithm state and maps it to a corresponding output. Instructions are grouped into
+blocks, indicated by boxed column labels in X and Y, each representing a subset of the input state. For
+binary addition, some blocks represent segments of the summands, while others reflect the carry state. For
+the applications discussed in Section 6, this block structure allows the number of instructions in X and Y to
+scale linearly with bit length ℓ. The right-most panel shows how instructions are used within an iterative
+framework to update the state vector ˆxi, which serves as input to the neural network at the i-th step. The
+state is first encoded, as described in Section 5, before being passed to the model. In the NTK regime, we
+show that the network performs template matching against training samples to execute the appropriate
+instructions. As ˆxi evolves, it activates new templates, progressing through the algorithm. Predictions are
+rounded at each step to mitigate noise, and repeating this process reproduces the algorithm’s full execution.
+Contributions. Our approach is built on two key innovations that overcome the interference and ambiguity
+in training data that can usually create problems for neural learning for discrete tasks:
+1. Algorithmic template representation: We demonstrate how to design training data that represent
+local computations (i.e., operating only on a subset of bits) that can be composed to execute complete
+algorithms. Each algorithmic instruction is represented by “templates” and entire algorithms (e.g.,
+binary permutations, binary addition, binary multiplication, and SBN instruction execution) can be
+executed by iteratively matching these templates. The total number of templates is logarithmic in the
+number of all possible inputs.
+2. Provable exact learnability: We prove that, by training on an orthonormalized version of our
+templates, we can control unwanted correlations in the NTK regime and show that an ensemble of two-
+layer fully connected networks in the infinite-width limit can learn to execute algorithmic instructions
+exactly with high probability.
+2
+Literature review
+The NTK framework [Jacot et al., 2018] provides insight into continuous-time gradient descent (gradient
+flow) in fully connected feed-forward neural networks. It has been extended to discrete gradient descent [Lee
+et al., 2019] and generalized to other architectures like recurrent neural networks (RNNs) and Transformers
+Yang [2020], Yang and Littwin [2021]. Although NTK theory has been widely developed, few works offer
+2
+task-specific guarantees. Notable examples include Boix-Adserà et al. [2024], which proves that Transformers
+can generalize to unseen symbols for a class of pattern-matching language tasks. Our work addresses a
+different setting: we show that shallow feed-forward neural networks in the infinite-width limit trained by
+gradient descent can learn to exactly execute algorithmic instructions using a logarithmic number of examples.
+Complementing NTK-based results, other studies have demonstrated the expressive power of neural archi-
+tectures by simulating algorithmic tasks. Following this approach, Siegelmann and Sontag [1995] proves
+that RNNs are Turing-complete, and Hertrich and Skutella [2023] demonstrates that RNNs can solve the
+shortest path problem and approximate solutions to the knapsack problem. Similarly, simulation results on
+Transformers also establish Turing completeness [Pérez et al., 2021] and present constructive solutions that
+generalize across input lengths for arithmetic tasks Cho et al. [2025], linear algebra [Giannou et al., 2023,
+Yang et al., 2024], graph-related problems [Back De Luca and Fountoulakis, 2024], and parallel computation
+[Back de Luca et al., 2025]. From a learnability perspective, Wei et al. [2022a] provides statistical guarantees
+for learning Turing-computable functions, while Malach [2023] shows that predictors trained auto-regressively
+can approximate any such functions. However, these approaches either depend on hand-crafted parameter
+configurations without training or build upon the PAC framework, and therefore do not address the core
+question of exact learnability explored in this work.
+Learning to execute algorithms has been the focus of numerous empirical studies. These works explore
+architectural modifications and prompting techniques, particularly aimed at improving generalization in
+arithmetic tasks Deng et al. [2024, 2025], Jelassi et al. [2023], McLeish et al. [2024], Mistry et al. [2022],
+Neelakantan et al. [2016], Nogueira et al. [2021], Power et al. [2022], Reed and de Freitas [2016], Saxton et al.
+[2019], Wang et al. [2017], Wei et al. [2022b], Zaremba and Sutskever [2014]. In this context, Kaiser and
+Sutskever [2016] introduced the Neural GPU, which learns binary addition and multiplication and generalizes
+to sequences longer than those seen in training. Similarly, Trask et al. [2018] proposed the Neural Arithmetic
+Logic Unit (NALU), which incorporates arithmetic operations into network modules to improve generalization.
+This approach was further refined in Madsen and Johansen [2020] with the introduction of the Neural Addition
+Unit (NAU) and Neural Multiplication Unit (NMU), offering better stability and convergence. More recent
+work aims to enhance the length generalization capabilities of Transformers through improved Positional
+Encodings Jelassi et al. [2023], Ruoss et al. [2023], Shen et al. [2023], Zhou et al. [2024], the use of scratchpads
+Nye et al. [2022], and prompting techniques for large language models (LLMs), such as Chain-of-Thought
+(CoT) programming Deng et al. [2024, 2025]. These empirical efforts provide practical methods to improve
+both in-distribution and out-of-distribution performance of neural networks on arithmetic tasks. However,
+they lack formal guarantees regarding the conditions under which generalization occurs. Our theoretical
+analysis offers precise sufficient criteria under which a neural network in the infinite-width limit can provably
+learn to execute algorithmic instructions.
+3
+Notation and preliminaries
+Throughout the text, we use boldface to denote vectors. The symbols 1 and 0 denote the vector of all ones
+and zeros of appropriate length, respectively. We use the notation [n] to refer to the set {1, 2, . . . , n}. For
+a vector x ∈Rn we denote by ∥x∥:=
+pPn
+i=1 x2
+i the Euclidean norm of x. We denote the n × n identity
+matrix by In.
+Model and NTK Results. We provide an overview of the theory used to derive our results. We refer the
+reader to Golikov et al. [2022] for a comprehensive treatment of the NTK theory. We work with two-layer,
+ReLU-activated fully connected feed-forward neural networks with no bias. Concretely, the architecture
+is defined as the function F : Rk′ →Rk with F(x) = W 2 ReLU(W 1x) where W 1 ∈Rnh×k′, W2 ∈Rnh×k,
+and nh ∈N is the hidden dimension. The weights are initialized according to the NTK parametrization as
+W 1
+ij =
+σω
+√
+k′ ω1
+ij and W 2
+ij =
+σω
+√nh ω2
+ij where ω1
+ij and ω2
+ij are trainable parameters initialized i.i.d. from a standard
+Gaussian distribution. When nh →∞, the empirical NTK kernel given by ∇{W 1,W 2}F(x)⊤∇{W 1,W 2}F(x′)
+3
+converges to the deterministic limit:
+Θ(x, x′) =
+x⊤x′
+2πk′ (π −θ) + ∥x∥· ∥x′∥
+2πk′
+((π −θ) cos θ + sin θ)
+
+Ik ∈Rk×k
+(1)
+and the NNGP kernel is given by
+K(x, x′) =
+∥x∥· ∥x′∥
+2πk′
+((π −θ) cos θ + sin θ)
+
+Ik ∈Rk×k,
+(2)
+where θ = arccos
+ x⊤x′/∥x∥·∥x′∥
+
+. For a set of vectors X, we will use the notation Θ(X, ·), Θ(·, X) and Θ(X, X)
+to refer to the limit NTK calculated when the the set {F(x) : x ∈X} is vectorized (the outputs are stacked
+vertically), and similarly for the NNGP kernel. Our learnability results rely on the following theorem by Lee
+et al. [2019], adapted to our architecture:
+Theorem 3.1 (Theorem 2.2 from Lee et al. 2019). Let X and Y be the training dataset (training inputs
+and ground truth labels, respectively). Assume that Θ := Θ(X, X) is positive definite. Suppose the network is
+trained with gradient descent (with small-enough step-size) or gradient flow to minimize the empirical MSE
+loss.1 Then, for every ˆx ∈Rk′ with ∥ˆx∥≤1, as nh →∞, the output at training time t, Ft(ˆx), converges in
+distribution to a Gaussian with mean and variance given by
+µ(ˆx) = Θ(ˆx, X)Θ−1Y
+(3)
+Σ(ˆx) = K(ˆx, ˆx) + Θ(ˆx, X)Θ−1K(X, X)Θ−1Θ(X, ˆx) −(Θ(ˆx, X)Θ−1K(X, ˆx) + h.c)
+(4)
+where Y in Equation (3) denotes the vectorization of all vectors y ∈Y, and “h.c.” is an abbreviation for the
+Hermitian conjugate.
+4
+Algorithmic execution via template matching
+In this section, we introduce a template matching principle that offers a high-level intuition for representing
+and executing algorithmic instructions in the NTK regime. This principle transforms binary inputs into
+binary outputs by comparing input configurations against a set of predefined templates. Matched templates
+are then used to compose the corresponding output. We use this principle of templates and template matching
+functions to encode and execute algorithms. While this approach may seem unrelated to neural networks, we
+show in the following sections that, by carefully structuring training and test inputs, neural networks can
+emulate this template matching mechanism. In doing so, they can learn algorithms on binary data through
+the lens of the Neural Tangent Kernel. More concretely, we show that this principle, as described here, allows
+us to learn and express arithmetic operations such as addition and multiplication. Furthermore, this approach
+can be generalized to more general computations, as discussed in Section 5.
+Input representation: Inputs are vectors of binary variables of length k, i.e., ˆx ∈{0, 1}k. These variables
+are grouped into disjoint blocks, partitioning ˆx into b blocks. Each block, denoted by Bi for i ∈[b], has a
+length si ∈N. While block sizes may vary, each si is assumed to be O(1). Let ˆx[Bi] ∈{0, 1}si denote the
+subvector for block Bi, i.e., the bits of ˆx that belong to that block.
+Templates and functions: The transformation of the input vector depends on the configurations present
+within each block. Each block Bi is associated with a finite set of templates Ti ⊆{0, 1}si × {0, 1}k, where
+each template (x, y) maps a block configuration x to a complete output vector y. The mapping is functional:
+for all (x, y), (x′, y′) ∈Ti, if x = x′, then y = y′. In other words, no block configuration maps to more than
+one output. Consequently, the cardinality of Ti is at most 2si
+Using each Ti, we define a block-specific pattern matching function fi : {0, 1}si →{0, 1}k and an aggregation
+function f : {0, 1}k →{0, 1}k by:
+1The empirical MSE loss is defined as L(D) = (2|D|)−1 P
+(x,y)∈D ∥ft(x) −y∥2.
+4
+Figure 2: Illustration of the addition algorithm based on the template matching approach from Section 4.
+Two ℓ= 2 bit numbers, p = 2 (or 102) and q = 3 (or 112), are added by organizing their bits and carries into
+blocks Bi. Blocks B2 and B4 represent the bits of p and q, while B1 and B3 handle the carries. The input
+ˆx is processed via template matching f, using templates Ti, producing outputs y(k)
+i
+used to compose the
+output. Although the method is iterative, this example completes in one step. The final result 5 (or 1012) is
+stored at the most-significant carry bit and the bits of p in ˆx.
+fi(x′) :=
+(
+y
+if (x′, y) ∈Ti
+0
+otherwise,
+(5)
+f(ˆx) :=
+b_
+i=1
+fi(ˆx[Bi])
+(6)
+where 0 denotes the all-zero vector in {0, 1}k, and the bitwise disjunction (logical OR) is applied elementwise
+across the output vectors fi(ˆx[Bi]) inside Equation (6). Each of these template matching functions is applied
+independently and simultaneously to the corresponding block.
+In this framework, the block-specific templates Ti determine the local behavior of the algorithm, specifying
+how each block contributes to the global state vector ˆx. The global update function f, formed by aggregating
+the output of all fi, enforces this behavior across all blocks simultaneously. By applying f iteratively, we
+propagate these local rules over time, effectively executing the algorithm.
+4.1
+Algorithmic example: computing binary addition
+We now demonstrate how to apply the template matching principle to simulate binary addition. Throughout
+this example – and the more formal algorithm descriptions provided in Appendix B – we often assign descriptive
+variable names to improve clarity. These identifiers serve only as labels and do not affect computation. For
+this example, we denote the two summands by p and q, each consisting of ℓ= 2 bits. Consequently, their
+sum requires at most ℓ+ 1 = 3 bits to be represented.
+The addition algorithm emulates a ripple-carry adder built from half-adders [Harris and Harris, 2012],
+performing bitwise addition, while propagating carries to higher-order bits. The process alternates between ℓ
+summation and ℓcarry-propagation steps, reaching a steady state after at most 2ℓiterations. However, as
+demonstrated in Appendix B.2, it is also possible to introduce a flag to indicate termination.
+To simulate this behavior, the input structure is organized into blocks corresponding to the bits of p and
+5
+q, along with their associated carry bits. In this example, we use four blocks: two for the individual bits
+pi and qi, and two others for the carries, denoted ci, for i = 1, 2. In our representation, the final output
+comprises the most significant carry bit, followed by the bits of p as stored in ˆx. As shown in Figure 2,
+the result is formed by concatenating c2, p2, and p1, for a total of ℓ+ 1 = 3 output bits. To capture the
+required operations in each block, we define a set of templates, as illustrated in Figure 2. The even-numbered
+templates implement bitwise summation, while the odd-numbered templates handle carry propagation to the
+next bit. These templates are designed to ensure that the operations proceed without interfering with one
+another.
+5
+Exact learnability Part I: NTK predictor behavior
+In this section, we analyze the exact learnability of algorithmic executions in neural networks by studying
+the NTK predictor, defined as the mean of the limiting distribution for a two-layer network. We show that
+it preserves sign-based information about the ground truth and can learn to execute algorithms framed as
+template matching, following the framework in Section 4. The training dataset is built from templates and,
+in the applications presented, its size scales with the number of bits, hence logarithmic in the number of
+possible binary inputs.
+5.1
+Input specification
+We begin our analysis by specifying the structure of the training and testing inputs. Following the framework
+of Section 4, we construct the training inputs as block-partitioned vectors, where each block corresponds to
+an input template set. Each training input is non-zero only within the block determined by its associated
+input template in Ti. In contrast, test inputs may contain multiple non-zero entries, each corresponding to a
+configuration appearing in the dataset. A visualization of the input configuration is provided in Figure 3.
+Training dataset We define the training set for any algorithmic task described as in Section 4. Let each of
+the b block configurations Ti be a set of ti := |Ti| template-label tuples, i.e., each
+Ti = {(x(i,1), y(i,1)), . . . , (x(i,ti), y(i,ti))} ⊆{0, 1}si × {0, 1}k.
+The input dimension to the neural network is k′ = Pb
+i=1 ti.2 We view Rk′ as the direct sum Rt1 ⊕· · · ⊕Rtb
+and for each subspace Rti, we choose an orthonormal basis {ui1, . . . , uiti}. For each i = 1, . . . , b, we encode
+the j-th template of Ti, (x(i,j), y(i,j)), as the block-partitioned vector
+qij = (0t1, . . . , 0ti−1, uij, . . . , 0tb)⊤∈Rk′
+with the i-th block being equal to uij. The sets of training inputs and corresponding ground-truth labels are
+given by
+X = {qij : i ∈[b], j ∈[ti]} ⊆Rk′
+and
+Y = {y(i,j) : i ∈[b], j ∈[ti]} ⊆Rk,
+respectively. This encoding yields an orthonormal, block-partitioned set of training inputs, with no cross-block
+interference. In total, the dataset has size k′ ∈O(b), and b depends on the number of bits used for number
+representation in each application. For example, to add two 10-bit numbers, 40 training examples are required.
+Test inputs Based on the algorithmic execution framework of Section 4 every test input ˆx is expressed
+as ˆx =
+1
+√nˆ
+x (ˆx1, . . . , ˆxb)⊤with each ˆxi being either 0ti or matching one of the training samples of X in its
+i-th block, i.e. ˆxi is equal to the i-th block of qij for some j ∈[ti]. In that case, we say that ˆx matches qij.
+We denote by nˆx the number of blocks of ˆx that match an entry of the training set. Since each ti is O(1),
+2In applications such as binary multiplication and SBN, the dimension k′ is extended with auxiliary unitary blocks, each
+containing a template. These extensions, detailed in Appendix C, ensure Assumption 5.1 is satisfied without affecting the
+algorithm, as they are never matched during execution.
+6
+Figure 3: Visualization of the input specification of Section 5.1 for binary summation of two ℓ= 2 bit numbers.
+On the left, we illustrate the block structure of a pre-encoded test sample. Each block should either be
+zero or match the corresponding block of an element (row) of Xinit. On the left, we showcase the encoding
+procedure that creates the training dataset. The initial examples (described in Section 4) forming the rows of
+Xinit are augmented and orthogonalized. Notice that the colored parts of each row of Xinit along with the
+corresponding row of Y match the Ti’s of Figure 2. Also note that the orthogonalization presented here is
+only one of the many possible ones. Finally, each row of Y depicts the corresponding ground-truth output for
+each training sample.
+the total number of test inputs is O(2b), which is exponentially larger than the training dataset size. For
+instance, the total number of test inputs for the addition of two 10-bit numbers is 410, which is exponentially
+larger than the training dataset size.
+5.2
+NTK predictor behavior theorem
+To derive this result, we introduce and discuss one additional assumption. The specific structure of our orthog-
+onal training set and test inputs simplifies the mean of the limiting distribution, µ(ˆx) = Θ(ˆx, X)Θ(X, X)−1Y.
+This predictor can be expressed as a simple weighted sum of the ground-truth training labels Y. This
+sum is governed by two distinct weights: a “signal” weight, w1 ≡w1(ˆx), applied to training labels whose
+corresponding inputs match a block in the test input ˆx, and an “interference” weight, w0 ≡w0(ˆx), applied
+to all labels from unmatched training inputs. For any given output bit, an “unwanted correlation” occurs
+when an unmatched training sample (which receives the w0 weight) also has that bit set, thus contributing
+interference against the correct signal. Informally, we can interpret the ratio −w1/w0 as a decision margin.
+Our assumption, stated below, simply requires that the total number of these unwanted correlations is less
+than this margin, ensuring the signal’s contribution outweighs the total interference. We now formally state
+the assumption that guarantees learnability:
+Assumption 5.1. For each test input ˆx and for each position i ∈[k′] such that the ground-truth output
+f(ˆx)3 has the i-th bit set, the number of training examples that do not match ˆx and have the i-th bit set
+(which we call unwanted correlations) is less than the ratio −w1(ˆx)/w0(ˆx).4
+While, at first, Assumption 5.1 may seem restrictive, we remark that for many algorithms, including those
+examined in this work, the number of conflicts is low enough to guarantee that it is satisfied. In particular,
+3There is a slight abuse of notation here when using f(ˆx) since f does not operate on encoded inputs. Depending on the
+context, we may use ˆx to denote both the pre-encoded and encoded test inputs.
+4w0(ˆx) is always non-positive and so the ratio is non-negative.
+7
+since the SBN instruction set is Turing-complete, it can, in principle, encode any algorithm. Our framework
+leverages this property by simulating SBN instructions, allowing any algorithm to be represented as input to
+the system. This does not mean that we directly learn arbitrary Turing-computable functions, but it ensures
+that such functions can be expressed within our formulation without violating Assumption 5.1. The behavior
+of the NTK predictor is given in the following theorem:
+Theorem 5.1 (NTK predictor behavior). Consider an algorithmic problem cast as template-matching and
+encoded in a training set (X, Y) ⊆Rk′ × Rk as described in Section 5.1. Then, under Assumption 5.1, the
+mean of the limiting NTK distribution µ(ˆx) = Θ(ˆx, X)Θ(X, X)−1Y for any test input ˆx ∈Rk′ contains
+sign-based information about the ground-truth output, namely for each coordinate of the output i = 1, . . . , k,
+µ(ˆx)i ≤0 if the ground-truth bit at position i, f(ˆx)i, is set, and µ(ˆx)i > 0 if the ground-truth bit at position
+i, f(ˆx)i, is not set.
+Proof outline. We aim to express each µ(ˆx)i as a weighted bit-sum with weights w0 and w1, and then rely
+on Assumption 5.1 to guarantee that the signs are preserved. The orthogonality of the training dataset
+forces the train NTK to align with the local computation structure of the template matching framework. In
+particular, both the train and test NTK kernels assume a scaled identity that keeps different blocks from
+interfering with one another. Furthermore, since any test input activates at most one vector per block, the
+test diagonal elements of the test NTK kernel (measuring the similarity of the test input to each element of
+the training set) take only two possible values: one indicating “this block is active” and one indicating “this
+block is empty”. Concretely, Θ−1 := Θ(X, X)−1 takes the form ˜Θ−1 ⊗Ik where ˜Θ−1 ∈Rk′×k′ is a scaled
+identity plus a rank-1 perturbation (noise), and Θ(ˆx, X) takes the form f ⊤⊗Ik where f ∈Rk′ takes only two
+values, f1 and f0 denoting match/no-match. By arranging the elements of Y as columns in a matrix Y and
+using vectorization, we can rewrite the model as
+µ(ˆx) = Θ(ˆx, X)Θ−1Y = ((f ˜Θ−1) ⊗Ik) vec(Y ) = Y ˜Θ−1f ⊤.
+We first show that ˜Θ−1f ⊤∈Rk′ takes only two values w0 ≤0 and w1 > 0 depending on whether the
+corresponding entry in f is equal to f0 or f1. To conclude, we write
+µ(ˆx)i =
+X
+(j,l)∈I+(ˆx)
+f(qjl)iw1 +
+X
+(j,l)∈I−(ˆx)
+f(qjl)iw0,
+(7)
+where
+I+(ˆx) = {(j, l) : j ∈[m], l ∈[sj] and ˆx matches qjl},
+and
+I−(ˆx) = {(j, l) : j ∈[m], l ∈[sj] and ˆx doesn’t match qjl}.
+The sets I+(ˆx) and I−(ˆx) partition the training dataset into two disjoint sets: the indices of the training
+dataset that match ˆx and the ones that do not.
+When f(ˆx)i = 0, Equation (6) yields a vanishing
+first summation and therefore µ(ˆx)i ≤0. On the other hand, when f(ˆx)i = 1, due to the fact that ˆx
+matches exactly one of the training samples from the block containing the i-th bit, Equation (7) reduces to
+µ(ˆx)i = w1 + |I1
+−(ˆx)| · w0, where I1
+−(ˆx) = {(j, l) ∈I−(ˆx) : f(qjl)i = 1} denotes the index set of unwanted
+correlations. Under Assumption 5.1, we have µ(ˆx)i > 0 and so the sign-based ground truth information is
+preserved, concluding the proof. A pictorial version of the above outline is given in Figure 4.
+Regarding the algorithms discussed throughout this paper, we have the following remark5:
+Remark 5.1. The tasks of binary permutations, binary addition, binary multiplication, and executing SBN
+instructions all satisfy the assumptions of Theorem 5.1.
+5Our results for permutation, addition, and multiplication were numerically verified on various random instances by calculating
+the corresponding limiting mean. For code and implementation details, refer to the supplementary material.
+8
+Instructions
+Instructions
+NTK predictor:
+Figure 4: Illustration of the NTK predictor structure: inputs are first encoded (normalization omitted) to
+compute the test NTK Θ(ˆx, X). Due to the test input structure, this kernel assumes two values based
+on matches between test and training inputs within blocks. Multiplying by ˜Θ−1 (which assumes the form
+of scaled identity plus a rank-1 noise perturbation colored black) re-weights these similarities, and the
+multiplication by Y gives the final prediction. When the contribution of the unmatched entries is controlled
+(black similarities), the sign of each coordinate matches the ground-truth output.
+The proof strategy for Remark 5.1 involves computing a lower bound for the decision margin −w1(ˆx)/w0(ˆx)
+over all test inputs ˆx and showing that the number of unwanted correlations falls below this minimum value.
+For example, in the case of binary addition, this threshold comes out to be equal to 4 while the number of
+unwanted correlations can be at most 1. In Figure 3, this is captured by the fact that each column of Y
+contains at most 2 ones. A complete proof of Theorem 5.1 and Remark 5.1 can be found in Appendix C.
+6
+Exact learnability Part II: high-probability guarantee
+In this section, we continue our proof of exact learning of algorithmic instructions using neural networks. The
+conclusion of Theorem 5.1 suggests a simple procedure: for each coordinate, if the output of the network is
+greater than zero, round to 1, otherwise round to 0. To extend this result from the NTK predictor to actual
+models and ensure high-probability guarantees of exact learning, we can independently train enough models,
+average their outputs, and round accordingly.6 We define ensemble complexity as the number of models
+required to achieve a desired level of post-rounding accuracy. In what follows, we derive a lower bound on
+the ensemble complexity of learning algorithmic instructions and give its asymptotic order. This completes
+the proof that neural networks can, with high probability, exactly learn algorithmic instructions.
+Given a test input ˆx with ground truth ˆy = f(ˆx), let F j(ˆx) be the output of the j-th model in an ensemble of
+N independently trained networks. By Theorem 3.1, each F j(ˆx) is drawn i.i.d. from N(µ(ˆx), Σ(ˆx)), so every
+coordinate F j(ˆx)i follows N(µ(ˆx)i, σ2(ˆx)).7 Define the ensemble mean G(ˆx) =
+1
+N
+PN
+j=1 F j(ˆx). Because
+µ(ˆx)i ≤0 when ˆyi = 0 and µ(ˆx)i > 0 when ˆyi = 1, rounding G(ˆx)i is correct if |G(ˆx)i −µ(ˆx)i| < |µ(ˆx)i|/2.
+Applying a standard Gaussian concentration bound given in Lemma A.1 and the union bound, we obtain,
+for any δ ∈(0, 1), perfect post-rounding accuracy with probability 1 −δ whenever the number of averaged
+6In practice, model-to-model variability is often controlled by training several copies (or by collecting multiple checkpoints
+along one training run) and then averaging either their predictions Lakshminarayanan et al. [2017] or their weights Izmailov
+et al. [2018]. Our “ensemble complexity” result gives a clean theoretical analogue of this variance-reduction trick, with concrete
+high-probability guarantees on post-rounding accuracy.
+7See Appendix D for the calculation of σ2(ˆx).
+9
+0
+10
+20
+30
+10
+100
+1K
+10K
+Ensemble complexity N
+Permutation
+0
+10
+20
+30
+Number of bits ℓ
+100
+1K
+10K
+100K
+Addition
+0
+10
+20
+30
+1K
+10K
+100K
+1000K
+Multiplication
+0
+5 10 15 20 25 30
+0
+100
+σ2(ˆx)
+µ2(ˆx)
+0
+5 10 15 20 25 30
+0
+250
+500
+σ2(ˆx)
+µ2(ˆx)
+0
+5 10 15 20 25 30
+0
+2000
+σ2(ˆx)
+µ2(ˆx)
+Numerical
+Theoretical
+Figure 5: Numerical and theoretical estimates of ensemble complexity N (in log-scale) for permutation,
+addition, and multiplication tasks as a function of bit length ℓ. Ensemble complexity is computed via a union
+bound over all possible inputs and algorithmic executions for a given ℓ. Inset blocks illustrate the ratio of
+variance to mean in Equation (8), estimated using input size k′. This ratio increases linearly with k′ up to a
+constant. The same ratio is used in the theoretical estimate of N, which matches the numerical estimate in
+growth rate, differing only by a constant factor.
+models N satisfies:
+N ≥8
+max
+ˆx,i∈[k]
+ σ2(ˆx)
+µ2(ˆx)i
+
+ln
+2k′
+δ
+
+.
+(8)
+To derive the order of the bound on the ensemble complexity of Equation (8), we need to analyze the
+asymptotic orders of µ(ˆx) and σ2(ˆx). The result is summarized in the following technical lemma:
+Lemma 6.1. Suppose we train on any of the four tasks (permutations, addition, multiplication, SBN
+instructions), as described in Section 5. Let ˆx be a test input unseen during training matching nˆx > 1 training
+entries and let µ(ˆx) and σ2(ˆx) be as in Theorem 3.1. Then σ2(ˆx) ∈O(1/k′), and, for each i ∈[k], depending
+on the relationship between nˆx and k′ we have:
+|µ(ˆx)i| ∈
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Θ
+  1
+k′
+
+if nˆx is const.
+Θ
+ √nˆ
+x
+k′
+
+if nˆx is non-const.
+and sublinear in k′
+Θ
+
+1
+√
+k′
+
+if nˆx = ck′ for
+some c ∈(0, 1]
+and |µ(ˆx)i| ∈
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Θ(1)
+if nˆx is const.
+Θ
+
+1
+√nˆ
+x
+
+if nˆx is non-const.
+and sublinear in k′
+Θ
+
+1
+√
+k′
+
+if nˆx = ck′ for
+some c ∈(0, 1)
+Θ
+
+1
+√
+k′
+
+if nˆx = k and there
+are unwanted corr.
+Θ
+  1
+k′
+
+if nˆx = k′ and there
+are no unwanted corr.
+when the ground-truth bit at position i is not set (f(ˆx)i = 0) or set (f(ˆx)i = 1), respectively.
+The proof of Lemma 6.1 (including the calculation of σ2(ˆx)) can be found in Appendix D. In light of these
+asymptotic results, the uniform bound of Equation (8) behaves like O(k′ log k′). An application of the union
+bound shows that for an algorithm requiring m iterations, the ensemble complexity bound when accounting
+for all O(2b) possible test inputs (where b is the number of templates as in Section 4) and all m iterations
+behaves like O(k′b + k′ log m). In particular, for the tasks considered, we have the following remark:
+10
+Remark 6.1. For the tasks of binary permutation (b = k′ = ℓ, m = 1), binary addition (b = 2ℓ, k′ = 4ℓ,
+m = 2ℓ), and binary multiplication (b = 11ℓ, k′ = 21ℓ, m = 4ℓ2 + 3ℓ) the ensemble complexity scales like
+O(ℓ2), where ℓis the bit length for each application.
+Figure 5 plots numerical and theoretical estimates for the ensemble complexity of the permutation, addition,
+and multiplication tasks, showcasing the conclusion of Remark 6.1. In Appendix E, we verify our theory with
+an empirical estimate of the ensemble complexity for the permutation task. This is done by training multiple
+two-layer fully connected feed-forward networks, each with 50,000 hidden units, using full-batch gradient
+descent to form an ensemble.
+7
+Limitations and future work
+In this work, we have demonstrated that two-layer fully connected feed-forward neural networks in the
+infinite-width limit can learn to execute algorithmic instructions expressed within our template matching
+framework (including binary permutations, binary addition, binary multiplication, and execution of SBN
+instructions) using a training set of logarithmic size in the number of possible binary inputs. This provides
+an affirmative answer to the question of whether neural networks can learn to execute long sequences of
+binary-encoded instructions exactly.
+Our analysis, however, relies on several simplifying assumptions that bound its generality. The first concerns
+data orthogonality and explicit instruction access, which guarantee that each local computation step is
+independently learnable. Future work could investigate whether exact learning remains possible under
+correlated training examples or when the network must infer primitive instructions from only partial
+input–output traces. The second limitation arises from the bounded memory setting of our framework.
+Increasing the available memory changes the input dimensionality of the model and, therefore, requires
+retraining, so extrapolation to longer inputs does not occur automatically. Within this bounded memory
+regime, exact algorithmic execution remains achievable using only logarithmically many short training
+examples, but extending these results to architectures that naturally process variable-length inputs, such as
+RNNs, Transformers, or GNNs, would be a valuable next step. For example, the use of GNNs on bounded
+degree graphs may enable controlled forms of length generalization with respect to graph size while preserving
+the theoretical structure of our exact learning framework.
+Acknowledgements
+K. Fountoulakis would like to acknowledge the support of the Natural Sciences and Engineering Research
+Council of Canada (NSERC). Cette recherche a été financée par le Conseil de recherches en sciences naturelles
+et en génie du Canada (CRSNG), [RGPIN-2019-04067, DGECR-2019-00147].
+G. Giapitzakis would like to acknowledge the support of the Onassis Foundation - Scholarship ID: F ZU
+020-1/2024-2025.
+References
+Artur Back De Luca and Kimon Fountoulakis. Simulation of graph algorithms with looped transformers.
+In Proceedings of the 41st International Conference on Machine Learning, volume 235 of Proceedings of
+Machine Learning Research, pages 2319–2363. PMLR, 2024. URL https://dl.acm.org/doi/10.5555/
+3692070.3692162.
+Artur Back de Luca, George Giapitzakis, Shenghao Yang, Petar Veličković, and Kimon Fountoulakis. Positional
+attention: Expressivity and learnability of algorithmic computation, 2025. URL https://arxiv.org/abs/
+2410.01686.
+11
+Enric Boix-Adserà, Omid Saremi, Emmanuel Abbe, Samy Bengio, Etai Littwin, and Joshua M. Susskind.
+When can transformers reason with abstract symbols? In The Twelfth International Conference on Learning
+Representations, 2024. URL https://openreview.net/forum?id=STUGfUz8ob.
+Hanseul Cho, Jaeyoung Cha, Srinadh Bhojanapalli, and Chulhee Yun. Arithmetic transformers can length-
+generalize in both operand length and count. In The Thirteenth International Conference on Learning
+Representations, 2025. URL https://openreview.net/forum?id=eIgGesYKLG.
+Yuntian Deng, Kiran Prasad, Roland Fernandez, Paul Smolensky, Vishrav Chaudhary, and Stuart Shieber.
+Implicit chain of thought reasoning via knowledge distillation, 2024. URL https://openreview.net/
+forum?id=9cumTvvlHG.
+Yuntian Deng, Yejin Choi, and Stuart Shieber. From explicit cot to implicit cot: Learning to internalize cot
+step by step, 2025. URL https://openreview.net/forum?id=fRPmc94QeH.
+Angeliki Giannou, Shashank Rajput, Jy-Yong Sohn, Kangwook Lee, Jason D. Lee, and Dimitris Papailiopoulos.
+Looped transformers as programmable computers. In Proceedings of the 40th International Conference
+on Machine Learning, volume 202, pages 11398–11442, 2023. URL https://dl.acm.org/doi/10.5555/
+3618408.3618866.
+William F Gilreath and Phillip A Laplante. Computer architecture: A minimalist perspective, volume 730.
+Springer Science & Business Media, 2003.
+Eugene Golikov, Eduard Pokonechnyy, and Vladimir Korviakov. Neural tangent kernel: A survey, 2022. URL
+https://arxiv.org/abs/2208.13614.
+David Harris and Sarah Harris. Digital Design and Computer Architecture, Second Edition. Morgan Kaufmann
+Publishers Inc., San Francisco, CA, USA, 2nd edition, 2012. ISBN 0123944244.
+Christoph Hertrich and Martin Skutella. Provably good solutions to the knapsack problem via neural networks
+of bounded size. INFORMS journal on computing, 35(5):1079–1097, 2023. URL https://pubsonline.
+informs.org/doi/10.1287/ijoc.2021.0225.
+Wolfram Research, Inc. Mathematica, Version 14.1, 2024. URL https://www.wolfram.com/mathematica.
+Champaign, IL.
+Pavel Izmailov, Dmitrii Podoprikhin, Timur Garipov, Dmitry P. Vetrov, and Andrew Gordon Wilson.
+Averaging weights leads to wider optima and better generalization. In Amir Globerson and Ricardo
+Silva, editors, Proceedings of the Thirty-Fourth Conference on Uncertainty in Artificial Intelligence,
+UAI 2018, Monterey, California, USA, August 6-10, 2018, pages 876–885. AUAI Press, 2018. URL
+http://auai.org/uai2018/proceedings/papers/313.pdf.
+Arthur Jacot, Franck Gabriel, and Clement Hongler.
+Neural tangent kernel:
+Convergence and gen-
+eralization in neural networks.
+In S. Bengio, H. Wallach, H. Larochelle, K. Grauman, N. Cesa-
+Bianchi, and R. Garnett, editors, Advances in Neural Information Processing Systems, volume 31. Cur-
+ran Associates, Inc., 2018. URL https://proceedings.neurips.cc/paper_files/paper/2018/file/
+5a4be1fa34e62bb8a6ec6b91d2462f5a-Paper.pdf.
+Samy Jelassi, Stéphane d’Ascoli, Carles Domingo-Enrich, Yuhuai Wu, Yuanzhi Li, and François Charton.
+Length generalization in arithmetic transformers, 2023. URL https://arxiv.org/abs/2306.15400.
+Lukasz Kaiser and Ilya Sutskever. Neural gpus learn algorithms. In Yoshua Bengio and Yann LeCun, editors,
+4th International Conference on Learning Representations, ICLR 2016, San Juan, Puerto Rico, May 2-4,
+2016, Conference Track Proceedings, 2016. URL http://arxiv.org/abs/1511.08228.
+12
+Balaji Lakshminarayanan, Alexander Pritzel, and Charles Blundell. Simple and scalable predictive uncer-
+tainty estimation using deep ensembles. In I. Guyon, U. Von Luxburg, S. Bengio, H. Wallach, R. Fergus,
+S. Vishwanathan, and R. Garnett, editors, Advances in Neural Information Processing Systems, vol-
+ume 30. Curran Associates, Inc., 2017. URL https://proceedings.neurips.cc/paper_files/paper/
+2017/file/9ef2ed4b7fd2c810847ffa5fa85bce38-Paper.pdf.
+Jaehoon Lee, Lechao Xiao, Samuel Schoenholz, Yasaman Bahri, Roman Novak, Jascha Sohl-Dickstein, and
+Jeffrey Pennington. Wide neural networks of any depth evolve as linear models under gradient descent. In
+H. Wallach, H. Larochelle, A. Beygelzimer, F. d'Alché-Buc, E. Fox, and R. Garnett, editors, Advances in Neu-
+ral Information Processing Systems, volume 32. Curran Associates, Inc., 2019. URL https://proceedings.
+neurips.cc/paper_files/paper/2019/file/0d1a9651497a38d8b1c3871c84528bd4-Paper.pdf.
+Andreas Madsen and Alexander Rosenberg Johansen. Neural arithmetic units. In International Conference
+on Learning Representations, 2020. URL https://openreview.net/forum?id=H1gNOeHKPS.
+Eran Malach. Auto-regressive next-token predictors are universal learners. arXiv preprint arXiv:2309.06979,
+2023.
+Sean Michael McLeish, Arpit Bansal, Alex Stein, Neel Jain, John Kirchenbauer, Brian R. Bartoldson, Bhavya
+Kailkhura, Abhinav Bhatele, Jonas Geiping, Avi Schwarzschild, and Tom Goldstein. Transformers can
+do arithmetic with the right embeddings. In The 4th Workshop on Mathematical Reasoning and AI at
+NeurIPS’24, 2024. URL https://openreview.net/forum?id=cBFsFt1nDW.
+Bhumika Mistry, Katayoun Farrahi, and Jonathon Hare. A primer for neural arithmetic logic modules.
+Journal of Machine Learning Research, 23:1–61, 2022. URL https://www.jmlr.org/papers/volume23/
+21-0211/21-0211.pdf.
+Arvind Neelakantan, Quoc V Le, and Ilya Sutskever.
+Neural programmer: Inducing latent programs
+with gradient descent. In International Conference on Learning Representations (ICLR), 2016. URL
+https://arxiv.org/abs/1511.04834.
+Rodrigo Nogueira, Zhiying Jiang, and Jimmy Lin. Investigating the limitations of transformers with simple
+arithmetic tasks. arXiv preprint arXiv:2102.13019, 2021. URL https://arxiv.org/abs/2102.13019.
+Roman Novak, Lechao Xiao, Jiri Hron, Jaehoon Lee, Alexander A. Alemi, Jascha Sohl-Dickstein, and
+Samuel S. Schoenholz. Neural tangents: Fast and easy infinite neural networks in python. In International
+Conference on Learning Representations, 2020. URL https://github.com/google/neural-tangents.
+Maxwell Nye, Anders Johan Andreassen, Guy Gur-Ari, Henryk Michalewski, Jacob Austin, David Bieber,
+David Dohan, Aitor Lewkowycz, Maarten Bosma, David Luan, Charles Sutton, and Augustus Odena.
+Show your work: Scratchpads for intermediate computation with language models, 2022. URL https:
+//openreview.net/forum?id=iedYJm92o0a.
+Alethea Power, Yuri Burda, Harri Edwards, Igor Babuschkin, and Vedant Misra. Grokking: Generalization
+beyond overfitting on small algorithmic datasets. arXiv preprint arXiv:2201.02177, 2022. URL https:
+//arxiv.org/abs/2201.02177.
+Jorge Pérez, Pablo Barceló, and Javier Marinkovic. Attention is turing-complete. Journal of Machine Learning
+Research, 22(75):1–35, 2021. URL https://dl.acm.org/doi/pdf/10.5555/3546258.3546333.
+Scott Reed and Nando de Freitas. Neural programmer-interpreters. In International Conference on Learning
+Representations (ICLR), 2016. URL https://arxiv.org/abs/1511.06279.
+Anian Ruoss, Grégoire Delétang, Tim Genewein, Jordi Grau-Moya, Róbert Csordás, Mehdi Bennani, Shane
+Legg, and Joel Veness. Randomized positional encodings boost length generalization of transformers. In
+Anna Rogers, Jordan Boyd-Graber, and Naoaki Okazaki, editors, Proceedings of the 61st Annual Meeting
+13
+of the Association for Computational Linguistics (Volume 2: Short Papers), pages 1889–1903, Toronto,
+Canada, July 2023. Association for Computational Linguistics. doi: 10.18653/v1/2023.acl-short.161. URL
+https://aclanthology.org/2023.acl-short.161/.
+David Saxton, Edward Grefenstette, Felix Hill, and Pushmeet Kohli. Analysing mathematical reasoning
+abilities of neural models. In International Conference on Learning Representations, 2019. URL https:
+//openreview.net/forum?id=H1gR5iR5FX.
+Ruoqi Shen, Sébastien Bubeck, Ronen Eldan, Yin Tat Lee, Yuanzhi Li, and Yi Zhang. Positional description
+matters for transformers arithmetic, 2023. URL https://arxiv.org/abs/2311.14737.
+Jack Sherman and Winifred J. Morrison. Adjustment of an inverse matrix corresponding to a change in one
+element of a given matrix. The Annals of Mathematical Statistics, 21(1):124–127, 1950. ISSN 00034851.
+URL http://www.jstor.org/stable/2236561.
+Hava Siegelmann and Eduardo Sontag. On the computational power of neural nets. Journal of Computer
+and System Sciences, 50:132–150, 1995. URL https://www.sciencedirect.com/science/article/pii/
+S0022000085710136.
+Andrew Trask, Felix Hill, Scott E Reed, Jack Rae, Chris Dyer, and Phil Blunsom.
+Neural arith-
+metic logic units.
+In S. Bengio,
+H. Wallach,
+H. Larochelle,
+K. Grauman,
+N. Cesa-Bianchi,
+and R. Garnett, editors, Advances in Neural Information Processing Systems, volume 31. Cur-
+ran Associates, Inc., 2018. URL https://proceedings.neurips.cc/paper_files/paper/2018/file/
+0e64a7b00c83e3d22ce6b3acf2c582b6-Paper.pdf.
+Yan Wang, Xiaojiang Liu, and Shuming Shi. Deep neural solver for math word problems. In Proceedings
+of the 2017 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 845–854,
+2017. URL https://aclanthology.org/D17-1088/.
+Colin Wei, Yining Chen, and Tengyu Ma. Statistically meaningful approximation: a case study on ap-
+proximating turing machines with transformers. Advances in Neural Information Processing Systems, 35:
+12071–12083, 2022a. URL https://dl.acm.org/doi/10.5555/3600270.3601147.
+Jason Wei,
+Xuezhi Wang,
+Dale Schuurmans,
+Maarten Bosma,
+Brian Ichter,
+Fei Xia,
+Ed Chi,
+Quoc
+Le,
+and
+Denny
+Zhou.
+Chain-of-thought
+prompting
+elicits
+reasoning
+in
+large
+lan-
+guage models.
+In Advances in Neural Information Processing Systems (NeurIPS), volume 35,
+pages 24824–24837, 2022b. URL https://proceedings.neurips.cc/paper_files/paper/2022/file/
+9d5609613524ecf4f15af0f7b31abca4-Paper-Conference.pdf.
+Greg Yang. Tensor programs II: Neural tangent kernel for any architecture, 2020. URL https://arxiv.org/
+abs/2006.14548.
+Greg Yang and Etai Littwin. Tensor programs IIb: Architectural universality of neural tangent kernel training
+dynamics, 2021. URL https://arxiv.org/abs/2105.03703.
+Liu Yang, Kangwook Lee, Robert D Nowak, and Dimitris Papailiopoulos. Looped transformers are better at
+learning learning algorithms. In The Twelfth International Conference on Learning Representations, 2024.
+URL https://openreview.net/forum?id=HHbRxoDTxE.
+Wojciech Zaremba and Ilya Sutskever. Learning to execute. arXiv preprint arXiv:1410.4615, 2014. URL
+https://arxiv.org/abs/1410.4615.
+Yongchao Zhou, Uri Alon, Xinyun Chen, Xuezhi Wang, Rishabh Agarwal, and Denny Zhou. Transformers can
+achieve length generalization but not robustly. In ICLR 2024 Workshop on Mathematical and Empirical
+Understanding of Foundation Models, 2024. URL https://openreview.net/forum?id=DWkWIh3vFJ.
+14
+Appendix
+Table of Contents
+A
+Notation and Preliminaries
+15
+A.1 Useful Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+15
+B
+Constructive proofs
+16
+B.1
+Binary permutation
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+17
+B.2
+Binary addition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+17
+B.3
+Binary multiplication . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+19
+B.4
+General computation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+22
+C
+Proof of the NTK predictor behavior Theorem
+36
+D
+Proof of the lemma for the order of the mean predictor and its variance
+38
+D.1 Computing the order of the variance . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+39
+D.2 Computing the order of the mean . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+40
+E
+Training Experiments on Permutation
+42
+A
+Notation and Preliminaries
+For two matrices A1 ∈Rn1×m1, A2 ∈Rn2×m2 we denote by A1 ⊗A2 ∈Rn1n2×m1m2 their Kronecker product.
+It is relatively easy to show that when A and B are square matrices (i.e. n1 = m1 and n2 = m2), the
+eigenvalues of A1 ⊗A2 are given exactly by the products of the eigenvalues of A1 and A2. In particular,
+A1 ⊗A2 is positive definite if A1 and A2 are positive definite.
+A.1
+Useful Results
+In this section, we state two results from linear algebra and probability theory that are used to derive our
+main results. The first result is used to compute the train NTK matrix:
+Theorem A.1 (Sherman and Morrison 1950). Suppose A ∈Rn×n is an invertible matrix and u, v ∈Rn.
+Then A + uv⊤is invertible if and only if 1 + v⊤A−1u ̸= 0. In this case,
+(A + uv⊤)−1 = A−1 −A−1uv⊤A−1
+1 + v⊤A−1u
+The second result is a concentration bound for sums of Gaussian random variables, which we used to derive
+our ensemble complexity bounds:
+Lemma A.1. Let X1, X2, . . . , Xn be independent Gaussian random variables with mean µ and variance σ2
+and let Xn = Pn
+i=1 Xi. Then for all t > 0, we have:
+P
+
+|Xn −µ| ≥t
+	
+≤2 exp
+
+−nt2
+2σ2
+
+15
+Proof. We will use the Chernoff technique. Let λ > 0. We have Xn −µ ∼N
+
+0, σ2
+n
+
+and so by symmetry
+and Markov’s inequality we get:
+P
+
+|Xn −µ| ≥t
+	
+= 2P
+
+Xn −µ ≥t
+	
+= 2P
+n
+eλ(Xn−µ) ≥eλto
+≤e−λt · E
+h
+eλ(Xn−µ)i
+(9)
+The expectation on the right-hand side is equal to the moment-generating function of a normal distribution
+with mean 0 and variance σ2/n and so it is equal to exp
+
+σ2λ2
+2n
+
+. Now let
+ϕ(λ) = exp
+σ2λ2
+2n
+−λt
+
+be the right-hand side of Equation (9). Minimizing ϕ(λ) with respect to λ we find that the minimum occurs
+at λ∗= nt
+σ2 and plugging this back into Equation (9) gives the required bound.
+B
+Constructive proofs
+In this section, we outline the set of instructions used to illustrate the steps involved in the algorithms
+described earlier. To ensure clarity and avoid unnecessary repetition, we adopt certain conventions in the
+presentation of these instructions.
+To ensure the correctness of our constructive proofs for the numerical tasks presented below, we include a
+numerical validation.8 This validation uses the instructions defined below for permutation, addition, and
+multiplication. Using the Neural Tangents package Novak et al. [2020], we compute the NTK predictor (as
+in Theorem 3.1). Applying the encoding and rounding procedures described in Section 5 and Section 6, we
+demonstrate that the implementations are numerically correct for bit lengths up to ℓ= 10. Additionally, we
+provide a demonstration script that more descriptively illustrates each step of the algorithms as executed
+within our framework.
+Conventions
+Unless otherwise stated, all variables refer to Boolean values (i.e., elements of {0, 1}), arrays of Boolean
+values, or natural numbers as appropriate. Let Index(A) denote the index set of an array A.
+• Logical equivalence: For Boolean variables A and B,
+A = B
+def
+⇐⇒(A = 1 AND B = 1) OR (A = 0 AND B = 0)
+This represents equality of Boolean values, not assignment.
+• Logical inequality:
+A ̸= B
+def
+⇐⇒(A = 1 AND B = 0) OR (A = 0 AND B = 1)
+• Assignment: We use the symbol ←to denote assignment. For Boolean variables:
+B ←A
+means that B is assigned the current value of A
+• Universal indexing:
+A[ALL]
+def
+⇐⇒∀i ∈Index(A), A[i]
+8Our source code can be found at github.com/opallab/binary_algos.
+16
+• Bitwise comparison:
+A[ALL] = B[ALL]
+def
+⇐⇒∀i ∈Index(A) : A[i] = B[i]
+• Bitwise assignment:
+A[ALL] ←v
+def
+⇐⇒∀i ∈Index(A) : A[i] ←v
+• Binary representation: Let bin(v) denote the binary representation of a natural number v, encoded
+as a Boolean array. The bit width is inferred from the context unless specified.
+B.1
+Binary permutation
+In this section, we demonstrate how the template matching framework can be applied to execute binary
+permutations. Let the binary input be denoted by a binary number p. We begin by defining the input
+structure in terms of blocks and then construct the corresponding templates.
+Blocks: For an ℓ-bit number p, we design ℓblocks, each encoding a single bit of the number. Let each block
+correspond to a bit p[i], thus we have:
+• (p[i]) for i ∈[ℓ]
+Instructions: Given this block structure, we now define the instructions that encode the desired permutation.
+Consider a mapping π : [ℓ] →[ℓ] that specifies the permutation: it takes a bit position as input and returns
+its new position after the permutation. For example, if the third bit of the input is to be moved to the fifth
+bit position, then π(3) = 5.
+Based on this mapping, we construct ℓsamples, one for each block, which encodes the transformation defined
+by π.
+Instructions: Permutation
+INPUT: x[p[i]] = 1
+OUTPUT: y[p[π(i)]] ←1
+Intruction count: ℓ
+Each bit permutation is thus encoded as an individual instruction in the template set. This captures the
+behavior that when a specific bit position is activated in the input, its permuted position must also be
+activated in the output.
+B.2
+Binary addition
+With the established framework, we now illustrate how to apply the template matching principle to simulate
+binary addition. Throughout this and other algorithmic examples, we often assign descriptive variable names
+to improve clarity. These identifiers serve only as labels and do not affect computation.
+Let the binary inputs be denoted p and q, each consisting of ℓbits. The result of their sum requires ℓ+ 1
+bits. We begin by defining the block structure of x.
+Blocks:
+In this implementation, we organize the input into 2ℓblocks, ℓblocks encode the bits of p and q,
+and the ℓblocks encode the corresponding carry bits c.
+• (p[i], q[i]) for i ∈[ℓ]
+17
+• (c[i]) for i ∈[ℓ]
+Assignments and conditions are written using square bracket notation. Since each block comprises uniquely
+named variables, individual variables can be referenced directly by name. For example, setting the second
+carry variable to 1 is expressed as x[c[2]] ←1.
+The addition algorithm follows a ripple-carry approach using half-adders [Harris and Harris, 2012]. It proceeds
+in two alternating phases: bitwise summation and carry propagation.
+In the summation phase, the algorithm adds the bits x[p[i]] and x[q[i]] for each i, storing the result back
+in x[p[i]] and placing any resulting carry in x[c[i]]. In the subsequent carry propagation phase, the carry
+x[c[i]] is transferred to x[q[i+1]], allowing it to participate in the next summation step.
+This iterative process alternates between ℓsummation steps and ℓcarry propagation steps. After 2ℓiterations,
+the computation reaches a steady state.
+In our representation, the final output consists of the carry of the most-significant bit y[c[ℓ]] concatenated
+with all bits i ∈{ℓ, . . . , 1} in y[p[i]], yielding a total of ℓ+ 1 output bits.
+The following instructions are purposely designed to minimize the number of unwanted correlations when
+using the NTK predictor. Specifically, the highest number of such correlations (also referred to as conflicts)
+occurs in the coordinates encoding the bits of the summand p[i] and the most significant carry bit c[ℓ],
+where two instructions share a non-zero entry for the same coordinate. Notably, however, the maximum
+number of conflicts per coordinate – equal to 1 in this case – remains constant and does not increase with the
+bit count ℓ. This bounded conflict rate enables learnability, as further discussed in Appendix C.
+Instructions:
+To capture the aforementioned processes in the blocks, we define a set of representative
+instructions. By convention, we assume that any variable not explicitly set in the output is assigned a value
+of zero.
+Instructions: Bitwise addition
+INPUT: x[p[i]] = 0 AND x[q[i]] = 1
+OUTPUT: y[p[i]] ←1
+Intruction count: ℓ
+INPUT: x[p[i]] = 1 AND x[q[i]] = 0
+OUTPUT: y[p[i]] ←1
+Intruction count: ℓ
+INPUT: x[p[i]] = 1 AND x[q[i]] = 1
+OUTPUT: y[c[i+1]] ←1
+Intruction count: ℓ
+The case where both x[p[i]] and x[q[i]] are zero does not require an instruction. Since no template
+matches, the default behavior results in all outputs being zero for that block and its carry, which is consistent
+with expected addition logic.
+Instructions: Carry propagation
+INPUT: x[c[i]] = 1
+OUTPUT: (i < ℓ): y[q[i+1]] ←1
+(i = ℓ): y[c[i]] ←1
+Intruction count: ℓ
+18
+This defines the carry-propagation behavior: when the carry at position i is one, its effect is passed to the
+next summand block.
+An important observation is that template matching across different blocks does not interfere between phases.
+During bitwise summation, the carry blocks are set to zero and thus remain inactive. Conversely, during carry
+propagation, all x[q[i]] entries are empty, so summation remains static, allowing the carry from x[c[i-1]]
+to be transmitted to x[q[i]] without conflict.
+Finally, note that once x[c[ℓ]] becomes non-zero, it remains set for the remainder of the algorithm. This
+value represents the most significant bit (MSB) of the final result.
+Termination: As previously mentioned, this implementation reaches a steady state after 2ℓiterations.
+However, it is also possible to introduce a termination flag that is triggered once a specific condition is met. In
+this context, we define a termination flag that becomes active once 2ℓiterations have elapsed. To implement
+this, we introduce the following additional blocks:
+• (counter[i]) for i ∈[2ℓ]
+Instructions: termination
+INPUT: x[counter[i]] = 1
+OUTPUT: (if i < 2ℓ): y[counter[i+1]] ←1
+(if i = 2ℓ): y[counter[i]] ←1
+This design introduces 2ℓadditional blocks. Once the first block is activated, each block subsequently activates
+the next, until x[counter[2ℓ]] is reached. The activation of x[counter[2ℓ]] indicates that the algorithm
+has finished.
+B.3
+Binary multiplication
+In this section, we describe the structure and the components used to perform binary multiplication between
+two ℓ-bit binary variables. Our implementation simulates the shift-and-add multiplication algorithm [Harris
+and Harris, 2012].
+In essence, the shift-and-add algorithm multiplies two binary numbers by scanning each bit of the multiplier.
+If a bit is 1, the appropriately shifted multiplicand is added to the running total. This method mirrors the
+principle of long multiplication, but relies solely on shifts and additions rather than full multiplications.
+To implement this algorithm, we divide it into four distinct processes:
+1. Check the least significant bit (LSB) of the multiplier
+2. Add multiplicand to the accumulating total
+3. Copy the multiplicand to the addition scratchpad
+4. Shift multiplicand and multiplier
+Each of these processes is implemented using one or more blocks in the input. Because of how the algorithm
+operates, we represent the multiplicand using 2ℓbits, initializing the most significant ℓbits to zero. The bits
+are stored in little-endian form, so the first entry represents the least significant bit (LSB).
+19
+Blocks:
+We begin by defining the block structure:
+• (multiplier[1], to_shift_right[1], to_check_lsb)
+• (multiplier[i], to_shift_right[i]) for i ∈[2, ℓ]
+• (multiplicand[i], to_shift_left[i], to_copy_to_sum_q[i]) for i ∈[2ℓ]
+• (sum_p[i], sum_q[i]) for i ∈[2ℓ]
+• (sum_c[i]) for i ∈[2ℓ]
+• (sum_counter[i]) for i ∈[4ℓ]
+The first group of blocks stores the multiplier bits along with their associated shift flags. Flags do not
+hold data themselves. Instead, they signal when a specific action should be triggered. These are typically
+(though not exclusively) prefixed with to_. The block of the least significant bit of the multiplier includes an
+additional flag for checking its value.
+The multiplicand bits are also paired with their shift flags and an extra flag for copying. This copying flag
+signals when to transfer the multiplicand into the summation scratchpad.
+The remaining blocks represent the summation components, as introduced in Appendix B.2.
+Therefore, in total, there are 11ℓblocks. However, during execution, at most 7ℓ+ 1 can be active at any time
+during execution. This restriction arises from the counter blocks, where only one block can be active at a
+time.
+The result of the multiplication is a 2ℓ-bit number, stored in x[sum_p][ALL]. Each iteration of the algorithm
+may involve one or more of the four described processes, and some processes themselves may span multiple
+iterations.
+• Addition: 4ℓiterations
+• Check least significant bit (LSB): 1 iteration
+• Copy multiplicand: 1 iteration
+• Shift multiplicand to the left and multiplier to the right (simultaneously): 1 iteration
+The worst-case runtime occurs when the multiplier consists entirely of 1s, triggering all operations in each
+cycle. In this case, the algorithm performs ℓfull iterations, resulting in a total execution count of 4ℓ2 + 3ℓ.
+The following instructions exhibit a finite number of conflicts per coordinate, a crucial property for ensuring
+NTK learnability, as discussed in more detail in Appendix C. These conflicts can be quantified by counting
+the number of outputs that share the same coordinate. In the case of multiplication, the number of conflicts
+per coordinate is 2. This occurs in the coordinates corresponding to the multiplier and multiplicant bits,
+which may be either modified or preserved depending on the values of the flags within their respective blocks.
+Instructions
+Based on processes and the block structure previously defined, we now define the binary
+instructions for each of the processes and their corresponding blocks to perform binary multiplication.
+Instructions: preserve multiplier and multiplicand
+While any other secondary process is being executed, the values in the multiplier and multiplicand bits must
+be preserved. For that, we define:
+20
+INPUT: x[multiplier[1]] = 1 AND x[to_shift_right[1]] = 0 AND
+x[to_check_lsb] = 0
+OUTPUT: y[multiplier[1]] ←1
+Instruction count: 1
+INPUT: x[multiplier[i]] = 1 AND x[to_shift_right[i]] = 0
+OUTPUT: (i > 1) y[multiplier[i]] ←1
+Instruction count: ℓ−1
+INPUT: x[multiplicand[i]] = 1 AND x[to_shift_left[i]] = 0
+OUTPUT: y[multiplicand[i]] ←1
+Instruction count: 2ℓ
+Instructions: check least significant bit
+For this stage, we have to define two instructions for when the to_check_lsb flag is activated. If the LSB
+of the multiplier is equal to one, then we start the addition process by activating the flags to copy the
+multiplicand to the addition stage. In contrast, if the LSB is zero, we trigger the shifting process of both
+multiplicand and multiplier.
+INPUT: x[multiplier[1]] = 1 AND x[to_shift_right[1]] = 0 AND
+x[to_check_lsb] = 1
+OUTPUT: y[multiplier[1]] ←1 AND y[to_copy_to_sum_q[ALL]] ←1
+Instruction count: 1
+and
+INPUT: x[multiplier[1]] = 0 AND x[to_shift_right[1]] = 0 AND
+x[to_check_lsb] = 1
+OUTPUT: y[to_shift_right[ALL]]←1 AND y[to_shift_left[ALL]]←1
+Instruction count: 1
+Instructions: copy multiplicand to addition block
+Once the multiplicand copy flag is activated, we have to send the data to the sum_q[i] variable. While
+the copying should only cover the cases for which the multiplicand bit is equal to one, we have an extra
+functionality for the first bit of the multiplicand, which triggers the counter to start the addition process.
+Because of this, we require an additional instruction that also covers the case when x[multiplicand[1]] =
+0.
+INPUT: x[multiplicand[1]] = 0 AND x[to_copy_to_sum_q[1]] = 1
+OUTPUT: y[sum_counter[1]] ←1
+Instruction count: 1
+INPUT: x[multiplicand[i]] = 1 AND x[to_copy_to_sum_q[i]] = 1
+OUTPUT: (i = 1) y[multiplicand[i]] = 1 AND y[sum_q[i]] ←1 AND
+y[sum_counter[i]] ←1
+(i > 1) y[multiplicand[i]] = 1 AND y[sum_q[i]] ←1
+Instruction count: ℓ
+Instructions: add multiplicand to the running total
+For this operation, we define the same instructions that were defined in Appendix B.2 for the variables p and
+q, which have 2ℓbits in this context. These instructions cover the all the processes of bitwise addition, carry
+propagation, and counter update. By the end of the addition process, signalled by x[sum_counter[2ℓ]] =
+1, we activate the shift process in the multiplicand and multiplier.
+21
+INPUT: x[sum_p[i]] = 1 AND x[sum_q[i]] = 0
+OUTPUT: y[sum_p[i]] ←1
+Instruction count: 2ℓ
+INPUT: x[sum_p[i]] = 0 AND x[sum_q[i]] = 1
+OUTPUT: y[sum_p[i]] ←1
+Instruction count: 2ℓ
+INPUT: x[sum_p[i]] = 1 AND x[sum_q[i]] = 1
+OUTPUT: y[sum_c[i]] ←1
+Instruction count: 2ℓ
+INPUT: x[sum_c[i]] = 1
+OUTPUT: (i < 2ℓ) y[sum_q[i+1]] ←1
+Instruction count: 2ℓ−1
+INPUT: x[sum_counter[i]] = 1
+OUTPUT: (i < 4ℓ) y[sum_counter[i+1]] ←1
+(i = 4ℓ) y[to_shift_right[ALL]] ←1 AND y[to_shift_left[ALL]] ←1
+Instruction count: 4ℓ
+Instructions: shift multiplier to the right
+The purpose of this function is to perform the following behavior: when the to_shift_right flag is active,
+bit i of multiplier is assigned the value of the previous bit. If multiplier is already 0, it is set to zero
+directly without further computation. An exception is made for i = 1: it does not shift its value but triggers
+the to_check_lsb flag whenever to_shift_right[1] is active, regardless of the corresponding multiplier
+bit.
+INPUT: x[multiplier[i]] = 0 AND x[to_shift_right[i]] = 1
+OUTPUT: (i = 1) y[to_check_lsb] ←1
+Instruction count: 1
+INPUT: x[multiplier[i]] = 1 AND x[to_shift_right[i]] = 1
+OUTPUT: (i = 1) y[to_check_lsb] ←1
+(i > 1) y[multiplier[i-1]] ←1
+Instruction count: ℓ
+Instructions: shift multiplicand to the left
+The goal of these instructions is to execute the following Instructions: when the to_shift_left flag is active,
+shift the multiplicand by assigning each bit to the next lower-order position. If i = 2ℓ, or if multiplicand
+is already 0, set the value to zero directly, as the shift is implicitly handled.
+INPUT: x[multiplicand[i]] = 1 AND x[to_shift_left[i]] = 1
+OUTPUT: (i < 2ℓ) y[multiplicand[i+1]] ←1
+Instruction count: 2ℓ−1
+B.4
+General computation
+In this subsection, we present results that address the generality of the template matching approach previously
+described in Section 4. To this end, we demonstrate that we can build a block structure and corresponding
+instructions to simulate a one-instruction set computer (OISC), thereby showing that we can execute any
+22
+computable function, provided with the right instructions and memory values. More specifically, in this proof,
+we represent an OISC with a single instruction called “Subtract and branch if negative” or SBN Gilreath and
+Laplante [2003].
+SBN: Named for its operation “subtract and branch if negative", SBN is a one-instruction set computer.
+One way to express SBN is detailed in Algorithm 1, and it consists of subtracting the content at address a
+from that at address b, and storing the result back at b. All these values are stored in a memory array. If
+the result is positive, the computer executes the next instruction; otherwise, it jumps to the instruction at
+address c. Despite this operational simplicity, SBN is Turing Complete Gilreath and Laplante [2003].
+Algorithm 1 SBN (a, b, c)
+Require: Input: memory object M, addresses a, b, c
+1: M[b] ←M[b] −M[a]
+2: if M[b] < 0 then
+3:
+go to c
+4: else
+5:
+go to next instruction
+6: end if
+SBN is closely related to SUBLEQ (“Subtrach and branch if less than or equal to zero”), differing only by the
+strict inequality instead of the inequality of SUBLEQ. This approach is fairly popular, with SUBLEQ being
+widely used in other works to demonstrate Turing Completeness in the context of Transformers Giannou
+et al. [2023], Back De Luca and Fountoulakis [2024].
+To simulate SBN within our framework, several auxiliary functions must be implemented in addition to
+those listed in Algorithm 1. These functions handle tasks such as retrieving an instruction from the list of
+instructions, accessing memory values from specified addresses, determining the next instruction based on
+the current one, and copying values between different fields, among other operations required by SBN.
+The purpose of each function will become clear as their corresponding instructions are introduced. We will
+also explain the design choices behind them and provide the rationale for these decisions.
+Before introducing the implementation details of our solution, we begin by outlining the structure we aim to
+simulate.
+Our simulation involves two distinct objects: one for storing instructions and another for storing memory
+content. Conceptually, the instruction object can be viewed as a list of quadruples (t, a, b, c), where t is the
+address of the instruction (used for identification), and a, b, and c are, respectively, two memory addresses
+and an instruction address. The triplet (a, b, c) encodes the SBN instruction, as illustrated in Algorithm 1.
+Memory is structured as a list of pairs (k, v), where k denotes a memory address and v its corresponding
+value.
+For the input structure, following the framework outlined in Section 4, we divide the input into sets of blocks,
+each representing a large group of functions and variables. Each set of block is identified using the prefix
+specified in parentheses. The major blocks are organized as follows:
+• Instructions (I): Contains the list of instructions and their associated variables.
+• Memory (M): Contains the list of memory elements and their associated variables.
+• Branching (B): Handles the selection of the instruction based on the branching condition in line 2 of
+Algorithm 1, as well as the computation of the next instruction address.
+• Subtraction (D): Handles the subtraction of memory contents a and b, as described in Algorithm 1.
+Since both the instructions and memory objects contain multiple entries, we introduce additional notation.
+23
+instr[k][i]
+curr
+instr[k][i]
+a addr[k][i]
+b addr[k][i]
+to copy b[k][i]
+c addr[k][i]
+to copy c [k][i]
+mem 
+cont[k][i]
+Memory
+is match b[k]
+sub result[k][i]
+to copy curr
+instr[i]
+candidate 0[i]
+candidate 1[i]
+to copy p[i]
+Branching
+tc summand q[i]
+to copy
+tc p[i]
+tc
+counter[i]
+tc summand p[i]
+to copy
+sub p[i]
+sub
+counter[i]
+sub summand p[i]
+Subtraction
+is 
+equal a[k][i]
+counter a[k][i]
+is 
+equal a[k][i]
+counter a[k][i]
+is 
+equal[k][i]
+counter[k][i]
+b addr
+delay[k][i]
+a addr 
+delay[k][i]
+copy sync[k]
+b cont sync[k]
+b cont
+delay[k][i]
+a cont
+delay[k][i]
+tc
+sync b
+a cont sync[k]
+c addr
+delay[k][i]
+copy pre
+candidate 1[i]
+pre candidate 1[i]
+to sync sub
+to sync c
+to copy inv of
+mem cont b[k][i]
+to copy mem
+cont a[k][i]
+a
+addr[k][i]
+b
+addr[k][i]
+mem
+addr[k][i]
+to 
+compare[k][i]
+tc
+sync a
+sub
+carry[i]
+tc
+carry[i]
+sum q[i]
+sum p[i]
+sub summand q[i]
+to 
+compare[k][i]
+to copy a[k][i]
+carry [i]
+to copy 
+from sub[k]
+is condition 0[i]
+is condition 1[i]
+Instructions
+Figure 6: Overview of the simulation of SBN using the template-matching framework. Each rectangle in the
+diagram represents a block, with colors indicating specific block categories: Instructions, Memory, Branching,
+and Subtraction. Within each block are variables, depicted as shapes: squares represent data-holding
+variables, while triangles denote binary flags. Some blocks contain indexed variables. For simplicity, the
+sketch illustrates only one representative block for each unique index combination. Arrows between variables
+indicate interactions as defined by the instructions, representing the flow of data and control between variables
+and across different blocks. The star symbol on the left highlights blocks active at the start of an iteration.
+During this phase, each instruction is compared to the current one, triggering corresponding blocks on the
+right. An iterative bit-wise comparison of instruction addresses follows, and if a match occurs, copy flags for
+addresses a, b, and c are triggered in the three adjacent right-hand blocks. The process continues according
+to the instructions detailed in the following sections.
+Let ℓI denote the number of instructions, which is assumed to be constant, as the number of instructions in
+an algorithm remains fixed, even though they may be executed repeatedly. Let ℓM denote the number of
+memory slots.
+We define the number of bits required to address instructions as nI = ⌈log2 ℓI⌉, and similarly, the number
+of bits required to address memory slots as nM = ⌈log2 ℓM⌉. Additionally, each memory slot holds a value,
+whose bit-width we denote by nC. An overview of our solution is illustrated in Figure 6.
+In the following sections, we will derive the structure of the input x, using the quantities defined above to
+determine the number of blocks and the corresponding instructions.
+Blocks:
+The total number of blocks is
+ℓM(5nM + 3nC + 3) + ℓI(4nI + nM + 1) + 4nI + 8nC + 2 = O(ℓM log ℓM),
+and the total length of the input x is given by:
+ℓM(11nM + 6nC + 4) + ℓI(8nI + 4nM + 1) + 11nI + 12nC + 4 = O(ℓM log ℓM).
+The structure of the sets of blocks is defined as follows.
+Instructions blocks: for k ∈[ℓI], i ∈[nI], j ∈[nM]:
+• (I_to_compare[k][i], I_curr_instr[k][i], I_instr[k][i])
+24
+• (I_is_equal[k][i], I_counter[k][i])
+• (I_a_addr[k][j], I_to_copy_a[k][j])
+• (I_b_addr[k][j], I_to_copy_b[k][j])
+• (I_c_addr[k][i], I_to_copy_c[k][i])
+• (I_a_addr_delay[k][j])
+• (I_b_addr_delay[k][j])
+• (I_c_addr_delay[k][i])
+• (I_copy_sync[k])
+Memory blocks: for k ∈[ℓM], i ∈[nM], j ∈[nC]
+• (M_to_compare[k][i], M_a_addr[k], M_b_addr[k][i], M_mem_addr[k][i])
+• (M_is_equal_a[k][i], M_counter_a[k][i])
+• (M_is_equal_b[k][i], M_counter_b[k][i])
+• (M_mem_cont[k][j], M_to_copy_a_mem_cont[k][j], M_to_copy_inv_b_mem_cont[k][j], M_is_match_b[k][j],
+M_to_copy_from_sub[k][j], M_sub_result[k][j])
+• (M_a_cont_delay[k][i])
+• (M_a_cont_sync[k])
+• (M_b_cont_delay[k][i])
+• (M_b_cont_sync[k])
+Branching blocks: for i ∈[nI]
+• (B_sum_p[i], B_sum_q[i], B_to_copy_p[i])
+• (B_carry[i])
+• (B_to_sync_c, B_to_sync_sub)
+• (B_pre_candidate_1[i], B_to_copy_candidate_1[i])
+• (B_candidate_0[i], B_candidate_1[i], B_is_condition_0[i], B_is_condition_1[i] B_to_copy_curr_instr[i])
+Subtraction blocks: for i ∈[nC], j ∈[2nC]
+• (D_tc_p[i], D_tc_q[i], D_to_copy_tc_p[i])
+• (D_tc_sync_a, D_tc_sync_b)
+• (D_tc_carry[i])
+• (D_tc_counter[j])
+• (D_sub_carry[i])
+• (D_sub_p[i], D_sub_q[i], D_to_copy_sub_p[i])
+• (D_sub_counter[j])
+25
+Instructions
+Based on Algorithm 1 and the block structure outlined earlier, we now define the binary
+instructions for each process, grouped according to their corresponding block prefix. Considering all the
+instructions presented below, the total number of instructions is
+ℓM(13nM + 7nC + 1) + ℓI(8nI + 4nM + 2) + 14nC + 11nI + 9 = O(ℓM log ℓM).
+Instructions: persist addresses (I)
+The purpose of this function is to ensure that instruction addresses are not inadvertently deleted. Notably,
+we do not need to handle cases where the instruction address is zero, as any unmatched sample will naturally
+leave the corresponding entry as zero.
+Additionally, note that there are no instructions dedicated to preserving the current instruction address
+I_curr_instr or the comparison flag I_to_compare. This omission is intentional, as both are temporary
+variables activated only in one execution stage and do not retain their values beyond that stage. Consequently,
+there is no need to explicitly preserve them.
+INPUT: x[I_instr[k][i]] = 1 AND x[I_to_compare[k][i]] = 0 AND
+x[I_curr_instr[k][i]] = 0
+OUTPUT: y[I_instr[k][i]] ←1
+Instruction count: ℓI · nI
+INPUT: x[I_a_addr[k][i]] = 1 AND x[I_to_copy_a[k][i]] = 0
+OUTPUT: y[I_a_addr[k][i]] ←1
+Instruction count: ℓI · nM
+INPUT: x[I_b_addr[k][i]] = 1 AND x[I_to_copy_b[k][i]] = 0
+OUTPUT: y[I_b_addr[k][i]] ←1
+Instruction count: ℓI · nM
+INPUT: x[I_c_addr[k][i]] = 1 AND x[I_to_copy_c[k][i]] = 0
+OUTPUT: y[I_c_addr[k][i]] ←1
+Instruction count: ℓI · nI
+Instructions: compare addresses (I)
+In this function, the goal is to compare the current instruction address with the k-th instruction address, bit
+by bit. The result of this bitwise comparison is stored in a dedicated variable (I_is_equal), and a counter
+is activated to trigger a process that verifies whether all bits match. The set of instructions defined below
+handles both possible outcomes: when the addresses match and when they do not.
+INPUT: x[I_to_compare[k][i]] = 1 AND x[I_curr_instr[k][i]] = x[I_instr[k][i]]
+OUTPUT: (i = 1) y[I_instr[k][i]] ←x[I_instr[k][i]] AND y[I_is_equal[k][i]] ←1
+AND y[I_counter[k][i]] ←1
+(i > 1) y[I_instr[k][i]] ←x[I_instr[k][i]] AND y[I_is_equal[k][i]] ←1
+Instruction count: 2ℓI · nI
+INPUT: x[I_to_compare[k][i]] = 1 AND x[I_curr_instr[k][i]] ̸= x[I_instr[k][i]]
+OUTPUT: (i = 1) y[I_instr[k][i]] ←x[I_instr[k][i]] AND y[I_counter[k][i]] ←1
+(i > 1) y[I_instr[k][i]] ←x[I_instr[k][i]]
+Instruction count: 2 · ℓI · nI
+Instructions: check full address match and trigger copy (I)
+Following the previous stage, each of the comparison flags is evaluated iteratively using the counter variables.
+If all of them are equal to one, this indicates that the current instruction address exactly matches the k-th
+26
+instruction address, which activates the copy flags. In the case where the I_is_equal variable is activated,
+but its corresponding I_counter has not yet been triggered, we preserve the value of I_is_equal using the
+second instruction.
+INPUT: x[I_counter[k][i]] = 1 AND x[I_is_equal[k][i]] = 1
+OUTPUT: (i < nI) y[I_counter[k][i+1]] ←1
+(i = nI) y[I_to_copy_a[k][ALL]] ←1 AND
+y[I_to_copy_b[k][ALL]] ←1 AND
+y[I_to_copy_c[k][ALL]] ←1
+Instruction count: ℓI · nI
+INPUT: x[I_counter[k][i]] = 0 AND x[I_is_equal[k][i]] = 1
+OUTPUT: y[I_is_equal[k][i]] ←1
+Instruction count: ℓI · nI
+Instructions: copy address a, b and c (I)
+The goal of this function is to copy the matching k-th instruction triple (a, b, c) into their respective blocks.
+This is achieved through two distinct sets of instructions. The first set defines the conditions under which
+copying should occur, while the second – denoted with the _delay and _sync suffix – is responsible for
+propagating the copy.
+Strictly following the framework in Section 4, this second instruction set is technically unnecessary. One
+could, in principle, use the output from the final stage of the delayed process as the direct output of the
+first set. However, we adopt this two-stage implementation due to the nature of Neural Tangent Kernels
+(NTKs) and the challenge of managing write conflicts. If the alternative (single-stage) approach were used,
+the number of instructions writing to the same coordinates would increase with the number of instructions in
+the program, thereby leading to a proportional increase in write conflicts.
+To mitigate this, we introduce a delay structure that propagates information sequentially across the instruction
+items. This design ensures that the number of write conflicts remains constant, regardless of the program
+size. While this approach incurs additional computational cost – in the form of more blocks and iterations –
+it does not hinder learnability, as discussed in Appendix C.
+Additionally, since not all relevant variables are guaranteed to be set to 1, we introduce a supplementary
+variable for each, prefixed by sync. These sync variables function similarly to their delay counterparts
+but are always set to 1. This allows them to serve as a reliable synchronization mechanism across different
+processes.
+INPUT: x[I_to_copy_a[k][i]] = 1 AND x[I_a_addr[k][i]] = 1
+OUTPUT: y[I_a_addr_delay[k][i]] ←1 AND y[I_a_addr[k][i]] ←1
+Instruction count: ℓI · nM
+INPUT: x[I_to_copy_b[k][i]] = 1 AND x[I_b_addr[k][i]] = 1
+OUTPUT: y[I_b_addr_delay[k][i]] ←1 AND y[I_b_addr[k][i]] ←1
+Instruction count: ℓI · nM
+INPUT: x[I_to_copy_c[k][i]] = 1 AND x[I_c_addr[k][i]] = 1
+OUTPUT: (i = 1) y[I_c_addr[k][i]] ←1 AND y[I_c_addr_delay[k][i]] ←1 AND
+y[I_copy_sync[k]] ←1
+(i > 1) y[I_c_addr[k][i]] ←1 AND y[I_c_addr_delay[k][i]] ←1
+Instruction count: ℓI · nI
+27
+INPUT: x[I_a_addr_delay[k][i]] = 1
+OUTPUT: (k < ℓI) y[I_a_addr_delay[k+1][i]] ←1
+(k = ℓI)
+y[M_a_addr[ALL][i]] ←1
+Instruction count: ℓI · nM
+INPUT: x[I_b_addr_delay[k][i]] = 1
+OUTPUT: (k < ℓI) y[I_b_addr_delay[k+1][i]] ←1
+(k = ℓI)
+y[M_b_addr][ALL][i] ←1
+Instruction count: ℓI · nM
+INPUT: x[I_c_addr_delay[k][i]] = 1
+OUTPUT: (k < ℓI) y[I_c_addr_delay[k+1][i]] ←1
+(k = ℓI)
+y[B_pre_candidate_1[i]] ←1
+Instruction count: ℓI · nI
+INPUT: x[I_copy_sync[k]] = 1
+OUTPUT: (k < ℓI) y[I_copy_sync[k+1]] ←1
+(k = ℓI)
+y[M_to_compare][ALL][ALL] ←1 AND y[B_to_sync_c] ←1
+Instruction count: ℓI
+Instructions: persist addresses (M)
+As with the instruction block, the memory addresses must also be persisted. For the input block below, there
+is no need to handle scenarios where the other variables are equal to 1, as those cases are either already
+addressed during the comparison stage or do not arise during execution.
+INPUT: x[M_to_compare[k][i]] = 0 AND x[M_mem_addr[k][i]] = 1 AND
+x[M_a_addr[k][i]] = 0 AND x[M_b_addr[k][i]] = 0
+OUTPUT: y[M_mem_addr[k][i]] ←1
+Instruction count: ℓM · nM
+Instructions: compare addresses (M)
+In this stage, each memory address k is compared to the addresses stored in the instruction fields a and
+b. Note that the addresses from a and b have already been transmitted to their corresponding memory
+blocks. Below, we describe the behavior for different combinations of the values of M_a_addr, M_b_addr, and
+M_mem_addr.
+INPUT: x[M_to_compare[k][i]] = 1 AND
+x[M_a_addr[k][i]] = x[M_mem_addr[k][i]] AND
+x[M_b_addr[k][i]] = x[M_mem_addr[k][i]]
+OUTPUT: (i = 1) y[M_is_equal_a[k][i]] ←1 AND y[M_is_equal_b[k][i]] ←1 AND
+y[M_counter_a[k][i]] ←1 AND y[M_counter_b[k][i]] ←1 AND
+y[M_mem_addr[k][i]] ←x[M_mem_addr[k][i]]
+(i > 1) y[M_is_equal_a[k][i]] ←1 AND y[M_is_equal_b[k][i]] ←1 AND
+y[M_mem_addr[k][i]] ←x[M_mem_addr[k][i]]
+Instruction count: 2ℓM · nM
+28
+INPUT: x[M_to_compare[k][i]] = 1 AND
+x[M_a_addr[k][i]] ̸= x[M_mem_addr[k][i]] AND
+x[M_b_addr[k][i]] = x[M_mem_addr[k][i]]
+OUTPUT: (i = 1) y[M_is_equal_b[k][i]] ←1 AND y[M_counter_b[k][i]] ←1 AND
+y[M_mem_addr[k][i]] ←x[M_mem_addr[k][i]]
+(i > 1) y[M_is_equal_b[k][i]] ←1 AND
+y[M_mem_addr[k][i]] ←x[M_mem_addr[k][i]]
+Instruction count: 2ℓM · nM
+INPUT: x[M_to_compare[k][i]] = 1 AND
+x[M_a_addr[k][i]] = x[M_mem_addr[k][i]] AND
+x[M_b_addr[k][i]] ̸= x[M_mem_addr[k][i]]
+OUTPUT: (i = 1) y[M_is_equal_a[k][i]] ←1 AND y[M_counter_a[k][i]] ←1 AND
+y[M_mem_addr[k][i]] ←x[M_mem_addr[k][i]]
+(i > 1) y[M_is_equal_a[k][i]] ←1 AND
+y[M_mem_addr[k][i]] ←x[M_mem_addr[k][i]]
+Instruction count: 2ℓM · nM
+INPUT: x[M_to_compare[k][i]] = 1 AND
+x[M_a_addr[k][i]] ̸= x[M_mem_addr[k][i]] AND
+x[M_b_addr[k][i]] ̸= x[M_mem_addr[k][i]]
+OUTPUT: x[M_mem_addr[k][i]] ←x[M_mem_addr[k][i]]
+Instruction count: 2ℓM · nM
+Instructions: check full address match and trigger copy (M)
+After computing bitwise equalities for each address and each address bit, the comparison flags for both a and
+b are checked iteratively. If all bits in a given comparison are equal to one, this indicates a match with the
+corresponding memory address, and the relevant processes are activated.
+In the case of a match with address a, this triggers the process of copying the content of memory at address
+a to the subtraction block. For a match with address b, a similar copying operation is triggered. However,
+instead of copying the bits directly, the inverse of each bit is copied. This serves to negate the content of b, as
+required by the subtraction logic, which will be explained in the following instructions.
+Additionally, when a match is found in b, another flag is activated to indicate which memory slot corresponds
+to the current match. This flag is used later to update that memory slot with the result of the subtraction.
+INPUT: x[M_counter_a][k][i] = 1 AND x[M_is_equal_a][k][i] = 1
+OUTPUT: (i < nM) y[M_counter_a][k][i+1] ←1
+(i = nM) y[M_to_copy_a_mem_cont][k][ALL] ←1
+Instruction count: ℓM · nM
+INPUT: x[M_counter_a][k][i] = 0 AND x[M_is_equal_a][k][i] = 1
+OUTPUT: y[M_is_equal_a][k][i] ←1
+Instruction count: ℓM · nM
+INPUT: x[M_counter_b][k][i] = 1 AND x[M_is_equal_b][k][i] = 1
+OUTPUT: (i < nM) y[M_counter_b][k][i+1] ←1
+(i = nM) y[M_to_copy_inv_b_mem_cont][k][ALL] ←1 AND
+y[M_is_match_b][k][ALL] ←1
+Instruction count: ℓM · nM
+29
+INPUT: x[M_counter_b][k][i] = 0 AND x[M_is_equal_b][k][i] = 1
+OUTPUT: y[M_is_equal_b][k][i] ←1
+Instruction count: ℓM · nM
+Instructions: copy memory content (M)
+The following instructions cover all combinations of flags and memory content values. In this setting, we
+ensure that every valid combination of memory content and flag activation is captured. The transmission of
+memory information to the appropriate targets follows the same delay structure previously described, which
+helps manage write conflicts.
+Importantly, the memory content is preserved in all cases, and the M_is_match_b flag is retained to indicate
+the corresponding memory slot for later updates to memory b.
+Additionally, we must account for cases in which the memory content is null. This is necessary due to the
+flag M_to_copy_inv_b_mem_cont, which signals that the inverse of the memory content should be copied.
+As a result, its effect only arises when M_mem_cont is zero, whereas the effects of other flags are triggered
+when the memory content is non-zero.
+INPUT: x[M_mem_cont][k][i] = 1 AND x[M_to_copy_a_mem_cont][k][i] = 1 AND
+x[M_to_copy_inv_b_mem_cont][k][i] = 1 AND x[M_is_match_b][k][i] = 1 AND
+x[M_to_copy_from_sub][k][i] = 0 AND x[M_sub_result][k][i] = 0
+OUTPUT: (i = 1) y[M_mem_cont][k][i] ←1 AND y[M_is_match_b][k][i] ←1 AND
+y[M_a_cont_delay][k][i] ←1 AND y[M_b_cont_sync][k] ←1 AND
+y[M_a_cont_sync][k] ←1
+(i > 1) y[M_mem_cont][k][i] ←1 AND y[M_is_match_b][k][i] ←1 AND
+y[M_a_cont_delay][k][i] ←1
+Instruction count: ℓM · nC
+INPUT: x[M_mem_cont][k][i] = 0 AND x[M_to_copy_a_mem_cont][k][i] = 1 AND
+x[M_to_copy_inv_b_mem_cont][k][i] = 1 AND x[M_is_match_b][k][i] = 1 AND
+x[M_to_copy_from_sub][k][i] = 0 AND x[M_sub_result][k][i] = 0
+OUTPUT: (i = 1) y[M_is_match_b][k][i] ←1 AND y[M_b_cont_delay][k][i] ←1 AND
+y[M_b_cont_sync][k] ←1 AND y[M_a_cont_sync][k] ←1
+(i > 1) y[M_is_match_b][k][i] ←1 AND y[M_b_cont_delay][k][i] ←1
+Instruction count: ℓM · nC
+INPUT: x[M_mem_cont][k][i] = 0 AND x[M_to_copy_a_mem_cont][k][i] = 0 AND
+x[M_to_copy_inv_b_mem_cont][k][i] = 1 AND x[M_is_match_b][k][i] = 1 AND
+x[M_to_copy_from_sub][k][i] = 0 AND x[M_sub_result][k][i] = 0
+OUTPUT: (i = 1) y[M_is_match_b][k][i] ←1 AND y[M_b_cont_delay][k][i] ←1 AND
+y[M_b_cont_sync][k] ←1
+(i > 1) y[M_is_match_b][k][i] ←1 AND y[M_b_cont_delay][k][i] ←1
+Instruction count: ℓM · nC
+INPUT: x[M_mem_cont][k][i] = 1 AND x[M_to_copy_a_mem_cont][k][i] = 0 AND
+x[M_to_copy_inv_b_mem_cont][k][i] = 1 AND x[M_is_match_b][k][i] = 1 AND
+x[M_to_copy_from_sub][k][i] = 0 AND x[M_sub_result][k][i] = 0
+OUTPUT: (i = 1) y[M_mem_cont][k][i] ←1 AND y[M_is_match_b][k][i] ←1 AND
+y[M_b_cont_sync][k] ←1
+(i > 1) y[M_mem_cont][k][i] ←1 AND y[M_is_match_b][k][i] ←1
+Instruction count: ℓM · nC
+30
+INPUT: x[M_mem_cont][k][i] = 1 AND x[M_to_copy_a_mem_cont][k][i] = 1 AND
+x[M_to_copy_inv_b_mem_cont][k][i] = 0 AND x[M_is_match_b][k][i] = 0 AND
+x[M_to_copy_from_sub][k][i] = 0 AND x[M_sub_result][k][i] = 0
+OUTPUT: y[M_mem_cont][k][i] ←1 AND y[M_a_cont_delay][k][i] ←1 AND
+y[M_a_cont_sync][k] ←1
+Instruction count: ℓM · nC
+INPUT: x[M_a_cont_delay[k][i]] = 1
+OUTPUT: (k < ℓI) y[M_a_cont_delay[k+1][i]] ←1
+(k = ℓM)
+y[D_sub_p[i]] ←1
+Instruction count: ℓM · nC
+INPUT: x[M_b_cont_delay[k][i]] = 1
+OUTPUT: (k < ℓI) y[M_b_cont_delay[k+1][i]] ←1
+(k = ℓM) y[D_tc_p[i]] ←1
+Instruction count: ℓM · nC
+INPUT: x[M_a_cont_sync[k]] = 1
+OUTPUT: (k < ℓM) y[M_a_cont_sync[k+1]] ←1
+(k = ℓM)
+y[D_tc_sync_a] ←1
+Instruction count: ℓM
+INPUT: x[M_b_cont_sync[k]] = 1
+OUTPUT: (k < ℓM) y[M_b_cont_sync[k+1]] ←1
+(k = ℓM)
+y[D_tc_q[1]] ←1 AND y[D_tc_counter[1]] ←1
+Instruction count: ℓM
+Instructions: negate memory content in b (D)
+This process takes place after the memory content has been effectively copied. The overall goal of the
+subtraction blocks is to compute the difference between the memory contents at addresses a and b. To achieve
+this, we adopt a two-step procedure.
+Before describing the procedure, we clarify that memory content is represented using two’s complement
+encoding. Specifically, the least significant nC −1 bits represent the magnitude, while the most significant bit
+stores the sign.
+Given this representation, subtraction is implemented by negating the content at address b and then adding
+it to the content at address a.
+In the previous step, the content from address a was forwarded to a holding stage, awaiting the negated
+result of b. Meanwhile, we compute the two’s complement negation of b by first taking its bitwise inverse
+and then adding 1. The instructions below implement this stage, covering each operation involved in bitwise
+inversion, addition, carry propagation, and counter updates. These instructions follow the same structure
+described in Appendix B.2, but are limited to nC bits, meaning the final carry (MSB) is not propagated as
+an additional bit as it was done in Appendix B.2.
+After 2nC iterations, the addition is completed. The final counter triggers the copy flags, which forward the
+result to the same staging area as the content of a. In the second step, we sum these two values, yielding the
+desired result: M[a] −M[b].
+INPUT: x[D_tc_p[i]] = 1 AND x[D_tc_q[i]] = 0 AND x[D_to_copy_tc_p[i]] = 0
+OUTPUT: y[D_tc_p[i]] ←1
+Instruction count: nC
+31
+INPUT: x[D_tc_p[i]] = 0 AND x[D_tc_q[i]] = 1 AND x[D_to_copy_tc_p[i]] = 0
+OUTPUT: y[D_tc_p[i]] ←1
+Instruction count: nC
+INPUT: x[D_tc_p[i]] = 1 AND x[D_tc_q[i]] = 1 AND x[D_to_copy_tc_p[i]] = 0
+OUTPUT: y[D_tc_carry[i]] ←1
+Instruction count: nC
+INPUT: x[D_tc_carry[i]] = 1
+OUTPUT: (i < nC) y[D_tc_q[i+1]] ←1
+Instruction count: nC −1
+INPUT: x[D_tc_counter[i]] = 1
+OUTPUT: (i < 2nC) y[D_tc_counter[i+1]] ←1
+(i = 2nC) y[D_tc_sync_b] ←1
+Instruction count: 2nC
+Instructions: synchronize and trigger copy of negated content of b (D)
+In this operation, the copy is triggered only after confirming that both processes (negating the content of b
+and copying the content of a) have been completed. This ensures no operation begins before all necessary
+inputs are available at their designated locations. If either of the two flags has not yet been activated, we
+preserve the current values until both are ready.
+INPUT: x[D_tc_sync_a] = 1 AND x[D_tc_sync_b] = 1
+OUTPUT: y[D_to_copy_tc_p][ALL] ←1
+Instruction count: 1
+INPUT: x[D_tc_sync_a] = 1 AND x[D_tc_sync_b] = 0
+OUTPUT: y[D_tc_sync_a] = 1
+Instruction count: 1
+INPUT: x[D_tc_sync_a] = 0 AND x[D_tc_sync_b] = 1
+OUTPUT: y[D_tc_sync_b] = 1
+Instruction count: 1
+Instructions: copy negated content of b (D)
+Once the D_to_copy_tc_p flag is activated, the content of D_tc_p, which encodes the negation of the content
+of b, is copied to D_sub_q. This is the location where it will later be summed with the content of a.
+In the following set of instructions, we do not include a case for when D_tc_q is 1, since after 2nC iterations,
+D_tc_q is guaranteed to be zero.
+INPUT: x[D_tc_p[i]] = 1 AND x[D_tc_q[i]] = 0 AND x[D_to_copy_tc_p[i]] = 1
+OUTPUT: (i = 1) y[D_sub_q[i]] = 1 AND y[D_sub_counter][1] ←1
+(i > 1) y[D_sub_q[i]] = 1
+Instruction count: nC
+Instructions: add the content of a to the negated content of b (D)
+Once the negated content of b has been copied to the same stage as the content of a, the final subtraction
+result is obtained by performing a simple summation. The instructions below follow the same addition
+structure described in Appendix B.2. After completing 2nC iterations, we trigger the sync flag to proceed to
+the next stage.
+32
+INPUT: x[D_sub_p[i]] = 1 AND x[D_sub_q[i]] = 0 AND x[D_to_copy_sub_p[i]] = 0
+OUTPUT: y[D_sub_p[i]] ←1
+Instruction count: nC
+INPUT: x[D_sub_p[i]] = 0 AND x[D_sub_q[i]] = 1 AND x[D_to_copy_sub_p[i]] = 0
+OUTPUT: y[D_sub_p[i]] ←1
+Instruction count: nC
+INPUT: x[D_sub_p[i]] = 1 AND x[D_sub_q[i]] = 1 AND x[D_to_copy_sub_p[i]] = 0
+OUTPUT: y[D_sub_carry][i] ←1
+Instruction count: nC
+INPUT: x[D_sub_carry][i] = 1
+OUTPUT: (i < nC) y[D_sub_q][i+1] ←1
+Instruction count: nC −1
+INPUT: x[D_sub_counter][i] = 1
+OUTPUT: (i < 2nC) y[D_sub_counter][i+1] ←1
+(i = 2nC) y[B_to_sync_sub] ←1
+Instruction count: 2nC
+Instructions: copy subtraction result (D)
+At this stage, the flag D_to_copy_sub_p indicates that the content of D_sub_p, which holds the result of the
+subtraction, should be copied to all memory slots labeled as M_sub_result. This update is carried out using
+the matching flag M_is_match_b and the copy trigger M_to_copy_from_sub, as specified in Algorithm 1, in
+order to update the memory content at address b.
+In the following set of instructions, we omit the case where D_sub_q is 1, since after 2n_C iterations this
+variable should always be zero.
+We also implement the condition from Algorithm 1 used to determine the next instruction. By checking the
+most significant bit (MSB) of D_sub_p, which represents the sign of the result, we decide the next step: if
+the MSB is 1, the result is negative and B_is_condition_1 is activated; otherwise, B_is_condition_0 is
+triggered.
+INPUT: x[D_sub_p[i]] = 1 AND x[D_sub_q[i]] = 0 AND x[D_to_copy_sub_p[i]] = 1
+OUTPUT: (i < nC) y[M_sub_result[ALL][i]] ←1
+(i = nC) y[B_is_condition_1[ALL]] ←1 AND y[M_sub_result[ALL][i]] ←1 AND
+y[M_to_copy_from_sub[ALL][ALL]] ←1
+Instruction count: nC
+INPUT: x[D_sub_p[i]] = 0 AND x[D_sub_q[i]] = 0 AND x[D_to_copy_sub_p[i]] = 1
+OUTPUT: (i = nC) y[B_is_condition_0[ALL]] ←1 AND
+y[M_to_copy_from_sub[ALL][ALL]] ←1
+Instruction count: 1
+Instructions: increment current instruction address (B)
+This set of instructions computes the address corresponding to the else condition in the branching logic
+of Algorithm 1. Specifically, it calculates the address of the next instruction, denoted by candidate_0,
+based on the current instruction address. The computation follows the same addition structure described in
+Appendix B.2.
+By default, the initial vector ˆx is configured such that the first current instruction is the all-zero vector, and
+the variable x[B_sum_p][1] is set to 1. This setup ensures that the algorithm always begins with the first
+33
+instruction. After this initialization, the subsequent iterations proceed according to the logic defined by the
+instruction set. During the selection of the instruction address based on the branching condition, the chosen
+address is also copied to a scratchpad area, which is then used to compute k + 1. Once the k + 1 address is
+calculated, it is stored in the B_sum_p bits and retained until the appropriate copy flag is activated.
+INPUT: x[B_sum_p[i]] = 1 AND x[B_sum_q[i]] = 0 AND x[B_to_copy_p[i]] = 0
+OUTPUT: y[B_sum_p[i]] ←1
+Instruction count: nI
+INPUT: x[B_sum_p[i]] = 0 AND x[B_sum_q[i]] = 1 AND x[B_to_copy_p[i]] = 0
+OUTPUT: y[B_sum_p[i]] ←1
+Instruction count: nI
+INPUT: x[B_sum_p[i]] = 1 AND x[B_sum_q[i]] = 1 AND x[B_to_copy_p[i]] = 0
+OUTPUT: y[B_carry[i]] ←1
+Instruction count: nI
+INPUT: x[B_carry[i]] = 1
+OUTPUT: (i < nI) y[B_sum_q][i+1] ←1
+Instruction count: nI −1
+Instructions: copy next instruction address (B)
+Once the copying flag is activated, the contents of B_sum_p are copied to B_candidate_0. Simultaneously, we
+set B_sum_p[1] to 1 to ensure that it can increment the next instruction address during the next instruction
+update.
+INPUT: x[B_sum_p[i]] = 1 AND x[B_sum_q[i]] = 0 AND x[B_to_copy_p[i]] = 1
+OUTPUT: (i = 1) x[B_candidate_0[i]] = 1 AND x[B_sum_p[i]] = 1
+(i > 1) x[B_candidate_0[i]] = 1
+Instruction count: nI
+INPUT: x[B_sum_p[i]] = 0 AND x[B_sum_q[i]] = 0 AND x[B_to_copy_p[i]] = 1
+OUTPUT: (i = 1) x[B_sum_p[i]] = 1
+Instruction count: 1
+Instructions: synchronize operations (B)
+In this operation, we synchronize the two independent phases: the subtraction and the retrieval of address c.
+Once both processes are complete, their results are simultaneously copied to the branching block. To ensure
+proper synchronization, we also include instructions that preserve the state of one flag if the other has not
+yet been activated.
+INPUT: x[B_to_sync_c] = 1 AND x[B_to_sync_sub] = 1
+OUTPUT: x[D_to_copy_sub_p[ALL]] ←1 AND y[B_to_copy_p[ALL]] ←1 AND
+y[B_to_copy_candidate_1[ALL]] ←1
+Instruction count: 1
+INPUT: x[B_to_sync_c] = 1 AND x[B_to_sync_sub] = 0
+OUTPUT: y[B_to_sync_c] ←1
+Instruction count: 1
+34
+INPUT: x[B_to_sync_c] = 0 AND x[B_to_sync_sub] = 1
+OUTPUT: y[B_to_sync_sub] ←1
+Instruction count: 1
+Instructions: copy instruction address c (B)
+Once synchronization is complete, we copy the value of B_candidate_1 from the staging area B_pre_candidate_1.
+The value in the staging area is preserved until the corresponding copy flag is activated, as detailed in the
+instructions below.
+INPUT: x[B_pre_candidate_1[i]] = 1 AND x[B_to_copy_candidate_1[i]] = 1
+OUTPUT: y[candidate_1[i]] ←1
+Instruction count: nI
+INPUT: x[B_pre_candidate_1[i]] = 1 AND x[B_to_copy_candidate_1[i]] = 0
+OUTPUT: y[B_pre_candidate_1[i]] ←1
+Instruction count: nI
+Instructions: update instruction address (B)
+Both candidate addresses are synchronously copied from their respective fields, along with the branching
+condition specified in Algorithm 1. Based on the activated condition, one of the candidates is selected.
+The chosen candidate is then copied into I_curr_instr, and I_to_compare is activated across all bits and
+instructions. Additionally, as previously noted, the selected instruction is also copied to B_sum_q to enable
+the computation of the next instruction address.
+INPUT: x[B_is_condition_1][i] = 1 AND x[B_is_condition_0][i] = 0 AND
+x[B_candidate_1[i]] = 1 AND x[B_candidate_0[i]] = x[B_candidate_0[i]]
+OUTPUT: (i < nI) y[I_curr_instr][ALL][i] ←1 AND y[B_sum_q[i]] ←1
+(i = nI) y[I_curr_instr][ALL][i] ←1 AND
+y[I_to_compare][ALL][ALL] ←1 AND y[B_sum_q[i]] ←1
+Instruction count: 2nI
+INPUT: x[B_is_condition_1][i] = 1 AND x[B_is_condition_0][i] = 0 AND
+x[B_candidate_1[i]] = 0 AND x[B_candidate_0[i]] = x[B_candidate_0[i]]
+OUTPUT: (i = nI) y[I_to_compare][ALL][ALL] ←1
+Instruction count: 2
+INPUT: x[B_is_condition_1][i] = 0 AND x[B_is_condition_0][i] = 1 AND
+x[B_candidate_0[i]] = 1 AND x[B_candidate_1[i]] = x[B_candidate_1[i]]
+OUTPUT: (i < nI) y[I_curr_instr][ALL][i] ←1 AND y[B_sum_q[i]] ←1
+(i = nI) y[I_curr_instr][ALL][i] ←1 AND
+y[I_to_compare][ALL][ALL] ←1 AND y[B_sum_q[i]] ←1
+Instruction count: 2nI
+INPUT: x[B_is_condition_1][i] = 0 AND x[B_is_condition_0][i] = 1 AND
+x[B_candidate_0[i]] = 0 AND x[B_candidate_1[i]] = x[B_candidate_1[i]]
+OUTPUT: (i = nI) y[I_to_compare][ALL][ALL] ←1
+Instruction count: 2
+As required by the NTK learnability results, detailed in Appendix C, the following instructions exhibit a finite
+number of conflicts per coordinate. These conflicts are quantified by counting the number of outputs that
+write over the same coordinate. In this implementation, the maximum number of conflicts is 4. This occurs
+in the M_mem_addr bits, where memory values must be persisted under different combinations of control
+variables within the same block.
+35
+C
+Proof of the NTK predictor behavior Theorem
+In this section, we give the complete proof of Theorem 5.1. For convenience, we restate both the underlying
+assumption and the theorem below:
+Assumption 5.1. For each test input ˆx and for each position i ∈[k′] such that the ground-truth output
+f(ˆx)9 has the i-th bit set, the number of training examples that do not match ˆx and have the i-th bit set
+(which we call unwanted correlations) is less than the ratio −w1(ˆx)/w0(ˆx).10
+Theorem 5.1 (NTK predictor behavior). Consider an algorithmic problem cast as template-matching and
+encoded in a training set (X, Y) ⊆Rk′ × Rk as described in Section 5.1. Then, under Assumption 5.1, the
+mean of the limiting NTK distribution µ(ˆx) = Θ(ˆx, X)Θ(X, X)−1Y for any test input ˆx ∈Rk′ contains
+sign-based information about the ground-truth output, namely for each coordinate of the output i = 1, . . . , k,
+µ(ˆx)i ≤0 if the ground-truth bit at position i, f(ˆx)i, is set, and µ(ˆx)i > 0 if the ground-truth bit at position
+i, f(ˆx)i, is not set.
+Proof. The proof begins by calculating the kernels Θ(X, X) ∈Rkk′×kk′ and Θ(ˆx, X) ∈Rk×kk′. Using
+Equation (1)
+Θ := Θ(X, X) =
+ (d −c)Ik′ + c11⊤
+⊗Ik ∈Rkk′×kk′
+(10)
+where
+d = 1
+k′
+and
+c =
+1
+2πk′
+(11)
+We can observe that since d > c > 0, Θ is positive definite. Indeed, since 11⊤(the matrix of all ones) is
+positive semidefinite, (d −c)Ik′ + c11⊤is (strictly) positive definite and so the Kronecker product with Ik is
+also positive definite (see Appendix A). Similarly, the test NTK is given by
+Θ(ˆx, X) = f ⊤⊗Ik ∈Rk×kk′
+where for each i = 1, 2, . . . , k′:
+fi = cos ˆθi(π −ˆθi) + sin ˆθi
+2k′π
++ ˆzi
+π −ˆθi
+2k′π
+(12)
+and
+ˆθi = arccos (ˆzi)
+(13)
+where zi is equal to 0 or 1/√nˆx depending on whether ˆx matches the i-th training example. Since z takes
+only two values, the resulting ˆθi takes two values ˆθ0 and ˆθ1 (corresponding to ˆxi = 0 and ˆxi = 1/√nˆx) and
+subsequently each fi also takes two values f0 and f1. Finally, an application of Theorem A.1 gives
+Θ−1 =
+
+1
+d −cIk′ −
+c
+(d −c)(d −c + ck′)11⊤
+
+⊗Ik
+Substituting everything in Θ−1f, we find that this takes the two values w0(ˆx) and w1(ˆx) as discussed in the
+main paper, namely:
+(Θ−1f)i = w0(ˆx) = y2 −
+p
+y2 −1y −2π(y −1) + 2y sec−1(y) −1
+(2π −1)(k + 2π −1)
+9There is a slight abuse of notation here when using f(ˆx) since f does not operate on encoded inputs. Depending on the
+context, we may use ˆx to denote both the pre-encoded and encoded test inputs.
+10w0(ˆx) is always non-positive and so the ratio is non-negative.
+36
+if ˆx does not match the i-th training sample and
+(Θ−1f)i = w1(ˆx) = −
+p
+y2 −1 −y
+  y2 −k
+
+(2π −1)(k + 2π −1)y
++
+π
+
+k −y2 + 2
+p
+y2 −1 −1
+
+(2π −1)(k + 2π −1)y
++ 2
+ k −y2 + 2π −1
+
+csc−1(y) −
+p
+y2 −1 + 2π2
+(2π −1)(k + 2π −1)y
+if ˆx matches the i-th training sample, where y = √nˆx. Using a symbolic calculation system (Mathematica
+Inc. [2024]) we can establish that for all possible values of y (i.e y = √m for m = 1, 2, . . . , b), w0(ˆx) ≤0 and
+w1(ˆx) > 0. The rest of the proof is exactly as given in the main paper.
+Satisfying Assumption 5.1
+To verify that Assumption 5.1 holds for a particular application we need
+to bound the number of unwanted correlations for each possible test input ˆx. An easier way to verify that
+Assumption 5.1 holds is by studying the number of conflicts, as defined in Appendix B. Note that if the
+maximum number of conflicts is c, at most c + 1 training examples can have a ground truth label of 1 at the
+same position. In particular, this shows that the number of unwanted correlations is at most c for any test
+input ˆx. In what follows we show how we leverage this observation to show that Assumption 5.1 is satisfied
+for all tasks discussed in the main paper:
+• For the case of binary permutations of length ℓ, we have ℓtemplate configuration and the input
+dimension is k′ = ℓ. Since we have no unwanted correlations, Assumption 5.1 is trivially satisfied.
+• For the case of binary addition of two ℓ-bit numbers, we have 2ℓtemplate configurations and the input
+dimension is k′ = 4ℓ. We find symbolically that the ratio −w1(ˆx)/w0(ˆx) is decreasing as a function of
+nˆx (for fixed ℓ) and strictly greater than 1 for all ℓ≥1 and nˆx ≤2ℓ. Since the maximum number of
+conflicts is 1, Assumption 5.1 is satisfied.
+• For the case of binary multiplication of two ℓ-bit numbers, we have 11ℓtemplate configurations and
+the input dimension is k′ = 20ℓ+ 2. By adding extra training examples with corresponding ground
+truth labels of 0 that are never matched, we can augment the number of training examples to k′ = 21ℓ.
+We find symbolically that the ratio −w1(ˆx)/w0(ˆx) is decreasing as a function of nˆx (for fixed ℓ) and
+strictly greater than 2 for all ℓ≥1 and nˆx ≤7ℓ+ 1.11 Since the maximum number of conflicts is 2,
+Assumption 5.1 is satisfied.
+• For the case of SBN with memory size ℓM = ℓ, we have b = 5ℓ(log2 ℓ+ c1) + c2 log ℓ+ c3 template
+configurations and the input dimension is k′ = 13ℓ(log2 ℓ+ c4) + c5 log2 ℓ+ c6, where c1, . . . , c6 are
+positive constants based on other configurations of the algorithm being executed. In particular, notice
+that b ≤C1ℓ2 for some C1 > 0. By a similar augmentation as before, we can achieve a dataset size of
+k′ = 5C1ℓ2. Again, we find symbolically that the ratio −w1(ˆx)/w0(ˆx) is decreasing as a function of nˆx
+(for fixed ℓ) and strictly greater than 5C1/C1 −1 = 4 for all ℓ≥1 and nˆx ≤C1ℓ2 (and in particular for
+nˆx ≤b). Since there are at most 4 unwanted correlations, Assumption 5.1 is satisfied. The previous
+argument can be repeated with 1 + ε for any ε > 0 in place of 2 at the exponent of ℓand a different
+constant Cε > 0.
+The above is enough to conclude Remark 5.1.
+11The maximum number of training examples that any test input can match is 7ℓ+ 1. Refer to Appendix B for details.
+37
+D
+Proof of the lemma for the order of the mean predictor and its
+variance
+In this section, we provide the proof of Lemma 6.1. We do so by analyzing the mean and variance of
+the NTK predictor, expressing them as functions of the test vector ˆx. Specifically, we characterize their
+dependence on the input length k′ and the number of matching blocks, nˆx. We establish that the variance
+of the predictions scales as O (1/k′), while the mean coordinates exhibit different behaviors depending on
+whether the corresponding ground-truth bit is set and the relation between ˆx and k′. We begin by calculating
+the variance: a direct substitution on the formula for the variance Σ(ˆx) of Equation (4) we find that the
+variance for a test input ˆx is given by
+Σ(ˆx) =
+d
+2 + f ⊤AMAf −2f ⊤Ag
+
+Ik
+where
+M =
+d
+2 −c
+
+Ik′ + c11⊤
+A =
+1
+d −cIk′ −
+c
+(d −c)(d −c + ck′)11⊤
+and for each i = 1, 2, . . . , k′:
+gi = cos ˆθi(π −ˆθi) + sin ˆθi
+2k′π
+The scalars c and d, the vector f, and the angles ˆθi are as defined in Equation (11), Equation (12) and
+Equation (13), respectively. This shows that the output coordinates are independent Gaussian random
+variables with the same covariance. Notice that whenever the test input is part of the training set, as expected,
+the variance vanishes.
+Preliminary quantities
+To discharge notation and facilitate the subsequent proofs, we rewrite some of
+the already defined quantities and introduce some auxiliary quantities. Recall that:
+d = 1
+k′
+and
+c =
+1
+2πk′
+We further introduce
+d′ = d
+2 =
+1
+2k′
+and
+c′ = c =
+1
+2πk′
+For a test vector ˆx, we introduce the binary indicator Ii(ˆx) that indicates whether ˆx matches the i-th training
+example. With that, we rewrite:
+ˆθi =
+(
+arccos
+
+1
+√nˆ
+x
+
+if Ii(ˆx) = 1
+π
+2
+otherwise
+From this, we directly obtain the cosine and sine of ˆθi:
+cos ˆθi =
+(
+1
+√nˆ
+x
+if Ii(ˆx) = 1
+0
+otherwise
+sin ˆθi =
+(q
+1 −
+1
+nˆ
+x
+if Ii(ˆx) = 1
+1
+otherwise
+Using these quantities, we rewrite:
+gi =
+(
+1
+2πk√nˆ
+x
+ π −arccos (1/√nˆ
+x) + √nˆx −1
+
+if Ii(ˆx) = 1
+1
+2πk
+otherwise
+38
+and we get that Equation (12) is equal to
+fi =
+(
+gi + π−arccos(1/√nˆ
+x)
+2πk√nˆ
+x
+if Ii(ˆx) = 1
+gi
+otherwise
+D.1
+Computing the order of the variance
+We begin by recalling the expression for the variance (substituting d′ and c′):
+Σ(ˆx) =
+ d′ + f ⊤AMAf −2f ⊤Ag
+
+Ik
+where
+M = (d′ −c′) Ik′ + c′11⊤
+and
+A =
+1
+d −cIk′ −
+c
+(d −c)(d −c + ck′)11⊤
+We aim to show that the variance is bounded by O (1/k′). To facilitate this, we rewrite Σ(ˆx) by expanding
+the matrix multiplication:
+Σ(ˆx) = d′Ik + f ⊤(AMAf −2A(f −z)) Ik
+= d′Ik + f ⊤(AMAf −2Af) Ik + 2f ⊤AzIk
+where we define z = f −g for notational simplicity. It is straightforward to observe that the first term, d′Ik,
+is bounded by O (1/k′). Thus, we focus our attention on the remaining two terms. For the second term, we
+begin by showing that AMA −2A has a maximum eigenvalue of O(1), and therefore:
+f ⊤(AMA −2A)f ∈O (1/k′)
+We begin by expressing AMA in a more manageable form. A direct computation reveals:
+AMA = uIk′ −v11⊤
+where
+u = d′ −c′
+(d −c)2
+and
+v = 1
+k′
+ 
+d′ −c′ + k′c′
+(d −c + k′c)2 −d′ −c′
+(d −c)2
+!
+Subtracting 2A from this expression gives:
+AMA −2A = (u −2a) Ik′ + (v + 2b) 11⊤
+where
+a =
+d −c
+(d −c)2
+and
+b =
+c
+(d −c + ck′) (d −c)
+This matrix has two unique eigenvalues: u −2a (with multiplicity k′ −1) and u −2a + (v + 2b)k′. We will
+show that the largest eigenvalue is O(1). To this end, we evaluate these two quantities, starting with u −2a:
+u −2a = d′ −c′ −2(d −c)
+(d −c)2
+−2π(3π −1)k′
+(2π −1)2
+which is negative. For the second eigenvalue, we find:
+u −2a + (v + 2b)k′ = −2π(3π −1)k′
+(2π −1)2
++ 2πk′ (π + k′ −1)
+(2π + k′ −1)2
+−2πk′(π −1)
+(2π −1)2
++
+4πk′
+(2π −1) (2π + k′ −1) =
+
+4π
+2π + k′ −1 +
+π + k′ −1
+(2π + k′ −1)2
+
+k′
+39
+which is positive and clearly O(1). With this result, we can bound the multiplication by the norms of its
+components. Since λmax(AMA −2A) ∈O(1) and ∥f∥2 ∈O (1/k′) (since each fi ∈O (1/k′)), we conclude:
+f ⊤(AMA −2A)f ∈O (1/k′)
+We now turn to the third term, 2f ⊤Az. Expressing z component-wise we have:
+zi =
+( π−arccos(1/√nˆ
+x)
+2πk′√nˆ
+x
+if Ii(ˆx) ̸= 0
+0
+otherwise
+We then decompose the product f ⊤Az as:
+f ⊤Az = af ⊤z −b(f ⊤1)(1⊤z)
+(14)
+where
+a =
+1
+d −c
+and
+b =
+2πk′
+(2π −1)(2π + k′ −1)
+The first term af ⊤z can be expressed as:
+af ⊤z =
+1
+(2π −1)(2πk′)2
+ 2π −2 arccos (1/√nˆ
+x) −
+√
+nˆx −1
+
+(π −2 arccos (1/√nˆ
+x))
+which is positive and O (1/k′). For the second term b(f ⊤1)(1⊤z), we start by expressing the individual
+quantities f ⊤1 and 1⊤z:
+f ⊤1 =
+√nˆx
+πk′ (π −arccos (1/√nˆ
+x)) +
+√nˆx
+√nˆx −1
+2πk′
++ k′ −nˆx
+2πk′
+and
+1⊤z =
+√nˆx
+2πk′ (π −arccos (1/√nˆ
+x))
+Therefore, the entire term can be expressed as:
+b(f ⊤1)(1⊤z) =
+1
+2πk′(2π −1)(2π −1 + k′)
+
+2nˆx (π −arccos (1/√nˆ
+x))2
++ nˆx
+√
+nˆx −1 (π −arccos (1/√nˆ
+x))
++ (k′ −nˆx)√nˆx (π −arccos (1/√nˆ
+x))
+
+which is positive and O (1/k′), therefore, the subtraction of Equation (14) (which is equal to f ⊤Az) is O (1/k′).
+Combining the bounds on all three terms, we conclude that:
+Σ(ˆx) ∈O (1/k′) Ik
+completing the proof of the first part of Lemma 6.1.
+D.2
+Computing the order of the mean
+Recall from Equation (7) that each coordinate of the NTK predictor mean is given as a weighted sum of
+w1 ≡w1(ˆx) and w0 ≡w0(ˆx), where w1 = (Θ−1f)i for all coordinates i ∈[k] such that ˆx matches the i-th
+training example, and w0(= (Θ−1f)i for all coordinates i ∈[k] such that ˆxi does not match the i-th training
+example. In particular, the template-matching mechanism of Equation (6) shows that whenever the i-th
+ground-truth bit of ˆx, f(ˆx)i, is set, the NTK predictor satisfies:
+µ(ˆx)i = w1 + |I1
+−(ˆx)| · w0
+(15)
+40
+where I1
+−(ˆx) denotes the indices of training examples that do not match ˆx and have their i-th ground-truth
+output bit set. Similarly, whenever f(ˆx)i = 0, the NTK predictor satisfies:
+µ(ˆx)i = |I1
+−(ˆx)| · w0
+(16)
+Since |I1
+−(ˆx)| is bounded by the maximum number of conflicts (as defined in Appendix B) which is constant
+for all four tasks (i.e. it doesn’t scale with k′), the asymptotic order of µ(ˆx) is determined solely by the
+asymptotic orders of w0 and w1. We can thus turn our attention to
+Θ−1f =
+
+1
+d −cIk′ −
+c
+(d −c)(d −c + ck′)11⊤
+
+f
+which we decompose into two terms:
+Θ−1f =
+f
+d −c −
+c11⊤f
+(d −c)(d −c + ck)
+(17)
+For the first term in Equation (17), we obtain for each i = 1, 2, . . . , k′:
+fi
+d −c =
+(
+1
+2π−1
+
+π−arccos(1/√nˆ
+x)
+√nˆ
+x
++
+q
+1 −
+1
+√nˆ
+x
+
+if Ii(ˆx) = 1
+1
+2π−1
+otherwise
+The second term is a constant vector with coefficient:
+c11⊤f
+(d −c)(d −c + ck′) =
+1
+(2π −1)(2π −1 + k′)
+nˆx (π −arccos (1/√nˆ
+x))
+2√nˆx
++ nˆx
+r
+1 −1
+nˆx
++ k′ −nˆx
+
+We now evaluate each case separately.
+Case 1: For w0(ˆx), that is, when Ii(ˆx) = 0, we have:
+w0(ˆx) =
+1
+2π −1
+
+1 −
+k −nˆx
+2π + k′ −1 −
+2πk′nˆx
+(2π + k′ −1) πk′√nˆx
+(π −arccos (1/√nˆ
+x))
+
+−
+1
+2π −1
+ 
+2πk′nˆx
+(2π + k′ −1) 2πk′
+s
+1 −
+1
+√nˆx
+!
+(18)
+The absolute value of Equation (18) behaves like Θ
+ √nˆx/k′
+, and setting nˆx to different regimes yields the
+bounds:
+|w0(ˆx)| ∈
+
+
+
+
+
+
+
+
+
+
+
+Θ (1/k′)
+if nˆx is constant
+Θ
+ √nˆx/k′
+if nˆx is non-constant
+and sublinear in k′
+Θ
+
+1/
+√
+k′
+
+if nˆx = ck′ for c ∈(0, 1]
+Case 2: For w1(ˆx), that is, when Ii(ˆx) = 1, we have:
+w1(ˆx) =
+2π −1
+2π + k′ −1
+ 
+2
+(2π −1) √nˆx
+(π −arccos (1/√nˆ
+x)) +
+1
+2π −1
+s
+1 −
+1
+√nˆx
+!
++
+k′ −nˆx
+2π + k′ −1
+ 
+2
+(2π −1) √nˆx
+(π −arccos (1/√nˆ
+x)) +
+1
+2π −1
+s
+1 −
+1
+√nˆx
+−
+1
+2π −1
+!
+(19)
+41
+When setting nˆx = k′, we note that the second term becomes zero and the first term becomes Θ (1/k′).
+Alternatively, the first term in Equation (19) is Θ (1/k′) and the second term is Θ
+ 1/√nˆx
+
+, implying
+µ(ˆx)1 ∈Θ
+ 1/√nˆx
+
+. Setting nˆx to different regimes yields the bounds established in Lemma 6.1, namely:
+|w1(ˆx)| ∈
+
+
+
+
+
+
+
+
+
+
+
+Θ
+ 1/√nˆx
+
+if nˆx is non-constant
+and sublinear in k′,
+Θ
+
+1/
+√
+k′
+
+if nˆx = ck′ for c ∈(0, 1)
+Θ (1/k′)
+if nˆx = k′
+Substituting the derived orders in Equation (16) and Equation (15) yields the orders of Lemma 6.1, completing
+the proof of the second part of Lemma 6.1.
+Remark D.1. The conclusion of Lemma 6.1 holds for any task such that the cardinality of I1
+−(ˆx) does not
+scale with k′ for any test input ˆx. In particular, it holds for tasks such that the maximum number of conflicts
+is bounded by a constant that does not scale with the number of bits. To interpret the last condition visually,
+consider Y as in Figure 3. We require each column of Y to have a sum bounded by a constant which does not
+scale with the number of bits (and hence the input dimension k′). For example, that constant for addition is
+equal to 2.
+E
+Training Experiments on Permutation
+We present two experiments that empirically validate our theoretical findings for the algorithmic task of
+permutation. We chose this task because it requires significantly fewer models to achieve reasonable results
+compared to more complex tasks such as binary addition and multiplication, which exhibit substantially
+higher ensemble complexity. Addressing those tasks would demand large-scale computational infrastructure,
+which is currently beyond our available resources. Nonetheless, our present results still offer strong empirical
+support for our theoretical conclusions.
+For this task, we train a two-layer fully connected feed-forward network with a hidden layer of width 50,000
+only using standard basis vectors and optimized using full-batch gradient descent. Our goal is to learn some
+random permutation on normalized binary inputs of length k. For testing, we evaluate the performance on
+1000 random vectors with nˆx = 2 nonzero entries. To match the assumptions of our theoretical analysis, we
+initialize the weights exactly as given in Section 3.
+1. Number of models to achieve 90% accuracy. Our first experiment examines how many independently
+trained models need to be averaged to achieve a testing accuracy of 90% as a function of the input length k.
+2. Accuracy vs ensemble size. Our second experiment fixes k ∈{5, 10, 15, 20, 25, 30} and examines how
+the post-rounding accuracy varies as the ensemble size increases.
+In Figure 7, the left plot presents the results of Experiment 1 compared to the bound established in Equation (8)
+for the appropriate choice of δ to guarantee 90% accuracy for all test inputs simultaneously. We observe that
+the empirical ensemble size remains below the theoretical bound, and that both curves follow a similar pattern
+as a function of k. For Experiment 2, the results on the right plot of Figure 7 illustrate the convergence
+to perfect accuracy as a function of the ensemble size for different input sizes k. As shown, larger input
+sizes require more models to achieve perfect accuracy, but with a sufficient number of models, all instances
+eventually reach perfect accuracy.
+42
+2
+4
+6
+8
+10 12 14 16 18 20 22 24 26 28 30
+Input size k
+100
+101
+102
+103
+104
+Ensemble size
+Experiment 1
+Ensemble size to achieve 90% accuracy
+Empirical
+Theoretical bound
+1
+50
+100
+150
+200
+250
+300
+Ensemble size
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+Accuracy
+Experiment 2
+Accuracy vs ensemble size
+k = 5
+k = 10
+k = 15
+k = 20
+k = 25
+k = 30
+Figure 7: Experiment 1 (left) presents the required number of models (ensemble size) to achieve 90% accuracy
+as a function of input size k, compared to the theoretical bound from Equation (8) with the appropriate δ.
+Experiment 2 (right) presents accuracy as a function of ensemble size for different input sizes k.
+43

@@ -1,0 +1,76 @@
+\section{Template Matching Principle}
+
+\begin{frame}{Nguyên lý Template Matching (Section 4)}
+  \textbf{Ý tưởng cốt lõi:}
+  \begin{itemize}
+    \item Thuật toán được phân rã thành các \textbf{template} thao tác trên từng block bit.
+    \item Mỗi template là một cặp $(x, y)$: input block $\to$ output vector.
+    \item Thực thi thuật toán = \textbf{Matching} input hiện tại với các template đã học.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Cấu trúc Block:}
+  \begin{itemize}
+    \item Input $\hat{x} \in \{0,1\}^k$ được chia thành $b$ blocks $B_1, \ldots, B_b$.
+    \item Mỗi block $B_i$ có kích thước $s_i = O(1)$ (hằng số nhỏ).
+    \item Tổng số template: $|T| = O(b)$ $\ll$ $O(2^b)$ (số input có thể).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Hàm Template Matching}
+  Với mỗi block $B_i$, định nghĩa hàm matching:
+  \[
+    f_i(x') = \begin{cases}
+      y & \text{nếu } (x', y) \in T_i \\
+      \mathbf{0} & \text{ngược lại}
+    \end{cases}
+  \]
+
+  \textbf{Hàm tổng hợp toàn cục:}
+  \[
+    f(\hat{x}) = \bigvee_{i=1}^{b} f_i(\hat{x}[B_i])
+  \]
+  Trong đó $\bigvee$ là phép OR từng bit (bitwise disjunction).
+
+  \vspace{0.3cm}
+  \textbf{Thực thi lặp:}
+  \begin{itemize}
+    \item Áp dụng $f$ lặp đi lặp lại: $\hat{x}_{t+1} = f(\hat{x}_t)$.
+    \item Sau $m$ bước, đạt trạng thái cuối (steady state).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Ví dụ: Binary Addition (Phép cộng nhị phân)}
+  \textbf{Thiết lập cho 2 số $\ell$-bit $p$ và $q$:}
+  \begin{itemize}
+    \item $2\ell$ blocks: $\ell$ blocks cho $(p_i, q_i)$ và $\ell$ blocks cho carry $c_i$.
+    \item Templates cho \textbf{bitwise sum}: $p \oplus q$ (XOR) và carry.
+    \item Templates cho \textbf{carry propagation}: chuyển carry sang bit tiếp theo.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Thống kê:}
+  \begin{itemize}
+    \item Số templates: $4\ell$ (tuyến tính với độ dài bit).
+    \item Số bước lặp: $2\ell$ (alternating sum/carry).
+    \item Kết quả: $\ell+1$ bit cuối cùng.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Ví dụ: Binary Multiplication (Phép nhân nhị phân)}
+  \textbf{Mô phỏng thuật toán Shift-and-Add:}
+  \begin{enumerate}
+    \item Kiểm tra LSB của multiplier.
+    \item Nếu = 1: cộng multiplicand vào tổng.
+    \item Copy multiplicand sang scratchpad.
+    \item Shift multiplicand trái, multiplier phải.
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Thống kê:}
+  \begin{itemize}
+    \item Số blocks: $11\ell$ (bao gồm cờ flags và counter).
+    \item Số templates: $21\ell$.
+    \item Worst-case iterations: $4\ell^2 + 3\ell$.
+  \end{itemize}
+\end{frame}

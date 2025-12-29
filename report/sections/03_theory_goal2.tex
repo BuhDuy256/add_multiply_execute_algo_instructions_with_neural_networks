@@ -1,0 +1,344 @@
+\section{Mục tiêu 2: NTK Regime}
+\begin{frame}{Mục tiêu 2: NTK regime khi chiều rộng $m \to \infty$}
+  Từ Mục tiêu 1, ta có:
+  \[
+    \frac{d\mathbf f(t)}{dt}
+    = -K_m(\theta_m(t))(\mathbf f(t) - \mathbf y),
+  \]
+  trong đó $K_m$ là NTK thực nghiệm của mạng rộng $m$.
+
+  \vspace{0.2cm}
+  \textbf{Vấn đề:} $K_m(\theta_m(t))$ vẫn phụ thuộc vào $t$
+  vì tham số $\theta_m(t)$ thay đổi khi train.
+\end{frame}
+
+\begin{frame}{Mục tiêu 2:}
+      \textbf{Mục tiêu 2:} Chứng minh rằng trong giới hạn $m \to \infty$,
+  \begin{itemize}
+    \item Tại $t=0$, $K_m(\theta_m(0))$ hội tụ về một kernel giới hạn
+          \[
+            \Theta(X,X) \quad (\text{deterministic}).
+          \]
+    \item Trong suốt quá trình train trên khoảng thời gian hữu hạn $t \in [0,T]$,
+          $K_m(\theta_m(t))$ gần như \textbf{không đổi}:
+          \[
+            K_m(\theta_m(t)) \approx K_m(\theta_m(0)).
+          \]
+  \end{itemize}
+
+  \vspace{0.2cm}
+  Gộp lại:
+  \[
+    K_m(\theta_m(t))
+    \xrightarrow[m\to\infty]{}
+    \Theta(X,X),
+  \]
+  và gần như \textbf{không phụ thuộc $t$} (NTK regime / lazy training).
+\end{frame}
+
+\begin{frame}{$g_{ir}(0)$ có bậc $O(1/\sqrt{m})$}
+  Nhắc lại mô hình:
+  \[
+    f_m(x;\theta)
+    = \frac{1}{\sqrt{m}} \sum_{r=1}^m a_r\,\sigma(w_r^\top x).
+  \]
+
+  Xét neuron thứ $r$, tham số:
+  \[
+    \theta_r = (a_r, w_r).
+  \]
+  Gradient của output tại điểm $x_i$ theo neuron $r$:
+  \[
+    g_{ir}(0) := \nabla_{\theta_r} f_m(x_i; \theta(0)).
+  \]
+\end{frame}
+
+\begin{frame}{$g_{ir}(0)$ có bậc $O(1/\sqrt{m})$}
+      \textbf{Đạo hàm theo $a_r$:}
+  \[
+    \frac{\partial f_m(x_i)}{\partial a_r}
+    = \frac{1}{\sqrt{m}} \sigma(w_r^\top x_i).
+  \]
+Vậy:
+  \[
+    \frac{\partial f_m}{\partial a_r}
+    = O\!\left(\frac{1}{\sqrt{m}}\right).
+  \]
+
+  \vspace{0.2cm}
+  \textbf{Đạo hàm theo $w_r$:}
+  \[
+    \frac{\partial f_m(x_i)}{\partial w_r}
+    = \frac{1}{\sqrt{m}}\,a_r\,\sigma'(w_r^\top x_i)\, x_i.
+  \]
+Vậy:
+  \[
+    \left\|\frac{\partial f_m}{\partial w_r}\right\|
+    = O\!\left(\frac{1}{\sqrt{m}}\right).
+  \]
+\end{frame}
+
+\begin{frame}{$g_{ir}(0)$ có bậc $O(1/\sqrt{m})$}
+  \textbf{Kết luận:}
+  \[
+    g_{ir}(0)
+    =
+    \Big(
+      \frac{\partial f_m}{\partial a_r},
+      \frac{\partial f_m}{\partial w_r}
+    \Big),
+    \quad
+    \Rightarrow\quad
+    \|g_{ir}(0)\|
+    = O\!\left(\frac{1}{\sqrt{m}}\right).
+  \]
+
+  \textbf{Hệ quả quan trọng:}
+  \begin{itemize}
+    \item Mỗi neuron $r$ đóng góp một lượng nhỏ vào gradient khi $m$ lớn.
+    \item Đóng góp vào NTK của neuron $r$ tại cặp $(x_i,x_j)$ là
+          \[
+            \big\langle g_{ir}(0), g_{jr}(0) \big\rangle
+            = O\!\left(\frac{1}{m}\right),
+          \]
+    \item Tổng qua $m$ neuron:
+          \[
+            \sum_{r=1}^m O\!\left(\frac{1}{m}\right)
+            = O(1)
+          \]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Mục tiêu 2 – Bước 1: hội tụ của NTK tại $t=0$}
+  Jacobian tại init:
+  \[
+    J_m(0) := \nabla_\theta \mathbf f_m(\theta_m(0)).
+  \]
+NTK tại init:
+  \[
+    K_m(\theta_m(0)) = J_m(0)J_m(0)^\top.
+  \]
+
+  Mỗi phần tử:
+  \[
+    K_{m,ij}(0)
+      = \sum_{r=1}^m \big\langle g_{ir}(0), g_{jr}(0)\big\rangle,
+  \]
+  với $g_{ir}(0) := \nabla_{\theta_r} f_m(x_i;\theta_m(0))$ như đã phân tích.
+\end{frame}
+
+\begin{frame}{Mục tiêu 2 – Bước 1: luật số lớn cho NTK}
+  Do các neuron $r$ là i.i.d.,
+  \[
+    K_{m,ij}(0)
+    = \sum_{r=1}^m \big\langle g_{ir}(0),g_{jr}(0)\big\rangle
+    \xrightarrow[m\to\infty]{a.s.} \Theta(x_i,x_j).
+  \]
+
+  \textbf{Kết luận Bước 1:}
+  \[
+    K_m(\theta_m(0)) \xrightarrow[m\to\infty]{a.s.} \Theta(X,X).
+  \]
+  Tức là ngay tại khởi tạo, NTK thực nghiệm hội tụ về một kernel không phụ thuộc vào m.
+\end{frame}
+
+\begin{frame}{Mục tiêu 2 – Bước 2: tham số thay đổi rất ít khi train}
+  \textbf{Ý tưởng của Bước 2:}  
+  Khi $m$ rất lớn, mỗi tham số chỉ thay đổi rất nhỏ quanh điểm khởi tạo
+  $\theta_m(0)$ trong một khoảng thời gian hữu hạn $[0,T]$.
+
+  \vspace{0.2cm}
+  Ta dùng gradient flow:
+  \[
+    \frac{d\theta_r}{dt}
+    = -\nabla_{\theta_r}L(\theta),
+    \quad r = 1,\dots,m.
+  \]
+\end{frame}
+
+\begin{frame}{Mục tiêu 2 – Bước 2:}
+  \begin{itemize}
+    \item Với mỗi $r$, $L(\theta) = \tfrac12\sum_i (f_m(x_i)-y_i)^2$.
+\item Ta có:
+\[
+\begin{aligned}
+\frac{\partial L}{\partial a_r}
+&= \sum_{i=1}^n (f_m(x_i)-y_i)
+      \frac{\partial f_m(x_i)}{\partial a_r} \\
+&= \sum_{i=1}^n (f_i-y_i)\frac{1}{\sqrt{m}}\sigma(w_r^\top x_i)
+ = O\!\left(\frac{1}{\sqrt{m}}\right).
+\end{aligned}
+\]
+
+    \item Tương tự,
+      \[
+        \frac{\partial L}{\partial w_r}
+        = \sum_{i=1}^n (f_i-y_i)
+            \frac{1}{\sqrt{m}} a_r \sigma'(w_r^\top x_i)x_i
+        = O\!\left(\frac{1}{\sqrt{m}}\right).
+      \]
+  \end{itemize}
+
+  \[ \Rightarrow
+    \frac{d\theta_r}{dt}
+    = -\nabla_{\theta_r}L(\theta)
+    = O\!\left(\frac{1}{\sqrt{m}}\right),
+    \quad \forall r.
+  \]
+\end{frame}
+
+\begin{frame}{Mục tiêu 2 – Bước 2: kernel ``đóng băng''}
+  Với $t \in [0,T]$ hữu hạn:
+  \[
+    \|\theta_r(t) - \theta_r(0)\|
+    \le \int_0^T \left\| \frac{d\theta_r}{ds} \right\| ds
+    = O\!\left(\frac{T}{\sqrt{m}}\right)
+    \xrightarrow[m\to\infty]{} 0.
+  \]
+
+  \vspace{0.2cm}
+  Bây giờ xét NTK trong quá trình train:
+  \[
+    K_m(\theta(t)) = J_m(\theta(t))J_m(\theta(t))^\top.
+  \]
+  Xét phần tử $(i,j)$:
+  \[
+    K_{m,ij}(t)
+      = \sum_{r=1}^m \big\langle g_{ir}(t), g_{jr}(t)\big\rangle,
+    \quad
+    g_{ir}(t) := \nabla_{\theta_r} f_m(x_i;\theta(t)).
+  \]
+\end{frame}
+
+\begin{frame}{Khái niệm Lipschitz và vai trò trong NTK}
+\textbf{Định nghĩa (Lipschitz):}
+Một hàm $h(\theta)$ được gọi là \emph{Lipschitz} nếu tồn tại hằng số $L$ sao cho
+\[
+  \|h(\theta_1) - h(\theta_2)\|
+  \;\le\;
+  L \, \|\theta_1 - \theta_2\|,
+  \quad \forall\theta_1,\theta_2.
+\]
+$L$ gọi là \textbf{Lipschitz constant}.
+
+\vspace{0.3cm}
+\textbf{Ý nghĩa:}
+\begin{itemize}
+  \item Hàm không được “nhảy đột ngột”; thay đổi trong đầu vào kéo theo thay đổi có kiểm soát ở đầu ra.
+  \item Nếu đạo hàm của $h$ bị chặn bởi $M$ (tức $|\nabla h|\le M$), thì $h$ Lipschitz với hằng số $L\le M$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Áp dụng trong NTK}
+\textbf{Áp dụng vào NTK:}
+\[
+g_{ir}(\theta_r)
+= \nabla_{\theta_r} f_m(x_i;\theta)
+\]
+có dạng
+\[
+g_{ir} =
+\frac{1}{\sqrt{m}}
+\begin{pmatrix}
+\sigma(w_r^\top x_i) \\
+a_r \sigma'(w_r^\top x_i) x_i
+\end{pmatrix}.
+\]
+
+Nhờ $\sigma$ trơn và $\sigma',\sigma''$ bị chặn:
+\[
+\|\nabla_{\theta_r} g_{ir}\| = O\!\left(\frac{1}{\sqrt{m}}\right)
+\quad\Rightarrow\quad
+g_{ir} \text{ là Lipschitz theo }\theta_r.
+\]
+
+Do đó:
+\[
+\|g_{ir}(t) - g_{ir}(0)\|
+\le
+O\!\left(\frac{1}{\sqrt{m}}\right)
+\cdot
+\|\theta_r(t)-\theta_r(0)\|
+=
+O\!\left(\frac{1}{m}\right).
+\]
+\end{frame}
+
+\begin{frame}{Bước 2: thay đổi của một hạng tử NTK}
+Đặt:
+\[
+  k_{ij}^{(r)}(t) := \langle g_{ir}(t),\, g_{jr}(t)\rangle.
+\]
+
+Hiệu giữa hai thời điểm:
+\[
+  |k_{ij}^{(r)}(t) - k_{ij}^{(r)}(0)|
+  \le
+  \|g_{ir}(t)-g_{ir}(0)\|\cdot \|g_{jr}(t)\|
+  \;+\;
+  \|g_{jr}(t)-g_{jr}(0)\|\cdot \|g_{ir}(0)\|.
+\]
+
+Do:
+\[
+  \|g_{ir}(t)-g_{ir}(0)\| = O(1/m), \qquad
+  \|g_{jr}(t)\| = O(1/\sqrt{m}),
+\]
+
+ta được:
+\[
+  |k_{ij}^{(r)}(t) - k_{ij}^{(r)}(0)|
+  = O\!\left(\frac{1}{m}\right)
+    \cdot O\!\left(\frac{1}{\sqrt{m}}\right)
+  = O\!\left(\frac{1}{m\sqrt{m}}\right).
+\]
+\end{frame}
+
+\begin{frame}{Bước 2: tổng hợp tác động của toàn bộ $m$ neuron}
+Tổng thay đổi của NTK:
+\[
+  |K_{m,ij}(t) - K_{m,ij}(0)|
+  = \left|\sum_{r=1}^m \big(k_{ij}^{(r)}(t) - k_{ij}^{(r)}(0)\big)\right|.
+\]
+
+Mỗi hạng tử có bậc $O(1/(m\sqrt{m}))$, nên:
+\[
+  |K_{m,ij}(t) - K_{m,ij}(0)|
+  \le
+  m \cdot O\!\left(\frac{1}{m\sqrt{m}}\right)
+  = O\!\left(\frac{1}{\sqrt{m}}\right)
+  \xrightarrow[m\to\infty]{}
+  0.
+\]
+
+\textbf{Kết luận Bước 2:}
+\[
+  \|K_m(\theta_m(t)) - K_m(\theta_m(0))\|
+  = O\!\left(\frac{1}{\sqrt{m}}\right)
+  \to 0.
+\]
+\end{frame}
+
+\begin{frame}{Mục tiêu 2 – Kết luận NTK regime}
+  Gộp Bước 1 và Bước 2:
+  \begin{itemize}
+    \item (Bước 1) Tại khởi tạo,
+      \[
+        K_m(\theta_m(0)) \xrightarrow[m\to\infty]{a.s.} \Theta(X,X).
+      \]
+    \item (Bước 2) Trong quá trình train với thời gian hữu hạn,
+      \[
+        \sup_{t\in[0,T]}
+        \|K_m(\theta_m(t)) - K_m(\theta_m(0))\|
+        \xrightarrow[m\to\infty]{} 0.
+      \]
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Kết luận:} Trong NTK regime, ta có xấp xỉ:
+  \[
+    \frac{d\mathbf f(t)}{dt}
+      = -K_m(\theta_m(t))(\mathbf f(t)-\mathbf y)
+      \approx -\Theta(X,X)(\mathbf f(t)-\mathbf y).
+  \]
+\end{frame}

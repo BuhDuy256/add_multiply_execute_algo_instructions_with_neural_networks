@@ -1,0 +1,16 @@
+\section{Tổng quan phương pháp}
+
+\begin{frame}{4 bước chứng minh Exact Learning}
+  \textbf{Pipeline chứng minh bài báo:}
+  
+  \vspace{0.4cm}
+  \begin{enumerate}
+    \item \textbf{Template Representation:} Biểu diễn thuật toán thành các template cục bộ.
+    \item \textbf{Orthonormalized Training:} Mã hóa template thành vector trực giao để ngăn nhiễu chéo.
+    \item \textbf{NTK Predictor Theorem:} Chứng minh NTK predictor bảo toàn dấu (sign) của ground truth.
+    \item \textbf{Ensemble Complexity Bound:} Tính số model cần thiết $N \in O(\ell^2 \log \ell)$.
+  \end{enumerate}
+  
+  \vspace{0.3cm}
+  $\Rightarrow$ Các phần tiếp theo sẽ đi chi tiết từng bước.
+\end{frame}

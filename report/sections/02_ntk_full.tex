@@ -1,0 +1,481 @@
+\section{Chứng minh lý thuyết NTK}
+
+%================= MỤC TIÊU CHUNG =================
+\begin{frame}{Mục tiêu chung}
+  \textbf{Mục tiêu lớn của NTK:}
+  \begin{itemize}
+    \item Xét một mạng nơ-ron có chiều rộng ẩn $m$ (số neuron ẩn rất lớn).
+    \item Khi $m \to \infty$, ta muốn hiểu động lực học của gradient descent / gradient flow.
+    \item Kết quả: trong giới hạn này, việc train mạng nơ-ron
+          \[
+            \Rightarrow \text{tương đương với \textbf{kernel regression}}
+          \]
+          với một kernel đặc biệt gọi là \textbf{Neural Tangent Kernel} $\Theta$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chiến lược chứng minh (3 bước)}
+  \begin{enumerate}
+    \item \textbf{Output Dynamics:} Gradient flow tuân theo ODE:
+          \[ \dot{\mathbf f}(t) = -K(\theta(t))(\mathbf f(t)-\mathbf y) \]
+          
+    \item \textbf{NTK Regime (Lazy Training):} Khi $m \to \infty$, kernel "đóng băng":
+          \[ K(\theta(t)) \approx \Theta(X,X) \quad (\text{hằng số}) \]
+          
+    \item \textbf{Closed-form Solution:} Giải ODE tuyến tính $\Rightarrow$ Kernel Regression:
+          \[ f_\infty(x) = \Theta(x,X)\Theta(X,X)^{-1}\mathbf y \]
+  \end{enumerate}
+\end{frame}
+
+%================= SETUP MODEL =================
+\begin{frame}{Thiết lập bài toán}
+  \textbf{Dữ liệu:} $\{(x_i,y_i)\}_{i=1}^n$, với $x_i \in \mathbb R^d, y_i \in \mathbb R$.
+
+  \vspace{0.4cm}
+  \textbf{Mô hình mạng 2 tầng:}
+  \[
+    f_m(x;\theta) = \frac{1}{\sqrt{m}} \sum_{r=1}^m a_r\,\sigma(w_r^\top x)
+  \]
+  
+  \textbf{Ký hiệu:}
+  \begin{itemize}
+    \item $m$: Chiều rộng ẩn (hidden width).
+    \item $w_r \in \mathbb R^d, a_r \in \mathbb R$: Trọng số lớp 1 và lớp 2.
+    \item $\theta = (a_r, w_r)_{r=1}^m$: Tập tham số mạng.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Vector Output và Hàm Loss}
+  \textbf{Vector output và nhãn:}
+  \[
+    \mathbf{f}(\theta) = [f_m(x_1;\theta), \dots, f_m(x_n;\theta)]^\top \in \mathbb{R}^n,
+    \quad
+    \mathbf{y} = [y_1, \dots, y_n]^\top \in \mathbb{R}^n.
+  \]
+
+  \textbf{Hàm mất mát (Mean Squared Error - MSE):}
+  \[
+    L(\theta) = \frac{1}{2} \|\mathbf{f}(\theta) - \mathbf{y}\|^2
+              = \frac{1}{2} \sum_{i=1}^n (f_m(x_i;\theta) - y_i)^2.
+  \]
+\end{frame}
+
+%================= GOAL 1 PROOF =================
+\begin{frame}{Mục tiêu 1: Output Dynamics (Gradient Flow)}
+  \textbf{Gradient flow trên tham số:}
+  \[
+    \frac{d\theta(t)}{dt} = -\nabla_\theta L(\theta(t))
+  \]
+  
+  Tính gradient của Loss $L(\theta) = \frac{1}{2}\|\mathbf{f}(\theta) - \mathbf{y}\|^2$:
+  \[
+    \nabla_\theta L
+    = \nabla_\theta \Big( \tfrac{1}{2}(\mathbf{f}(\theta) - \mathbf{y})^\top (\mathbf{f}(\theta) - \mathbf{y}) \Big)
+    = \underbrace{\nabla_\theta \mathbf{f}(\theta)^\top}_{J(\theta)^\top} (\mathbf{f}(\theta) - \mathbf{y})
+  \]
+
+  với $J(\theta) := \nabla_\theta \mathbf{f}(\theta) \in \mathbb{R}^{n \times P}$ là ma trận Jacobian.
+
+  \vspace{0.3cm}
+  \textbf{Kết quả:}
+  \[
+    \frac{d\theta(t)}{dt} = -J(\theta(t))^\top \big(\mathbf{f}(\theta(t)) - \mathbf{y}\big)
+  \]
+\end{frame}
+
+\begin{frame}{Mục tiêu 1: Output Dynamics (tiếp)}
+  \textbf{Chain Rule cho $\mathbf{f}(t) := \mathbf{f}(\theta(t))$:}
+  \[
+    \frac{d\mathbf{f}(t)}{dt}
+    = \underbrace{\nabla_\theta \mathbf{f}(\theta(t))}_{J(\theta(t))} \cdot \frac{d\theta(t)}{dt}
+    = J(\theta(t)) \frac{d\theta(t)}{dt}
+  \]
+
+  Thay $\frac{d\theta}{dt} = -J^\top (\mathbf{f} - \mathbf{y})$ vào biểu thức trên, ta được:
+  \[
+    \frac{d\mathbf{f}(t)}{dt} = - \underbrace{J(\theta(t)) J(\theta(t))^\top}_{K(\theta(t))}(\mathbf{f}(t) - \mathbf{y}).
+  \]
+
+  \textbf{Kết luận:} Với Empirical NTK $K(\theta) = J(\theta)J(\theta)^\top$:
+  \[
+    \frac{d\mathbf{f}(t)}{dt} = -K(\theta(t))(\mathbf{f}(t) - \mathbf{y})
+  \]
+\end{frame}
+
+%================= GOAL 2: NTK REGIME =================
+\begin{frame}{Mục tiêu 2: NTK regime khi chiều rộng $m \to \infty$}
+  Từ Mục tiêu 1, ta có:
+  \[
+    \frac{d\mathbf f(t)}{dt}
+    = -K_m(\theta_m(t))(\mathbf f(t) - \mathbf y),
+  \]
+  trong đó $K_m$ là NTK thực nghiệm của mạng rộng $m$.
+
+  \vspace{0.2cm}
+  \textbf{Vấn đề:} $K_m(\theta_m(t))$ vẫn phụ thuộc vào $t$
+  vì tham số $\theta_m(t)$ thay đổi khi train.
+\end{frame}
+
+\begin{frame}{Mục tiêu 2: Chiến lược chứng minh (2 Bước)}
+  Chứng minh $K_m(\theta(t)) \to \Theta(X,X)$ qua 2 bước:
+
+  \vspace{0.3cm}
+  \textbf{Bước 1: Hội tụ tại khởi tạo ($t=0$)}
+  \[
+    K_m(\theta(0)) \xrightarrow[m\to\infty]{a.s.} \Theta(X,X) \quad (\text{hằng số})
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Bước 2: Ổn định trong quá trình train ($t \in [0, T]$)}
+  \[
+    \max_{0 \le t \le T} \|K_m(\theta(t)) - K_m(\theta(0))\| \xrightarrow[m\to\infty]{} 0
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Kết luận:} Kernel "đóng băng" tại giá trị khởi tạo $\Theta(X,X)$.
+\end{frame}
+
+%================= GOAL 2: EXPLAIN g_ir =================
+|
+
+%================= GOAL 2: STEP 1 =================
+\begin{frame}{Bước 1: Hội tụ của NTK tại $t=0$}
+  \textbf{Phân tích độ lớn:} $g_{ir}(0) = \nabla_{\theta_r} f_m(x_i) \sim O(1/\sqrt{m})$
+  
+  Mỗi phần tử kernel NTK là tổng tích vô hướng của $m$ neuron độc lập:
+  \[
+    K_{m,ij}(0) = \sum_{r=1}^m \langle g_{ir}(0), g_{jr}(0) \rangle = \sum_{r=1}^m O\Big(\frac{1}{m}\Big)
+  \]
+  
+  \textbf{Áp dụng Luật số lớn (LLN):} Khi $m \to \infty$, tổng này hội tụ về kỳ vọng:
+  \[
+    K_m(\theta(0)) \xrightarrow[m\to\infty]{a.s.} \Theta(X,X) \quad (\text{Deterministic Limit Kernel})
+  \]
+
+  $\Rightarrow$ Tại khởi tạo, NTK thực nghiệm hội tụ về Kernel lý thuyết cố định.
+\end{frame}
+
+%================= GOAL 2: STEP 2 =================
+\begin{frame}{Mục tiêu 2 – Bước 2: tham số thay đổi rất ít khi train}
+  \textbf{Ý tưởng của Bước 2:}  
+  Khi $m$ rất lớn, mỗi tham số chỉ thay đổi rất nhỏ quanh điểm khởi tạo
+  $\theta_m(0)$ trong một khoảng thời gian hữu hạn $[0,T]$.
+
+  \vspace{0.2cm}
+  Ta dùng gradient flow:
+  \[
+    \frac{d\theta_r}{dt}
+    = -\nabla_{\theta_r}L(\theta),
+    \quad r = 1,\dots,m.
+  \]
+\end{frame}
+
+\begin{frame}{Mục tiêu 2 – Bước 2: Tốc độ thay đổi tham số}
+  Xét gradient Loss theo tham số neuron $r$ ($\theta_r = (a_r, w_r)$):
+  \[
+    \nabla_{\theta_r} L 
+    = \sum_{i=1}^n (f_i - y_i) \nabla_{\theta_r} f_m(x_i)
+    = \sum_{i=1}^n (f_i - y_i) \underbrace{\frac{1}{\sqrt{m}} \begin{pmatrix} \sigma(w_r^\top x_i) \\ a_r \sigma'(w_r^\top x_i) x_i \end{pmatrix}}_{O(1/\sqrt{m})}
+  \]
+  
+  \[
+    \Rightarrow \|\nabla_{\theta_r} L\| = O\left(\frac{1}{\sqrt{m}}\right)
+  \]
+\end{frame}
+
+\begin{frame}{Khái niệm Lipschitz và vai trò trong NTK}
+\textbf{Định nghĩa (Lipschitz):}
+Một hàm $h(\theta)$ được gọi là \emph{Lipschitz} nếu tồn tại hằng số $L$ sao cho
+\[
+  \|h(\theta_1) - h(\theta_2)\|
+  \;\le\;
+  L \, \|\theta_1 - \theta_2\|,
+  \quad \forall\theta_1,\theta_2.
+\]
+$L$ gọi là \textbf{Lipschitz constant}.
+
+\vspace{0.3cm}
+\textbf{Ý nghĩa:}
+\begin{itemize}
+  \item Nếu đạo hàm của $h$ bị chặn bởi $M$ (tức $|\nabla h|\le M$), thì $h$ Lipschitz với hằng số $L\le M$.
+\end{itemize}
+\end{frame}
+
+% --- Slide 1: Tham số ổn định ---
+\begin{frame}{Mục tiêu 2 – Bước 2: Tham số ổn định}
+  Như đã chứng minh, tốc độ thay đổi gradient là $O(1/\sqrt{m})$.
+  
+  Tích phân theo thời gian $t \in [0,T]$:
+  \[
+    \|\theta_r(t) - \theta_r(0)\| 
+    \le \int_0^T \left\| \frac{d\theta_r}{ds} \right\| ds 
+    = \int_0^T O\left(\frac{1}{\sqrt{m}}\right) ds
+    = O\left(\frac{T}{\sqrt{m}}\right).
+  \]
+
+  \textbf{Kết luận:} Khi $m \to \infty$, tham số $\theta(t)$ hội tụ về giá trị khởi tạo $\theta(0)$.
+\end{frame}
+
+% --- Slide 2: Gradient ổn định (Lipschitz) ---
+\begin{frame}{Mục tiêu 2 – Bước 2: Gradient ổn định (nhờ Lipschitz)}
+  \textbf{Nhắc lại tính Lipschitz:}
+  Hàm $h$ gọi là Lipschitz (hằng số $L$) nếu $\|h(x)-h(y)\| \le L\|x-y\|$.
+  Nếu $\|\nabla h\|$ bị chặn, thì $h$ là Lipschitz.
+
+  \vspace{0.2cm}
+  \textbf{Áp dụng:} Gradient $g_{ir}(\theta)$ có đạo hàm bị chặn $\Rightarrow$ là Lipschitz:
+  \[
+    \|g_{ir}(t) - g_{ir}(0)\| \le L \|\theta_r(t) - \theta_r(0)\|
+  \]
+  
+  Thay kết quả ổn định tham số:
+  \[
+    \|g_{ir}(t) - g_{ir}(0)\| \le L \cdot O\left(\frac{T}{\sqrt{m}}\right) = O\left(\frac{T}{\sqrt{m}}\right).
+  \]
+
+  \textbf{Ý nghĩa:} Gradient thay đổi rất ít trong quá trình train.
+\end{frame}
+
+% --- Slide 3: NTK ổn định ---
+\begin{frame}{Mục tiêu 2 – Bước 2: NTK ổn định (Kernel đóng băng)}
+  NTK là tổng tích vô hướng: $K_{m,ij}(t) = \sum_{r=1}^m \langle g_{ir}(t), g_{jr}(t) \rangle$.
+
+  Xét hiệu số của từng thành phần $\langle g_i(t), g_j(t) \rangle - \langle g_i(0), g_j(0) \rangle$.
+  Áp dụng \textbf{Bất đẳng thức tam giác}:
+  \[
+    \begin{aligned}
+      |\langle g(t), g(t) \rangle &- \langle g(0), g(0) \rangle| \\
+      &\le \|g(t)-g(0)\|\|g(t)\| + \|g(0)\|\|g(t)-g(0)\|
+    \end{aligned}
+  \]
+  
+  Tổng hợp lại qua $m$ neuron:
+  \[
+    \max_{t \in [0,T]} \|K_m(t) - K_m(0)\| \le \sum_{r=1}^m O\Big(\frac{1}{m\sqrt{m}}\Big) = O\Big(\frac{1}{\sqrt{m}}\Big) \xrightarrow{m \to \infty} 0.
+  \]
+
+  \textbf{Kết luận:} $K_m(t) \approx K_m(0) \approx \Theta(X,X)$.
+\end{frame}
+
+\begin{frame}{Bước 2: Thay đổi của một hạng tử NTK (Chi tiết)}
+Đặt $k_{ij}^{(r)}(t) := \langle g_{ir}(t),\, g_{jr}(t)\rangle$. Hiệu giữa hai thời điểm:
+\[
+  |k_{ij}^{(r)}(t) - k_{ij}^{(r)}(0)|
+  \le
+  \|g_{ir}(t)-g_{ir}(0)\|\cdot \|g_{jr}(t)\|
+  \;+\;
+  \|g_{jr}(t)-g_{jr}(0)\|\cdot \|g_{ir}(0)\|.
+\]
+
+Do phân tích ở trước:
+\[
+  \|g_{ir}(t)-g_{ir}(0)\| = O(1/m), \qquad
+  \|g_{jr}(t)\| = O(1/\sqrt{m}),
+\]
+
+Ta được:
+\[
+  |k_{ij}^{(r)}(t) - k_{ij}^{(r)}(0)|
+  = O\!\left(\frac{1}{m}\right)
+    \cdot O\!\left(\frac{1}{\sqrt{m}}\right)
+  = O\!\left(\frac{1}{m\sqrt{m}}\right).
+\]
+\end{frame}
+
+\begin{frame}{Bước 2: thay đổi của một hạng tử NTK}
+Đặt:
+\[
+  k_{ij}^{(r)}(t) := \langle g_{ir}(t),\, g_{jr}(t)\rangle.
+\]
+
+Hiệu giữa hai thời điểm:
+\[
+  |k_{ij}^{(r)}(t) - k_{ij}^{(r)}(0)|
+  \le
+  \|g_{ir}(t)-g_{ir}(0)\|\cdot \|g_{jr}(t)\|
+  \;+\;
+  \|g_{jr}(t)-g_{jr}(0)\|\cdot \|g_{ir}(0)\|.
+\]
+
+Do:
+\[
+  \|g_{ir}(t)-g_{ir}(0)\| = O(1/m), \qquad
+  \|g_{jr}(t)\| = O(1/\sqrt{m}),
+\]
+
+ta được:
+\[
+  |k_{ij}^{(r)}(t) - k_{ij}^{(r)}(0)|
+  = O\!\left(\frac{1}{m}\right)
+    \cdot O\!\left(\frac{1}{\sqrt{m}}\right)
+  = O\!\left(\frac{1}{m\sqrt{m}}\right).
+\]
+\end{frame}
+
+\begin{frame}{Bước 2: tổng hợp tác động của toàn bộ $m$ neuron}
+Tổng thay đổi của NTK:
+\[
+  |K_{m,ij}(t) - K_{m,ij}(0)|
+  = \left|\sum_{r=1}^m \big(k_{ij}^{(r)}(t) - k_{ij}^{(r)}(0)\big)\right|.
+\]
+
+Mỗi hạng tử có bậc $O(1/(m\sqrt{m}))$, nên:
+\[
+  |K_{m,ij}(t) - K_{m,ij}(0)|
+  \le
+  m \cdot O\!\left(\frac{1}{m\sqrt{m}}\right)
+  = O\!\left(\frac{1}{\sqrt{m}}\right)
+  \xrightarrow[m\to\infty]{}
+  0.
+\]
+
+\textbf{Kết luận Bước 2:}
+\[
+  \|K_m(\theta_m(t)) - K_m(\theta_m(0))\|
+  = O\!\left(\frac{1}{\sqrt{m}}\right)
+  \to 0.
+\]
+\end{frame}
+
+%================= GOAL 2: SUMMARY =================
+\begin{frame}{Mục tiêu 2 – Kết luận NTK regime}
+  Gộp Bước 1 và Bước 2:
+  \begin{itemize}
+    \item (Bước 1) Tại khởi tạo,
+      \[
+        K_m(\theta_m(0)) \xrightarrow[m\to\infty]{a.s.} \Theta(X,X).
+      \]
+    \item (Bước 2) Trong quá trình train với thời gian hữu hạn,
+      \[
+        \sup_{t\in[0,T]}
+        \|K_m(\theta_m(t)) - K_m(\theta_m(0))\|
+        \xrightarrow[m\to\infty]{} 0.
+      \]
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textbf{Kết luận:} Trong NTK regime, ta có xấp xỉ:
+  \[
+    \frac{d\mathbf f(t)}{dt}
+      = -K_m(\theta_m(t))(\mathbf f(t)-\mathbf y)
+      \approx -\Theta(X,X)(\mathbf f(t)-\mathbf y).
+  \]
+\end{frame}
+
+%================= GOAL 3 =================
+\begin{frame}{Mục tiêu 3: Nghiệm Closed-form và Hội tụ}
+  Thay kernel "đóng băng" $K(t) \approx \Theta(X,X)$ vào ODE mục tiêu 1:
+  \[ \frac{d}{dt}(\mathbf{f}(t) - \mathbf{y}) = -\Theta(X,X)(\mathbf{f}(t) - \mathbf{y}) \]
+  
+  Đây là ODE tuyến tính với nghiệm giải tích (Closed-form):
+  \[ \mathbf{f}(t) = \mathbf{y} + e^{-\Theta(X,X)t}(\mathbf{f}(0) - \mathbf{y}) \]
+  
+  \textbf{Kết quả hội tụ:} Khi $t \to \infty$ (với $\lambda_{\min}(\Theta) > 0$):
+  \[ \mathbf{f}(t) \to \mathbf{y} \implies \text{Loss} \to 0 \quad (\text{Hội tụ toàn cục}) \]
+\end{frame}
+
+\begin{frame}{Dự đoán tại điểm test (NTK Predictor)}
+  Với điểm test $x$, dynamics tuân theo: $\frac{df_t(x)}{dt} = -\Theta(x,X)(\mathbf f(t) - \mathbf y)$.
+  
+  Giải phương trình và giả sử khởi tạo nhỏ ($f_0 \approx 0$), ta có kết quả cuối cùng:
+  \[
+    \boxed{ f_\infty(x) = \Theta(x,X)\Theta(X,X)^{-1}\mathbf y }
+  \]
+
+  \textbf{Ý nghĩa quan trọng:}
+  \begin{itemize}
+    \item Việc train mạng nơ-ron vô hạn (GD) tương đương với giải bài toán **Kernel Regression** với kernel $\Theta$.
+    \item Ta có thể tính toán kết quả mà không cần train mạng!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Tóm tắt toàn bộ chứng minh NTK}
+  \begin{enumerate}
+    \item \textbf{Mục tiêu 1:}  
+          Từ gradient flow và Jacobian:
+          \[
+            \dot{\mathbf f}(t)
+            = -K(\theta(t))(\mathbf f(t)-\mathbf y),
+            \quad K = JJ^\top.
+          \]
+    \item \textbf{Mục tiêu 2:} (NTK regime)  
+          Khi width $m\to\infty$:
+          \[
+            K_m(\theta(t)) \approx K_m(\theta(0)) \to \Theta(X,X),
+          \]
+          nên kernel gần như \textbf{hằng theo $t$}.
+    \item \textbf{Mục tiêu 3:}  
+          Thay $K$ bằng $\Theta(X,X)$, giải ODE:
+          \[
+            f_\infty(x)
+            = \Theta(x,X)\Theta(X,X)^{-1}\mathbf y,
+          \]
+          $\Rightarrow$ gradient descent trên mạng rộng = kernel regression với NTK.
+  \end{enumerate}
+\end{frame}
+
+%================= CLASSIC KERNELS =================
+\begin{frame}{Kết quả kinh điển: NNGP Kernel của ReLU}
+Kết quả cổ điển từ Cho \& Saul (2009), Neal (1996), dùng lại trong
+Jacot et al. (2018) và Lee et al. (2019):
+
+\vspace{0.2cm}
+Khi $w \sim \mathcal N(0,\tfrac{1}{k'}I)$, ta có kernel NNGP:
+\[
+K(x,x')
+=
+\frac{\|x\|\,\|x'\|}{2\pi k'}
+\Big(
+(\pi - \theta)\cos\theta + \sin\theta
+\Big)
+I_k
+\]
+trong đó
+\[
+\cos\theta
+=
+\frac{x^\top x'}{\|x\|\|x'\|}.
+\]
+
+\vspace{0.2cm}
+Đây là \textbf{arc--cosine kernel cấp 1 (ReLU NNGP kernel)}.
+\end{frame}
+
+\begin{frame}{Kết quả kinh điển: NTK của mạng hai tầng ReLU}
+Theo Jacot et al. (2018), Lee et al. (2019):
+khi chiều rộng $n_h \to \infty$, NTK thực nghiệm hội tụ về
+kernel xác định:
+
+\[
+\Theta(x,x')
+=
+\frac{x^\top x'}{2\pi k'}(\pi - \theta)
++
+\frac{\|x\|\|x'\|}{2\pi k'}
+\Big(
+(\pi - \theta)\cos\theta + \sin\theta
+\Big)
+\; I_k
+\]
+
+với cùng định nghĩa
+\[
+\cos\theta = \frac{x^\top x'}{\|x\|\|x'\|}.
+\]
+
+\vspace{0.2cm}
+NTK này gồm:
+\begin{itemize}
+    \item một phần từ đạo hàm theo $W_2$ (ReLU kernel),
+    \item một phần từ đạo hàm theo $W_1$ (term $x^\top x'$).
+\end{itemize}
+\end{frame}
+
+% ===== SLIDE CHUYỂN TIẾP SANG PHẦN 3 =====
+\begin{frame}{}
+  \centering
+  \vfill
+  {\Huge \textbf{Phần 3}}\\[0.5cm]
+  {\Large Template Matching}
+  \vfill
+\end{frame}

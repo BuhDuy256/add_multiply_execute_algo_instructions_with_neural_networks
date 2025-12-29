@@ -1,0 +1,34 @@
+\section{Kết luận}
+
+\begin{frame}{Kết luận chung}
+  \textbf{Điều bài báo đã chứng minh:}
+  \begin{itemize}
+    \item Mạng 2 lớp trong giới hạn $n_h \to \infty$ (NTK regime) có thể học \textbf{chính xác} các lệnh thuật toán nhị phân.
+    \item Chỉ cần $O(\log 2^b) = O(b)$ training samples (logarithmic trong không gian input).
+    \item Ensemble complexity: $N \in O(\ell^2 \log \ell)$ cho Permutation, Addition, Multiplication.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Ý nghĩa:}
+  \begin{itemize}
+    \item Đây là kết quả NTK-based \textbf{đầu tiên} cho exact learnability của các tác vụ này.
+    \item Vì SBN là Turing-complete, framework mở rộng cho mọi hàm tính được (computable functions).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Hạn chế và hướng phát triển}
+  \textbf{Hạn chế (Limitations):}
+  \begin{itemize}
+    \item \textbf{Data Orthogonality Assumption:}
+      Yêu cầu template trực giao. Nếu data correlate (dữ liệu thực tế), nhiễu giao thoa (cross-talk noise) $\sum \langle e_k, e_j \rangle$ sẽ tích tụ và gây sai dấu output.
+    \item \textbf{Bounded Memory \& Fixed Architecture:}
+      Mạng MLP có kích thước cố định, không thể "Length Generalization". Muốn xử lý input dài hơn (vd: 10 bit $\to$ 12 bit) buộc phải \textbf{retrain} mạng mới lớn hơn.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Hướng phát triển (Future Work):}
+  \begin{itemize}
+    \item \textbf{Correlated Learning:} Nghiên cứu cơ chế giảm nhiễu cho dữ liệu không trực chuẩn.
+    \item \textbf{Graph Neural Networks (GNN):} Sử dụng GNN trên đồ thị (Sparse Graph) để chia sẻ trọng số, cho phép xử lý input có kích thước bất kỳ (Length Generalization).
+  \end{itemize}
+\end{frame}

@@ -1,0 +1,59 @@
+\section{Kết quả Kernel Kinh điển}
+\begin{frame}{Kết quả kinh điển: NNGP Kernel của ReLU}
+
+Kết quả cổ điển từ Cho \& Saul (2009), Neal (1996), dùng lại trong
+Jacot et al. (2018) và Lee et al. (2019):
+
+\vspace{0.2cm}
+Khi $w \sim \mathcal N(0,\tfrac{1}{k'}I)$, ta có kernel NNGP:
+\[
+K(x,x')
+=
+\frac{\|x\|\,\|x'\|}{2\pi k'}
+\Big(
+(\pi - \theta)\cos\theta + \sin\theta
+\Big)
+I_k
+\]
+trong đó
+\[
+\cos\theta
+=
+\frac{x^\top x'}{\|x\|\|x'\|}.
+\]
+
+\vspace{0.2cm}
+Đây là \textbf{arc--cosine kernel cấp 1 (ReLU NNGP kernel)}.
+\end{frame}
+
+\begin{frame}{Kết quả kinh điển: NTK của mạng hai tầng ReLU}
+
+Theo Jacot et al. (2018), Lee et al. (2019):
+khi chiều rộng $n_h \to \infty$, NTK thực nghiệm hội tụ về
+kernel xác định:
+
+\[
+\Theta(x,x')
+=
+\frac{x^\top x'}{2\pi k'}(\pi - \theta)
++
+\frac{\|x\|\|x'\|}{2\pi k'}
+\Big(
+(\pi - \theta)\cos\theta + \sin\theta
+\Big)
+I_k
+\]
+
+với cùng định nghĩa
+\[
+\cos\theta = \frac{x^\top x'}{\|x\|\|x'\|}.
+\]
+
+\vspace{0.2cm}
+NTK này gồm:
+\begin{itemize}
+    \item một phần từ đạo hàm theo $W_2$ (ReLU kernel),
+    \item một phần từ đạo hàm theo $W_1$ (term $x^\top x'$).
+\end{itemize}
+
+\end{frame}

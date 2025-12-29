@@ -1,0 +1,156 @@
+%================= EXACT LEARNABILITY PART I: NTK PREDICTOR =================
+\section{Exact Learnability Part I: NTK Predictor}
+
+\begin{frame}{Bước 2: Orthonormalized Training (Section 5.1)}
+  \textbf{Mã hóa Template thành Training Data:}
+  \begin{itemize}
+    \item Mỗi template $(x^{(i,j)}, y^{(i,j)}) \in T_i$ được mã hóa thành vector $q_{ij} \in \mathbb{R}^{k'}$.
+    \item $q_{ij}$ có cấu trúc block-partitioned: chỉ block thứ $i$ khác 0.
+    \item Các $q_{ij}$ được \textbf{trực giao hóa} (orthogonalized) trong mỗi block.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Kết quả:}
+  \[
+    X = \{q_{ij} : i \in [b], j \in [t_i]\} \subseteq \mathbb{R}^{k'} \quad \text{(orthonormal)}
+  \]
+  
+  $\Rightarrow$ NTK matrix $\Theta(X,X)$ trở thành \textbf{scaled identity + rank-1 noise}.
+\end{frame}
+
+\begin{frame}{Test Input Structure}
+  \textbf{Cấu trúc Test Input $\hat{x}$:}
+  \begin{itemize}
+    \item $\hat{x} = \frac{1}{\sqrt{n_{\hat{x}}}} (\hat{x}_1, \ldots, \hat{x}_b)^\top$
+    \item Mỗi block $\hat{x}_i$ hoặc = $0$ hoặc match một sample trong $X$.
+    \item $n_{\hat{x}}$ = số blocks active (matched).
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Quan trọng:}
+  \begin{itemize}
+    \item Tổng số test inputs: $O(2^b)$ (exponentially lớn hơn training set $O(b)$).
+    \item Ví dụ: Addition 10-bit cần 40 training samples nhưng có $4^{10}$ test inputs.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Theorem 5.1: NTK Predictor Behavior}
+  \textbf{Assumption 5.1 (Bounded Unwanted Correlations):}
+  Số "unwanted correlations" (training samples không match $\hat{x}$ nhưng có bit $i$ set) phải nhỏ hơn tỷ lệ $-w_1/w_0$.
+
+  \vspace{0.3cm}
+  \textbf{Theorem 5.1:} Dưới Assumption 5.1, NTK predictor $\mu(\hat{x})$ bảo toàn dấu:
+  \[
+    \begin{cases}
+      \mu(\hat{x})_i \le 0 & \text{nếu ground-truth bit } f(\hat{x})_i = 0 \\
+      \mu(\hat{x})_i > 0 & \text{nếu ground-truth bit } f(\hat{x})_i = 1
+    \end{cases}
+  \]
+
+  $\Rightarrow$ \textbf{Rounding} cho kết quả chính xác:
+  \[
+    \text{round}(\mu(\hat{x})_i) = f(\hat{x})_i
+  \]
+\end{frame}
+
+%================= EXACT LEARNABILITY PART II: ENSEMBLE COMPLEXITY =================
+\section{Exact Learnability Part II: Ensemble Complexity}
+
+\begin{frame}{Bước 4: Ensemble Complexity Bound (Section 6)}
+  \textbf{Vấn đề:} Theorem 5.1 chỉ đúng cho \emph{kỳ vọng} $\mu(\hat{x})$. Thực tế mỗi model có variance $\sigma^2(\hat{x})$.
+
+  \vspace{0.3cm}
+  \textbf{Giải pháp:} Ensemble $N$ models, lấy trung bình $G(\hat{x}) = \frac{1}{N}\sum_{j=1}^N F^j(\hat{x})$.
+
+  \vspace{0.3cm}
+  \textbf{Công thức Ensemble Complexity (Equation 8):}
+  \[
+    N \ge 8 \max_{\hat{x}, i \in [k]} \left\{ \frac{\sigma^2(\hat{x})}{\mu^2(\hat{x})_i} \right\} \ln\left(\frac{2k'}{\delta}\right)
+  \]
+
+  Với xác suất $1 - \delta$, rounding ensemble mean cho kết quả chính xác.
+\end{frame}
+
+\begin{frame}{Lemma 6.1 và Remark 6.1: Asymptotic Order}
+  \textbf{Lemma 6.1:} Phân tích bậc của $\mu(\hat{x})$ và $\sigma^2(\hat{x})$:
+  \begin{itemize}
+    \item $\sigma^2(\hat{x}) \in O(1/k')$
+    \item $|\mu(\hat{x})_i|$ phụ thuộc vào $n_{\hat{x}}$ và $k'$.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Remark 6.1 (Kết quả chính):}
+  \begin{itemize}
+    \item \textbf{Permutation:} $N \in O(\ell^2)$
+    \item \textbf{Addition:} $N \in O(\ell^2)$
+    \item \textbf{Multiplication:} $N \in O(\ell^2)$
+  \end{itemize}
+
+  Trong đó $\ell$ = số bit của input.
+\end{frame}
+
+%================= EXPERIMENTAL RESULTS =================
+\section{Kết quả thực nghiệm}
+
+\begin{frame}{Validation thực nghiệm (Paper Figure 5)}
+  \textbf{Setup thí nghiệm:}
+  \begin{itemize}
+    \item Mạng 2 lớp, 50,000 hidden units.
+    \item Full-batch gradient descent.
+    \item Bit length $\ell$ từ 2 đến 30.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Kết quả:}
+  \begin{itemize}
+    \item Ensemble complexity tăng theo $O(\ell^2 \log \ell)$ như lý thuyết dự đoán.
+    \item Numerical (xanh dương) khớp hoàn hảo với Theoretical bound (xanh lá).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Biểu đồ minh chứng (Evidence Plot)}
+\centering
+\resizebox{0.9\textwidth}{!}{
+  \begin{tikzpicture}
+    \begin{semilogyaxis}[
+        width=0.8\textwidth,
+        height=0.5\textwidth,
+        title={}, % Title handled by caption in main.tex usually, but kept blank or specific
+        xlabel={Input size $\ell$},
+        ylabel={Ensemble size $N$},
+        xmin=0, xmax=32,
+        ymin=1, ymax=20000,
+        xtick={2,4,6,8,10,12,14,16,18,20,22,24,26,28,30},
+        ytick={1,10,100,1000,10000, 100000},
+        legend pos=south east,
+        ymajorgrids=true,
+        grid style=dashed,
+    ]
+    
+    % Theoretical Bound
+    \addplot[
+        color=green!60!black,
+        style=solid,
+        line width=1.5pt,
+    ]
+    coordinates {
+        (2.0,5013.9) (3.5,5075.1) (4.9,5195.7) (6.4,5383.4) (7.9,5643.9) (9.4,5981.8) (10.8,6400.9) (12.3,6904.2) (13.8,7494.7) (15.3,8174.6) (16.7,8946.4) (18.2,9811.9) (19.7,10772.9) (21.2,11831.3) (22.6,12988.5) (24.1,14246.0) (25.6,15605.2) (27.1,17067.3) (28.5,18633.7) (30.0,20305.4) 
+    };
+    \addlegendentry{Lý thuyết $\mathcal{O}(\ell^2 \log \ell)$}
+    
+    % Empirical Data
+    \addplot[
+        color=blue!60!black,
+        mark=*,
+        style=solid,
+        line width=1.5pt,
+    ]
+    coordinates {
+        (2,1) (3,0) (4,39) (5,27) (6,16) (7,32) (8,39) (9,56) (10,58) (11,50) (12,51) (13,85) (14,86) (15,84) (16,84) (17,91) (18,117) (19,114) (20,131) (21,123) (22,123) (23,148) (24,137) (25,145) (26,167) (27,170) (28,182) (29,171) (30,171) 
+    };
+    \addlegendentry{Thực nghiệm}
+    
+    \end{semilogyaxis}
+  \end{tikzpicture}
+}
+\end{frame}

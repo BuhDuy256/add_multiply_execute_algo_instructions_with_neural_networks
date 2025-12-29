@@ -1,0 +1,47 @@
+\section{Thiết lập}
+\begin{frame}{Thiết lập: dữ liệu}
+  \textbf{Dữ liệu:}
+  \[
+    \{(x_i,y_i)\}_{i=1}^n,\quad x_i \in \mathbb R^d,\ y_i \in \mathbb R.
+  \]
+  \begin{itemize}
+    \item $x_i$: vector đặc trưng đầu vào (chiều $d$).
+    \item $y_i$: nhãn thực, bài toán regression (scalar).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Thiết lập: mô hình}
+  \textbf{Mô hình mạng 2 tầng (scalar output):}
+  \[
+    f_m(x;\theta)
+      = \frac{1}{\sqrt{m}} \sum_{r=1}^m a_r\,\sigma(w_r^\top x),
+  \]
+  với:
+  \begin{itemize}
+    \item $m$: số neuron trong hidden layer (chiều rộng ẩn).
+    \item $w_r \in \mathbb R^d$: trọng số từ input tới neuron ẩn thứ $r$.
+    \item $a_r \in \mathbb R$: trọng số từ neuron ẩn $r$ ra output.
+    \item $\theta = (a_r, w_r)_{r=1}^m$: toàn bộ tham số của mạng.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Thiết lập: vector output và Loss}
+  \textbf{Vector output trên tập train:}
+  \[
+    \mathbf f(\theta) =
+    \begin{bmatrix}
+      f_m(x_1;\theta)\\ \vdots \\ f_m(x_n;\theta)
+    \end{bmatrix}
+    \in \mathbb R^n,
+    \quad
+    \mathbf y =
+    \begin{bmatrix}
+      y_1\\ \vdots \\ y_n
+    \end{bmatrix}.
+  \]
+
+  \textbf{Loss (MSE):}
+  \[
+    L(\theta) = \frac{1}{2}\|\mathbf f(\theta) - \mathbf y\|^2.
+  \]
+\end{frame}

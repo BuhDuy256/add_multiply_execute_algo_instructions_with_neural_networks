@@ -1,0 +1,83 @@
+\section{Mục tiêu 3: Giải ODE}
+\begin{frame}{Mục tiêu 3: Giải ODE và kernel regression}
+  Từ Mục tiêu 2, ta xét hệ ODE xấp xỉ:
+  \[
+    \frac{d\mathbf f(t)}{dt}
+    = -\Theta(X,X)\big(\mathbf f(t) - \mathbf y\big).
+  \]
+  Đặt $\mathbf u(t) = \mathbf f(t) - \mathbf y$:
+  \[
+    \frac{d\mathbf u(t)}{dt}
+    = -\Theta(X,X)\mathbf u(t).
+  \]
+  Đây là ODE tuyến tính với nghiệm:
+  \[
+    \mathbf u(t)
+    = e^{-\Theta(X,X)t}\mathbf u(0).
+  \]
+  Suy ra:
+  \[
+    \mathbf f(t)
+    = \mathbf y + e^{-\Theta(X,X)t}(\mathbf f(0) - \mathbf y).
+  \]
+
+  Khi $t \to \infty$:
+  \[
+    e^{-\Theta(X,X)t} \to 0
+    \Rightarrow
+    \mathbf f_\infty = \mathbf y
+    \quad \text{(fit đúng trên tập train)}.
+  \]
+\end{frame}
+
+\begin{frame}{Giá trị tại điểm test $x$ và công thức NTK predictor}
+  Với điểm test $x$, ta có động lực:
+  \[
+    \frac{df_t(x)}{dt}
+    = -\Theta(x,X)\big(\mathbf f(t) - \mathbf y\big),
+  \]
+  với
+  \(
+    \Theta(x,X) = [\Theta(x,x_1),\dots,\Theta(x,x_n)].
+  \)
+
+  Thay biểu thức $\mathbf f(t)$ và giải, ta thu được nghiệm giới hạn:
+  \[
+    f_\infty(x)
+    = f_0(x) - \Theta(x,X)\Theta(X,X)^{-1}(\mathbf f(0) - \mathbf y).
+  \]
+
+  Nếu khởi tạo sao cho $\mathbb E[f_0(x)]=0$ (hoặc bỏ qua term này), ta có:
+  \[
+    \boxed{
+    f_\infty(x)
+    = \Theta(x,X)\Theta(X,X)^{-1}\mathbf y
+    }
+  \]
+  Đây chính là nghiệm của \textbf{kernel regression} với kernel $\Theta$.
+\end{frame}
+
+\begin{frame}{Tóm tắt toàn bộ chứng minh NTK}
+  \begin{enumerate}
+    \item \textbf{Mục tiêu 1:}  
+          Từ gradient flow và Jacobian:
+          \[
+            \dot{\mathbf f}(t)
+            = -K(\theta(t))(\mathbf f(t)-\mathbf y),
+            \quad K = JJ^\top.
+          \]
+    \item \textbf{Mục tiêu 2:} (NTK regime)  
+          Khi width $m\to\infty$:
+          \[
+            K_m(\theta(t)) \approx K_m(\theta(0)) \to \Theta(X,X),
+          \]
+          nên kernel gần như \textbf{hằng theo $t$}.
+    \item \textbf{Mục tiêu 3:}  
+          Thay $K$ bằng $\Theta(X,X)$, giải ODE:
+          \[
+            f_\infty(x)
+            = \Theta(x,X)\Theta(X,X)^{-1}\mathbf y,
+          \]
+          $\Rightarrow$ gradient descent trên mạng rộng = kernel regression với NTK.
+  \end{enumerate}
+\end{frame}

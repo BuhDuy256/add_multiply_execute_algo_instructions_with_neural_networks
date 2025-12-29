@@ -1,0 +1,75 @@
+\section{Chứng minh lý thuyết NTK}
+
+% Condensed NTK Theory - Merged from goals 1, 2, 3 and classic kernels
+\begin{frame}{NTK - Tổng quan 3 mục tiêu}
+  \textbf{Ý tưởng:} Khi $m \to \infty$, train NN $\equiv$ Kernel Regression với kernel $\Theta$.
+
+  \vspace{0.4cm}
+  \textbf{3 bước chứng minh:}
+  \begin{enumerate}
+    \item $\dot{\mathbf{f}}(t) = -K(\theta(t))(\mathbf{f}(t)-\mathbf{y})$ \hfill {\scriptsize (Output dynamics)}
+    \item $K(\theta(t)) \approx \Theta(X,X)$ khi $m \to \infty$ \hfill {\scriptsize (NTK regime)}
+    \item $f_\infty(x) = \Theta(x,X)\Theta(X,X)^{-1}\mathbf{y}$ \hfill {\scriptsize (Kernel solution)}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Mục tiêu 1: Output Dynamics}
+  Gradient flow: $\frac{d\theta}{dt} = -\nabla_\theta L(\theta)$
+  
+  \vspace{0.3cm}
+  Áp dụng chain rule với $\mathbf{f}(t) := \mathbf{f}(\theta(t))$:
+  \[
+    \frac{d\mathbf{f}(t)}{dt} = J(\theta)J(\theta)^\top (\mathbf{f}(t) - \mathbf{y})
+  \]
+  
+  Đặt $K(\theta) := J(\theta)J(\theta)^\top$, ta được:
+  \[
+    \boxed{\frac{d\mathbf{f}(t)}{dt} = -K(\theta(t))(\mathbf{f}(t) - \mathbf{y})}
+  \]
+\end{frame}
+
+\begin{frame}{Mục tiêu 2: NTK Regime (Lazy Training)}
+  \textbf{Bước 1 - Hội tụ tại $t=0$:}
+  \[
+    K_m(\theta_m(0)) \xrightarrow[m\to\infty]{a.s.} \Theta(X,X)
+  \]
+  
+  \textbf{Bước 2 - Kernel ``đóng băng'':}
+  \begin{itemize}
+    \item Mỗi gradient $g_{ir} = O(1/\sqrt{m})$ $\Rightarrow$ tham số thay đổi rất ít
+    \item $\|K_m(\theta(t)) - K_m(\theta(0))\| = O(1/\sqrt{m}) \to 0$
+  \end{itemize}
+  
+  \vspace{0.2cm}
+  \textbf{Kết luận:} $K_m(\theta(t)) \approx \Theta(X,X)$ (hằng số theo $t$)
+\end{frame}
+
+\begin{frame}{Mục tiêu 3: Giải ODE $\Rightarrow$ Kernel Regression}
+  Hệ ODE tuyến tính: $\dot{\mathbf{f}}(t) = -\Theta(X,X)(\mathbf{f}(t) - \mathbf{y})$
+  
+  \vspace{0.3cm}
+  \textbf{Nghiệm:} $\mathbf{f}(t) = \mathbf{y} + e^{-\Theta t}(\mathbf{f}(0) - \mathbf{y})$
+  
+  Khi $t \to \infty$: $\mathbf{f} \to \mathbf{y}$ (fit đúng trên train set)
+  
+  \vspace{0.3cm}
+  \textbf{NTK Predictor (test point):}
+  \[
+    \boxed{f_\infty(x) = \Theta(x,X)\Theta(X,X)^{-1}\mathbf{y}}
+  \]
+  $\Rightarrow$ Train mạng rộng = Kernel Regression với NTK.
+\end{frame}
+
+\begin{frame}{Công thức Kernel cho ReLU 2-layer}
+  \textbf{NNGP Kernel:}
+  \[
+    K(x,x') = \frac{\|x\|\|x'\|}{2\pi}\left((\pi-\theta)\cos\theta + \sin\theta\right)
+  \]
+  
+  \textbf{NTK Kernel:}
+  \[
+    \Theta(x,x') = K(x,x') + \frac{x^\top x'}{2\pi}(\pi-\theta)
+  \]
+  
+  Với $\cos\theta = \frac{x^\top x'}{\|x\|\|x'\|}$ (arc-cosine kernel).
+\end{frame}

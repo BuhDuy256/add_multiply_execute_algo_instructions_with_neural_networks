@@ -1,0 +1,54 @@
+\begin{frame}{Ví dụ minh họa: Phân rã thành các Luật Cục bộ (Local Rules)}
+  Thay vì học bảng cộng cho toàn bộ chuỗi bit (ví dụ $011 + 101$), thuật toán được phân rã thành các \textbf{thao tác cục bộ} tại mỗi vị trí $i$:
+
+  \begin{itemize}
+    \item \textbf{Nhóm 1: Bitwise Addition (Tại bit $i$)}
+      \begin{itemize}
+        \item Quy tắc $A_i$: $(p_i=1, q_i=0) \to p_i=1$
+        \item Quy tắc $B_i$: $(p_i=1, q_i=1) \to p_i=0, \text{sinh bit nhớ } c_i=1$
+      \end{itemize}
+    
+    \item \textbf{Nhóm 2: Carry Propagation (Tại bit $i$)}
+      \begin{itemize}
+        \item Quy tắc $C_i$: Nếu có bit nhớ $c_i=1 \to$ cộng dồn vào $q_{i+1}$ (hoặc lan truyền tiếp).
+      \end{itemize}
+  \end{itemize}
+
+  \vspace{0.2cm}
+  $\Rightarrow$ Bài toán quy về việc học một tập hợp \textbf{"bảng chữ cái"} các bước chuyển đổi nhỏ.
+\end{frame}
+
+\begin{frame}{Chiến lược Encode 1: "Bag of Rules" & Training Data}
+  \textbf{Tổng hợp Templates:}
+  Với chuỗi $L$ bit, ta có tập hợp tất cả các quy tắc cục bộ cho mọi $i$:
+  \[ T_{total} = \bigcup_{i=0}^{L-1} \{ \text{Rules tại } i \} \]
+
+  \textbf{Mã hóa (Encoding):}
+  Ta gộp tất cả $N$ rules cục bộ vào một không gian vector chung $\mathbb{R}^N$. Mỗi rule $t_k \in T_{total}$ được gán một chiều riêng biệt (one-hot).
+
+  \textbf{Training Data (Identity Matrix):}
+  \[
+    X_{train} = I_N = 
+    \begin{bmatrix}
+    e_1 & e_2 & \dots & e_N
+    \end{bmatrix}
+  \]
+  $\Rightarrow$ Mạng học song song tất cả các quy tắc cục bộ dưới dạng các vector \textbf{trực giao}.
+\end{frame}
+
+\begin{frame}{Chiến lược Encode 2: Inference & Lookup}
+  \textbf{Câu hỏi:} Khi tính toán thực tế, mạng làm gì?
+
+  \textbf{Inference (Superposition):}
+  Tại một thời điểm, trạng thái hệ thống khớp với rule $t_k$. 
+  \begin{itemize}
+    \item Input vector $x$ chính là $e_k$.
+    \item Nhờ tính chất trực giao của NTK trên $X_{train}$, output chỉ phụ thuộc vào label của $t_k$:
+  \end{itemize}
+  \[
+    y(x) \approx \sum_{j} \underbrace{\langle e_k, e_j \rangle}_{\delta_{kj}} y^{(j)}_{train} = y^{(k)}_{train}
+  \]
+
+  \vspace{0.2cm}
+  \textbf{Ý nghĩa:} Mạng không cần nhìn thấy "bức tranh toàn cảnh" của phép cộng, mà chỉ cần nhận diện đúng "mảnh ghép" (local rule) đang xuất hiện và thực thi nó.
+\end{frame}
