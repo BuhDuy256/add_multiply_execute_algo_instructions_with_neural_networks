@@ -2,34 +2,34 @@
 \contentsline {chapter}{\numberline {1}TỔNG QUAN}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Giới thiệu}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Các nghiên cứu liên quan}{1}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Động lực nghiên cứu}{1}{section.1.3}%
-\contentsline {section}{\numberline {1.4}Câu hỏi nghiên cứu}{1}{section.1.4}%
-\contentsline {section}{\numberline {1.5}Đóng góp của báo cáo}{1}{section.1.5}%
-\contentsline {chapter}{\numberline {2}CƠ SỞ LÝ THUYẾT}{2}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Ký hiệu và các khái niệm cơ bản}{2}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Neural Tangent Kernel (NTK)}{2}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Giới hạn chiều rộng vô hạn}{2}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Mạng nơ-ron hai lớp}{2}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Điều kiện về khả năng học chính xác}{2}{section.2.5}%
-\contentsline {chapter}{\numberline {3}PHƯƠNG PHÁP ĐỀ XUẤT}{3}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Kỹ thuật Template Matching}{3}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Cấu trúc dữ liệu và Trực giao hóa}{3}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Định lý về bộ dự báo NTK (NTK Predictor Behavior)}{3}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Kiểm soát tương quan không mong muốn (Assumption 5.1)}{3}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Triển khai thuật toán}{3}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Phép hoán vị}{3}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}Phép cộn}{3}{subsection.3.5.2}%
-\contentsline {subsection}{\numberline {3.5.3}Phép nhân}{3}{subsection.3.5.3}%
-\contentsline {subsection}{\numberline {3.5.4}Tính toán tổng quát với SBN}{3}{subsection.3.5.4}%
-\contentsline {section}{\numberline {3.6}Độ phức tạp tập hợp}{3}{section.3.6}%
-\contentsline {chapter}{\numberline {4}THỰC NGHIỆM VÀ PHÂN TÍCH}{4}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Thiết lập thực nghiệm}{4}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Xác minh lý thuyết}{4}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Kết quả trên phép cộng và nhân}{4}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}So sánh phương sai và kỳ vọng}{4}{subsection.4.2.2}%
-\contentsline {section}{\numberline {4.3}Thực nghiệm huấn luyện}{4}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Bài toán Hoán vị}{4}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Độ chính xác theo kích thước Ensemble}{4}{subsection.4.3.2}%
-\contentsline {chapter}{\numberline {5}KẾT LUẬN}{5}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Chứng minh toán học bổ trợ}{7}{appendix.A}%
-\contentsline {chapter}{\numberline {B}Mã nguồn cài đặt mô phỏng}{8}{appendix.B}%
+\contentsline {section}{\numberline {1.3}Động lực nghiên cứu}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Câu hỏi nghiên cứu}{2}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Đóng góp của báo cáo}{3}{section.1.5}%
+\contentsline {chapter}{\numberline {2}CƠ SỞ LÝ THUYẾT}{4}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Ký hiệu và các khái niệm cơ bản}{4}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Neural Tangent Kernel (NTK)}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Giới hạn chiều rộng vô hạn}{4}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Mạng nơ-ron hai lớp}{4}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Điều kiện về khả năng học chính xác}{4}{section.2.5}%
+\contentsline {chapter}{\numberline {3}PHƯƠNG PHÁP ĐỀ XUẤT}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Kỹ thuật Template Matching}{5}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Cấu trúc dữ liệu và Trực giao hóa}{5}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Định lý về bộ dự báo NTK (NTK Predictor Behavior)}{5}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Kiểm soát tương quan không mong muốn (Assumption 5.1)}{5}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Triển khai thuật toán}{5}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Phép hoán vị}{5}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Phép cộn}{5}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Phép nhân}{5}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Tính toán tổng quát với SBN}{5}{subsection.3.5.4}%
+\contentsline {section}{\numberline {3.6}Độ phức tạp tập hợp}{5}{section.3.6}%
+\contentsline {chapter}{\numberline {4}THỰC NGHIỆM VÀ PHÂN TÍCH}{6}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Thiết lập thực nghiệm}{6}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Xác minh lý thuyết}{6}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Kết quả trên phép cộng và nhân}{6}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}So sánh phương sai và kỳ vọng}{6}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Thực nghiệm huấn luyện}{6}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Bài toán Hoán vị}{6}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Độ chính xác theo kích thước Ensemble}{6}{subsection.4.3.2}%
+\contentsline {chapter}{\numberline {5}KẾT LUẬN}{7}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Chứng minh toán học bổ trợ}{9}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Mã nguồn cài đặt mô phỏng}{10}{appendix.B}%
