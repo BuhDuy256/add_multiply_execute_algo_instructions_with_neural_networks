@@ -1,0 +1,149 @@
+\documentclass[12pt,a4paper]{report}
+
+% --- CÁC PACKAGE CẦN THIẾT ---
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel} % Hỗ trợ tiếng Việt
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb, amsfonts} % Soạn thảo công thức toán học
+\usepackage{graphicx} % Chèn hình ảnh
+\usepackage{hyperref} % Tạo liên kết trong văn bản
+\usepackage{listings} % Để trình bày mã nguồn Python
+\usepackage{color}
+\usepackage{geometry}
+ \geometry{a4paper, margin=2.5cm}
+\usepackage{titlesec} % Tùy chỉnh tiêu đề chương
+\usepackage{tocloft} % Tùy chỉnh mục lục
+
+% --- CẤU HÌNH TRÌNH BÀY MÃ NGUỒN (PYTHON) ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{codegreen},
+    stringstyle=\color{codepurple},
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    frame=single
+}
+
+% --- ĐỊNH NGHĨA TRANG BÌA ---
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \textbf{ĐẠI HỌC QUỐC GIA TP.HCM} \\
+        \textbf{TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN} \\[2cm]
+        
+        \large Trần Nguyễn Khải Luân \\
+        \large Nguyễn Bảo Duy \\
+        \large Trương Quốc Cường \\
+        \large Nguyễn Thanh Tiến \\ [1.5cm]
+        
+        \huge \textbf{Nghiên cứu về khả năng học chính xác thuật toán 
+của mạng nơ-ron} \\[0.5cm]
+        \large \textit{Bài báo: Learning to Add, Multiply, and Execute Algorithmic Instructions Exactly with Neural Networks} \\ [0.5cm]
+        \large \textbf{Môn học: Nhập môn Học máy} \\[1.5cm]
+        
+        \vfill
+        \large TP. Hồ Chí Minh, Năm 2025
+    \end{center}
+\end{titlepage}
+
+\begin{titlepage}
+    \begin{center}
+        \textbf{ĐẠI HỌC QUỐC GIA TP.HCM} \\
+        \textbf{TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN} \\[2cm]
+        
+        \large Trần Nguyễn Khải Luân \\
+        \large Nguyễn Bảo Duy \\
+        \large Trương Quốc Cường \\
+        \large Nguyễn Thanh Tiến \\ [1.5cm]
+        
+        \huge \textbf{Nghiên cứu về khả năng học chính xác thuật toán 
+của mạng nơ-ron} \\[0.5cm]
+        \large \textit{Bài báo: Learning to Add, Multiply, and Execute Algorithmic Instructions Exactly with Neural Networks} \\ [0.5cm]
+        \large \textbf{Môn học: Nhập môn Học máy} \\[3cm]
+
+        Giảng viên hướng dẫn: \textbf{ThS. Lê Nhựt Nam}
+        
+        \vfill
+        \large TP. Hồ Chí Minh, Năm 2025
+    \end{center}
+\end{titlepage}
+
+% --- THÔNG TIN NHÓM ---
+\newpage
+\pagenumbering{roman} % Đánh số trang kiểu La Mã cho phần đầu
+\section*{THÔNG TIN NHÓM}
+\begin{itemize}
+    \item \textbf{Nhóm:} 11
+    \item \textbf{Nhóm trưởng:} Trương Quốc Cường - 23127333
+    \item \textbf{Danh sách thành viên:}
+    \begin{enumerate}
+        \item Trần Nguyễn Khải Luân - 23127006
+        \item Nguyễn Bảo Duy - 23127179
+        \item Nguyễn Thanh Tiến - 23127539
+    \end{enumerate}
+\end{itemize}
+
+% --- MỤC LỤC ---
+\tableofcontents
+\listoftables
+\listoffigures
+
+\newpage
+\pagenumbering{arabic}
+
+\chapter{TỔNG QUAN}
+\section{Giới thiệu}
+\section{Các nghiên cứu liên quan}
+\section{Động lực nghiên cứu}
+\section{Câu hỏi nghiên cứu}
+\section{Đóng góp của báo cáo}
+
+\chapter{CƠ SỞ LÝ THUYẾT}
+\section{Ký hiệu và các khái niệm cơ bản}
+\section{Neural Tangent Kernel (NTK)}
+\section{Giới hạn chiều rộng vô hạn}
+\section{Mạng nơ-ron hai lớp}
+\section{Điều kiện về khả năng học chính xác}
+
+\chapter{PHƯƠNG PHÁP ĐỀ XUẤT}
+\section{Kỹ thuật Template Matching}
+\section{Cấu trúc dữ liệu và Trực giao hóa}
+\section{Định lý về bộ dự báo NTK (NTK Predictor Behavior)}
+\section{Kiểm soát tương quan không mong muốn (Assumption 5.1)}
+\section{Triển khai thuật toán}
+    \subsection{Phép hoán vị}
+    \subsection{Phép cộn}
+    \subsection{Phép nhân}
+    \subsection{Tính toán tổng quát với SBN}
+\section{Độ phức tạp tập hợp}
+
+\chapter{THỰC NGHIỆM VÀ PHÂN TÍCH}
+\section{Thiết lập thực nghiệm}
+\section{Xác minh lý thuyết}
+    \subsection{Kết quả trên phép cộng và nhân}
+    \subsection{So sánh phương sai và kỳ vọng}
+\section{Thực nghiệm huấn luyện}
+    \subsection{Bài toán Hoán vị}
+    \subsection{Độ chính xác theo kích thước Ensemble}
+
+\chapter{KẾT LUẬN}
+
+% --- TÀI LIỆU THAM KHẢO ---
+\newpage
+\begin{thebibliography}{99}
+    \bibitem{de_luca_2025} Artur Back de Luca, George Giapitzakis, and Kimon Fountoulakis, "Learning to Add, Multiply, and Execute Algorithmic Instructions Exactly with Neural Networks", arXiv:2502.16763, 2025.
+\end{thebibliography}
+
+% --- PHỤ LỤC ---
+\appendix
+\chapter{Chứng minh toán học bổ trợ}
+\chapter{Mã nguồn cài đặt mô phỏng}
+
+\end{document}
