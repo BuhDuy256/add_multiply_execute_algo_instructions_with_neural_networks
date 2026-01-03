@@ -1,11 +1,296 @@
 \chapter{PHƯƠNG PHÁP ĐỀ XUẤT}
+
 \section{Kỹ thuật Template Matching}
+
+Ý tưởng cốt lõi của phương pháp đề xuất là biến đổi bài toán thực thi thuật toán thành bài toán nhận dạng mẫu (pattern recognition), nơi mạng nơ-ron có thể phát huy thế mạnh vốn có. Thay vì cố gắng học trực tiếp một hàm rời rạc phức tạp, thuật toán được phân rã thành các quy tắc cục bộ đơn giản, mỗi quy tắc được mã hóa thành một ``mẫu'' (template).
+
+\subsection{Nguyên lý phân rã thuật toán}
+
+Xét một thuật toán thao tác trên dữ liệu nhị phân có $l$ bit. Thay vì xem thuật toán như một hàm đơn nhất $f: \{0,1\}^l \rightarrow \{0,1\}^l$, phương pháp template matching phân rã nó thành tập hợp các hàm khớp mẫu cục bộ $\{f_i\}$, mỗi hàm thao tác trên một khối bit nhỏ (block bit).
+
+Mỗi hàm cục bộ $f_i$ được định nghĩa trên một tập con các bit đầu vào và xác định giá trị của một bit đầu ra cụ thể. Cấu trúc này được gọi là \textit{block-partitioned}, trong đó:
+\begin{itemize}
+    \item Đầu vào được chia thành các khối bit có kích thước cố định
+    \item Mỗi quy tắc cục bộ chỉ phụ thuộc vào một số khối đầu vào giới hạn
+    \item Đầu ra của mỗi quy tắc xác định một hoặc vài bit cụ thể
+\end{itemize}
+
+\subsection{Công thức hàm tổng hợp}
+
+Cho $\hat{x}$ là vector trạng thái hiện tại (biểu diễn nhị phân mở rộng), hàm tổng hợp $f(\hat{x})$ được xây dựng từ các hàm cục bộ thông qua phép tuyển bitwise (bitwise disjunction):
+\begin{equation}
+    f(\hat{x}) = \bigvee_{i} f_i(\hat{x})
+\end{equation}
+
+trong đó $\bigvee$ biểu thị phép OR logic theo từng bit. Mỗi hàm $f_i(\hat{x})$ trả về một vector có hầu hết các thành phần bằng 0, chỉ khác 0 tại vị trí bit mà quy tắc đó xác định. Phép tuyển kết hợp tất cả các đóng góp này thành vector đầu ra hoàn chỉnh.
+
+\subsection{Cơ chế thực thi lặp}
+
+Nhiều thuật toán yêu cầu nhiều bước tính toán tuần tự. Phương pháp đề xuất mô hình hóa điều này thông qua cơ chế thực thi lặp (iterative execution):
+\begin{equation}
+    \hat{x}_{t+1} = f(\hat{x}_t)
+\end{equation}
+
+trong đó $\hat{x}_t$ là trạng thái tại bước thời gian $t$. Quá trình lặp tiếp tục cho đến khi đạt được trạng thái cuối cùng (ví dụ: sau một số bước cố định hoặc khi đạt điều kiện dừng).
+
+Điểm quan trọng là tại mỗi bước, đầu ra được làm tròn (rounding) về giá trị nhị phân chính xác trước khi đưa vào bước tiếp theo. Điều này ngăn chặn sự tích lũy sai số và đảm bảo tính chính xác xuyên suốt quá trình thực thi.
+
 \section{Cấu trúc dữ liệu và Trực giao hóa}
-\section{Định lý về bộ dự báo NTK (NTK Predictor Behavior)}
-\section{Kiểm soát tương quan không mong muốn (Assumption 5.1)}
-\section{Triển khai thuật toán}
-    \subsection{Phép hoán vị}
-    \subsection{Phép cộn}
-    \subsection{Phép nhân}
-    \subsection{Tính toán tổng quát với SBN}
+
+Để áp dụng khung lý thuyết NTK một cách hiệu quả, dữ liệu huấn luyện cần được cấu trúc theo cách đặc biệt. Phần này mô tả chiến lược mã hóa và tầm quan trọng của việc trực giao hóa.
+
+\subsection{Mô hình ``Bag of Rules''}
+
+Chiến lược mã hóa trung tâm là gom tất cả các quy tắc cục bộ của thuật toán vào một không gian vector chung, tạo thành mô hình ``Bag of Rules''. Trong mô hình này:
+\begin{itemize}
+    \item Mỗi quy tắc cục bộ được biểu diễn bởi một cặp (đầu vào mẫu, đầu ra mong đợi)
+    \item Tất cả các cặp được gom thành tập dữ liệu huấn luyện duy nhất
+    \item Mạng nơ-ron học cách ánh xạ từ mẫu đầu vào sang đầu ra tương ứng
+\end{itemize}
+
+Ưu điểm của cách tiếp cận này là tính module: mỗi quy tắc được học độc lập, và việc thêm quy tắc mới không yêu cầu thay đổi cấu trúc mạng.
+
+\subsection{Mã hóa mẫu thành vector huấn luyện}
+
+Mỗi mẫu (template) được mã hóa thành vector $q_{ij}$ có cấu trúc \textit{block-partitioned}. Cụ thể, với quy tắc thứ $j$ của bit đầu ra thứ $i$:
+\begin{equation}
+    q_{ij} = [\underbrace{0, \ldots, 0}_{\text{khối 1}}, \underbrace{v_1, \ldots, v_k}_{\text{khối liên quan}}, \underbrace{0, \ldots, 0}_{\text{khối cuối}}]
+\end{equation}
+
+trong đó các khối liên quan chứa giá trị nhị phân mã hóa điều kiện của quy tắc, còn các khối không liên quan được đặt bằng 0. Cấu trúc block-partitioned này đảm bảo rằng các quy tắc thao tác trên các khối khác nhau có vector biểu diễn trực giao với nhau.
+
+\subsection{Trực giao hóa dữ liệu huấn luyện}
+
+Việc trực giao hóa (orthogonalization) dữ liệu huấn luyện đóng vai trò then chốt trong phân tích lý thuyết. Khi các vector mẫu được thiết kế sao cho gần trực giao với nhau, ma trận NTK có cấu trúc đặc biệt thuận lợi.
+
+Cụ thể, với dữ liệu được trực giao hóa tốt, ma trận Gram $\Theta(\mathcal{X}, \mathcal{X})$ tiệm cận dạng:
+\begin{equation}
+    \Theta(\mathcal{X}, \mathcal{X}) \approx \alpha I_N + \beta \mathbf{1}\mathbf{1}^\top
+\end{equation}
+
+trong đó:
+\begin{itemize}
+    \item $\alpha$ là hệ số scale chính
+    \item $I_N$ là ma trận đơn vị kích thước $N \times N$
+    \item $\beta \mathbf{1}\mathbf{1}^\top$ là thành phần nhiễu rank-1
+\end{itemize}
+
+Cấu trúc ``scaled identity + rank-1 noise'' này cho phép nghịch đảo ma trận một cách giải tích và phân tích chính xác hành vi của bộ dự đoán NTK.
+
+\section{Định lý về bộ dự báo NTK}
+
+Phần này trình bày kết quả lý thuyết trung tâm về hành vi của bộ dự đoán trong chế độ NTK.
+
+\subsection{Phát biểu Định lý 5.1}
+
+\textbf{Định lý 5.1 (NTK Predictor Behavior):} Xét mạng nơ-ron hai lớp trong giới hạn infinite-width được huấn luyện trên tập dữ liệu template. Cho $\hat{x}$ là một đầu vào test và $\mu(\hat{x})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng. Khi đó, với mỗi bit đầu ra thứ $i$:
+
+\begin{equation}
+    \begin{cases}
+        \mu(\hat{x})_i > 0 & \text{nếu bit đầu ra đúng là } +1 \\
+        \mu(\hat{x})_i \leq 0 & \text{nếu bit đầu ra đúng là } -1
+    \end{cases}
+\end{equation}
+
+Định lý này khẳng định rằng bộ dự đoán NTK bảo toàn thông tin về dấu (sign) của bit đầu ra. Mặc dù giá trị số cụ thể của $\mu(\hat{x})_i$ có thể không chính xác bằng $\pm 1$, dấu của nó luôn đúng.
+
+\subsection{Ý nghĩa và ứng dụng}
+
+Hệ quả trực tiếp của Định lý 5.1 là việc áp dụng hàm làm tròn (rounding) sẽ cho kết quả chính xác tuyệt đối:
+\begin{equation}
+    y_i = \text{sign}(\mu(\hat{x})_i) = 
+    \begin{cases}
+        +1 & \text{nếu } \mu(\hat{x})_i > 0 \\
+        -1 & \text{nếu } \mu(\hat{x})_i \leq 0
+    \end{cases}
+\end{equation}
+
+Điều này biến bộ dự đoán NTK (về bản chất là một bộ xấp xỉ liên tục) thành một hệ thống thực thi chính xác các phép toán rời rạc. Đây là cầu nối quan trọng giữa lý thuyết xấp xỉ hàm của mạng nơ-ron và yêu cầu chính xác tuyệt đối của các thuật toán.
+
+\section{Kiểm soát tương quan không mong muốn}
+
+Để Định lý 5.1 được thỏa mãn, cần kiểm soát chặt chẽ các tương quan không mong muốn giữa các mẫu huấn luyện.
+
+\subsection{Chi tiết Assumption 5.1}
+
+\textbf{Assumption 5.1:} Xét đầu ra của bộ dự đoán NTK cho bit thứ $i$. Phân tích đầu ra thành hai thành phần:
+\begin{equation}
+    \mu(\hat{x})_i = w^1 \cdot s_i + w^0 \cdot C_i
+\end{equation}
+
+trong đó:
+\begin{itemize}
+    \item $w^1$ là \textbf{trọng số tín hiệu} (signal weight): đóng góp từ template khớp chính xác
+    \item $w^0$ là \textbf{trọng số nhiễu} (interference weight): đóng góp từ mỗi template không khớp
+    \item $s_i \in \{+1, -1\}$ là giá trị đúng của bit đầu ra
+    \item $C_i$ là \textbf{số lượng tương quan không mong muốn} (unwanted correlations)
+\end{itemize}
+
+Một tương quan được gọi là ``không mong muốn'' khi một template trong tập huấn luyện có:
+\begin{enumerate}
+    \item Tích vô hướng khác không với đầu vào $\hat{x}$ (tức là có sự trùng lặp về bit)
+    \item Nhưng không phải là template đúng cho quy tắc cần áp dụng
+    \item Và có đầu ra cùng dấu với template đúng (làm tăng nhiễu thay vì triệt tiêu)
+\end{enumerate}
+
+\subsection{Điều kiện đủ để học chính xác}
+
+Để đầu ra $\mu(\hat{x})_i$ có dấu đúng, thành phần tín hiệu phải lấn át thành phần nhiễu:
+\begin{equation}
+    |w^1 \cdot s_i| > |w^0 \cdot C_i|
+\end{equation}
+
+Vì $|s_i| = 1$, điều kiện này tương đương với:
+\begin{equation}
+    C_i < \frac{|w^1|}{|w^0|}
+\end{equation}
+
+Tỷ lệ $|w^1|/|w^0|$ được gọi là \textit{tỷ lệ quyết định} (decision ratio). Assumption 5.1 yêu cầu số lượng tương quan không mong muốn phải nhỏ hơn tỷ lệ này.
+
+\subsection{Xác minh cho các thuật toán cụ thể}
+
+Nghiên cứu chứng minh rằng các thuật toán được xem xét đều thỏa mãn Assumption 5.1:
+\begin{itemize}
+    \item \textbf{Phép hoán vị:} $C_i = 0$ (không có tương quan không mong muốn do các vị trí bit độc lập)
+    \item \textbf{Phép cộng:} $C_i \leq 1$ (tối đa 1 tương quan từ cấu hình bit nhớ)
+    \item \textbf{Phép nhân:} $C_i = O(\log l)$ (tăng chậm theo số bit)
+    \item \textbf{SBN:} $C_i = O(\log l)$ (tương tự phép nhân)
+\end{itemize}
+
+Trong khi đó, tỷ lệ quyết định $|w^1|/|w^0|$ tăng theo $\Omega(l)$ với $l$ là số bit. Do đó, điều kiện $C_i < |w^1|/|w^0|$ được thỏa mãn khi $l$ đủ lớn.
+
+\section{Triển khai thuật toán cụ thể}
+
+Phần này mô tả cách áp dụng khung template matching cho bốn thuật toán cụ thể.
+
+\subsection{Phép hoán vị}
+
+Phép hoán vị $\pi: [l] \rightarrow [l]$ ánh xạ mỗi vị trí bit sang vị trí mới. Đây là thuật toán đơn giản nhất trong khung template matching.
+
+\textbf{Mã hóa template:} Với mỗi vị trí đầu ra $i \in [l]$, tạo một template đơn giản:
+\begin{itemize}
+    \item Đầu vào: Vector có 1 tại vị trí $\pi^{-1}(i)$, 0 tại các vị trí khác
+    \item Đầu ra: Giá trị bit tại vị trí $i$
+\end{itemize}
+
+\textbf{Số lượng template:} Tổng cộng $l$ template, mỗi template cho một vị trí đầu ra.
+
+\textbf{Tính chất:} Do các template hoàn toàn trực giao (mỗi template chỉ ``nhìn'' một vị trí đầu vào duy nhất), không có tương quan không mong muốn ($C_i = 0$), và phép hoán vị được học chính xác với độ phức tạp tối thiểu.
+
+\subsection{Phép cộng}
+
+Phép cộng hai số nhị phân $l$-bit được triển khai thông qua mô phỏng bộ cộng ripple-carry. Thuật toán hoạt động qua hai giai đoạn:
+
+\textbf{Giai đoạn 1 - Cộng bitwise:} Tính tổng XOR và bit nhớ ban đầu cho mỗi cặp bit:
+\begin{align}
+    s_i^{(0)} &= a_i \oplus b_i \quad \text{(tổng tạm thời)} \\
+    c_i^{(0)} &= a_i \land b_i \quad \text{(bit nhớ sinh ra)}
+\end{align}
+
+\textbf{Giai đoạn 2 - Lan truyền bit nhớ:} Cập nhật tuần tự từ bit thấp đến bit cao:
+\begin{align}
+    s_i^{(t+1)} &= s_i^{(t)} \oplus c_{i-1}^{(t)} \\
+    c_i^{(t+1)} &= (s_i^{(t)} \land c_{i-1}^{(t)}) \lor c_i^{(t)}
+\end{align}
+
+Sau $l$ bước lan truyền, $s^{(l)}$ chứa kết quả cộng chính xác.
+
+\textbf{Số lượng template:} $O(l)$ template cho mỗi giai đoạn, tổng cộng $O(l)$.
+
+\textbf{Tương quan không mong muốn:} Tối đa 1 tương quan cho mỗi bit đầu ra, phát sinh từ cấu hình bit nhớ đặc biệt.
+
+\subsection{Phép nhân}
+
+Phép nhân hai số nhị phân $l$-bit được triển khai bằng thuật toán shift-and-add cổ điển.
+
+\textbf{Thuật toán:} Duy trì ba thanh ghi: tích lũy (accumulator) $A$, số nhân (multiplier) $M$, và số bị nhân (multiplicand) $B$. Tại mỗi bước:
+\begin{enumerate}
+    \item \textbf{Kiểm tra LSB:} Nếu bit thấp nhất của $M$ là 1, cộng $B$ vào $A$
+    \item \textbf{Dịch phải:} Dịch cặp $(A, M)$ sang phải 1 bit
+    \item \textbf{Lặp:} Tiếp tục cho đến khi xử lý hết $l$ bit của $M$
+\end{enumerate}
+
+\textbf{Mã hóa template:} Mỗi bước của thuật toán được mã hóa thành các template riêng biệt cho:
+\begin{itemize}
+    \item Quy tắc cộng có điều kiện (phụ thuộc LSB)
+    \item Quy tắc dịch bit
+    \item Quy tắc cập nhật thanh ghi
+\end{itemize}
+
+\textbf{Số bước:} $O(l)$ bước lặp, mỗi bước có $O(l)$ template.
+
+\textbf{Tương quan không mong muốn:} $O(\log l)$ do sự tương tác giữa các bit trong phép cộng và dịch.
+
+\subsection{Chỉ thị SBN (Subtract and Branch if Negative)}
+
+Chỉ thị SBN là một chỉ thị đơn giản nhưng có sức mạnh biểu diễn Turing-complete. Mỗi chỉ thị SBN có dạng $(a, b, c)$ và thực hiện:
+\begin{enumerate}
+    \item Tính $\text{Mem}[a] := \text{Mem}[a] - \text{Mem}[b]$
+    \item Nếu kết quả âm, nhảy đến địa chỉ $c$; ngược lại, tiếp tục tuần tự
+\end{enumerate}
+
+\textbf{Tính Turing-complete:} Đã được chứng minh rằng mọi hàm tính toán được (computable function) đều có thể được biểu diễn bằng một chương trình chỉ sử dụng chỉ thị SBN. Do đó, nếu mạng nơ-ron có thể học thực thi chính xác SBN, về nguyên tắc nó có khả năng tính toán bất kỳ hàm tính toán được nào.
+
+\textbf{Triển khai:} SBN được phân tách thành các thành phần:
+\begin{itemize}
+    \item \textbf{Phép trừ:} Giảm về phép cộng với số bù 2 (two's complement)
+    \item \textbf{Kiểm tra dấu:} Kiểm tra bit cao nhất của kết quả
+    \item \textbf{Rẽ nhánh:} Cập nhật thanh ghi địa chỉ dựa trên kết quả kiểm tra
+\end{itemize}
+
+\textbf{Ý nghĩa:} Kết quả về SBN khẳng định tính phổ quát của khung lý thuyết: mạng nơ-ron không chỉ học được các phép toán số học cơ bản mà còn có khả năng, về nguyên tắc, học thực thi bất kỳ thuật toán nào.
+
 \section{Độ phức tạp tập hợp}
+
+Trong thực tế, các mạng nơ-ron hữu hạn có phương sai đáng kể xung quanh giá trị kỳ vọng lý thuyết. Để đảm bảo độ chính xác cao, nghiên cứu sử dụng phương pháp ensemble.
+
+\subsection{Tại sao cần Ensemble}
+
+Bộ dự đoán NTK trong giới hạn infinite-width cho kết quả chính xác về kỳ vọng $\mu(\hat{x})$. Tuy nhiên, với mạng hữu hạn chiều rộng $m$, đầu ra thực tế là:
+\begin{equation}
+    \hat{y} = \mu(\hat{x}) + \epsilon
+\end{equation}
+
+trong đó $\epsilon$ là nhiễu ngẫu nhiên với phương sai $\sigma^2$ phụ thuộc vào $m$ và cấu trúc bài toán.
+
+Nếu $|\mu(\hat{x})_i|$ nhỏ so với $\sigma$, nhiễu có thể đảo dấu của đầu ra, dẫn đến kết quả sai. Ensemble giải quyết vấn đề này bằng cách lấy trung bình đầu ra của nhiều mô hình:
+\begin{equation}
+    \bar{y} = \frac{1}{N} \sum_{j=1}^{N} \hat{y}^{(j)}
+\end{equation}
+
+Theo định luật số lớn, phương sai của trung bình giảm theo $\sigma^2/N$, cho phép đạt độ chính xác mong muốn với $N$ đủ lớn.
+
+\subsection{Công thức tính kích thước Ensemble}
+
+Để đảm bảo xác suất lỗi không vượt quá $\delta$, số lượng mô hình trong ensemble cần thỏa mãn:
+\begin{equation}
+    N \geq \frac{2\sigma^2}{\mu_{\min}^2} \ln\left(\frac{2}{\delta}\right)
+\end{equation}
+
+trong đó:
+\begin{itemize}
+    \item $\sigma^2$ là phương sai của một mô hình đơn lẻ
+    \item $\mu_{\min} = \min_i |\mu(\hat{x})_i|$ là giá trị kỳ vọng nhỏ nhất (theo giá trị tuyệt đối)
+    \item $\delta$ là xác suất lỗi cho phép
+\end{itemize}
+
+Công thức này được suy ra từ bất đẳng thức Hoeffding và đảm bảo rằng với xác suất ít nhất $1 - \delta$, trung bình ensemble có dấu đúng cho tất cả các bit đầu ra.
+
+\subsection{Độ phức tạp theo số bit}
+
+Phân tích chi tiết cho thấy với các thuật toán được xem xét:
+\begin{itemize}
+    \item $\sigma^2 = O(l)$ (phương sai tăng tuyến tính theo số bit)
+    \item $\mu_{\min}^2 = \Omega(1/l)$ (kỳ vọng nhỏ nhất giảm theo $1/\sqrt{l}$)
+\end{itemize}
+
+Do đó, kích thước ensemble cần thiết là:
+\begin{equation}
+    N = O(l^2 \cdot \log(1/\delta))
+\end{equation}
+
+Kết quả này có ý nghĩa thực tiễn quan trọng: độ phức tạp ensemble tăng theo $O(l^2)$, tức là đa thức bậc hai theo số bit. Điều này cho thấy phương pháp có khả năng mở rộng (scalable) cho các bài toán lớn, mặc dù chi phí tính toán tăng khi kích thước đầu vào tăng.
+
+\subsection{So sánh với độ phức tạp mẫu}
+
+Một điểm đáng chú ý là trong khi độ phức tạp ensemble là $O(l^2)$, độ phức tạp mẫu (số lượng ví dụ huấn luyện cần thiết) chỉ là $O(\log l)$ cho các thuật toán cơ bản. Sự kết hợp giữa hiệu quả dữ liệu (logarithmic sample complexity) và khả năng mở rộng ensemble (polynomial ensemble complexity) làm cho phương pháp này trở nên hấp dẫn cho các ứng dụng thực tế đòi hỏi độ chính xác tuyệt đối.
