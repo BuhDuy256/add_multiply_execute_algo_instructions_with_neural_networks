@@ -1,8 +1,224 @@
 \chapter{THỰC NGHIỆM VÀ PHÂN TÍCH}
+
+Chương này trình bày các thực nghiệm được thực hiện để xác minh tính đúng đắn của khung lý thuyết đã đề xuất. Các kết quả thực nghiệm được đối chiếu với các dự đoán lý thuyết, cho thấy sự phù hợp cao giữa lý thuyết và thực tiễn.
+
 \section{Thiết lập thực nghiệm}
+
+\subsection{Kiến trúc mạng}
+
+Kiến trúc mạng được sử dụng trong thực nghiệm là mạng nơ-ron hai lớp kết nối đầy đủ (fully connected) với các đặc điểm sau:
+\begin{itemize}
+    \item \textbf{Hàm kích hoạt:} ReLU (Rectified Linear Unit) được sử dụng cho lớp ẩn
+    \item \textbf{Bias:} Mạng không sử dụng bias trong các lớp
+    \item \textbf{Chiều rộng lớp ẩn:} $n_h = 50,000$ hidden units, đủ lớn để tiệm cận chế độ NTK (infinite-width limit)
+\end{itemize}
+
+Cấu trúc này được chọn để phù hợp với các giả định trong phân tích lý thuyết về NTK, đồng thời vẫn khả thi về mặt tính toán.
+
+\subsection{Tham số khởi tạo}
+
+Các trọng số được khởi tạo theo \textit{NTK parametrization} với các đặc điểm:
+\begin{itemize}
+    \item Trọng số lớp ẩn: $W^{(1)} \sim \mathcal{N}(0, 1)$ (phân phối Gaussian chuẩn)
+    \item Trọng số lớp đầu ra: $W^{(2)} \sim \mathcal{N}(0, 1/n_h)$ (chia tỷ lệ theo chiều rộng)
+\end{itemize}
+
+Việc sử dụng NTK parametrization đảm bảo rằng khi $n_h \rightarrow \infty$, động lực học huấn luyện được mô tả chính xác bởi kernel NTK cố định.
+
+\subsection{Cấu hình huấn luyện}
+
+\begin{itemize}
+    \item \textbf{Thuật toán tối ưu:} \textit{Full-batch gradient descent} được sử dụng thay vì mini-batch, đảm bảo gradient được tính trên toàn bộ tập huấn luyện
+    \item \textbf{Learning rate:} Được chọn đủ nhỏ để đảm bảo hội tụ ổn định trong chế độ lazy training
+    \item \textbf{Tiêu chí dừng:} Huấn luyện cho đến khi loss giảm đến ngưỡng đủ nhỏ hoặc đạt số epoch tối đa
+\end{itemize}
+
+\subsection{Đối tượng kiểm thử}
+
+Các thực nghiệm được thực hiện trên các chuỗi bit có độ dài $l$ thay đổi:
+\begin{itemize}
+    \item Phạm vi độ dài bit: $l \in \{2, 3, 4, \ldots, 30\}$
+    \item Với mỗi giá trị $l$, tập huấn luyện bao gồm tất cả các template cần thiết cho thuật toán tương ứng
+    \item Tập kiểm tra gồm các đầu vào ngẫu nhiên để đánh giá khả năng tổng quát hóa
+\end{itemize}
+
 \section{Xác minh lý thuyết}
-    \subsection{Kết quả trên phép cộng và nhân}
-    \subsection{So sánh phương sai và kỳ vọng}
+
+Để xác minh tính đúng đắn của Định lý 5.1 một cách trực tiếp mà không bị ảnh hưởng bởi các yếu tố nhiễu trong huấn luyện thực tế, nghiên cứu sử dụng phương pháp tính toán NTK predictor.
+
+\subsection{Phương pháp xác minh}
+
+Thay vì huấn luyện mạng nơ-ron thực tế, nghiên cứu sử dụng thư viện \textit{Neural Tangents} để tính toán trực tiếp bộ dự báo NTK (NTK predictor). Phương pháp này có các ưu điểm:
+\begin{itemize}
+    \item \textbf{Tính chính xác:} Loại bỏ các yếu tố nhiễu từ quá trình huấn luyện (learning rate, số epoch, v.v.)
+    \item \textbf{Tính hiệu quả:} Tính toán closed-form thay vì tối ưu hóa iterative
+    \item \textbf{Xác minh lý thuyết:} Kiểm tra trực tiếp các dự đoán của Định lý 5.1 trong chế độ NTK lý tưởng
+\end{itemize}
+
+Cụ thể, với tập huấn luyện $\{(\mathbf{x}_i, y_i)\}_{i=1}^{M}$ và điểm test $\hat{\mathbf{x}}$, bộ dự báo NTK được tính:
+\begin{equation}
+    \mu(\hat{\mathbf{x}}) = \Theta(\hat{\mathbf{x}}, X) \cdot \Theta(X, X)^{-1} \cdot Y
+\end{equation}
+
+trong đó $\Theta$ là ma trận kernel NTK.
+
+\subsection{Kết quả trên phép cộng và nhân}
+
+Các thực nghiệm xác minh được thực hiện trên hai thuật toán số học cơ bản: phép cộng và phép nhân nhị phân.
+
+\textbf{Kết quả chính:}
+\begin{itemize}
+    \item Với cả phép cộng và phép nhân nhị phân, bộ dự báo NTK cho kết quả \textbf{chính xác tuyệt đối} (exact accuracy) sau khi làm tròn
+    \item Độ chính xác 100\% được đạt được cho các chuỗi bit có độ dài lên đến $l = 10$
+    \item Mọi bit đầu ra đều có dấu đúng, xác nhận Định lý 5.1: $\text{sign}(\mu(\hat{\mathbf{x}})_i) = y_i^*$
+\end{itemize}
+
+\textbf{Ý nghĩa:} Kết quả này xác nhận rằng khung lý thuyết template matching kết hợp với phân tích NTK có thể dự đoán chính xác hành vi của mạng nơ-ron trên các bài toán số học nhị phân.
+
+\subsection{So sánh phương sai và kỳ vọng}
+
+Một phần quan trọng của phân tích lý thuyết là mối quan hệ giữa phương sai $\sigma^2(\hat{\mathbf{x}})$ và kỳ vọng $\mu(\hat{\mathbf{x}})$ của đầu ra mạng. Nghiên cứu phân tích tỷ lệ:
+\begin{equation}
+    R_i = \frac{\sigma^2(\hat{\mathbf{x}})_i}{\mu^2(\hat{\mathbf{x}})_i}
+\end{equation}
+
+cho mỗi bit đầu ra thứ $i$.
+
+\textbf{Dự đoán lý thuyết:}
+Theo phân tích trong Chương 3, tỷ lệ $\sigma^2/\mu^2$ được dự đoán tăng tuyến tính theo kích thước đầu vào $k'$ (số lượng thành phần khác không trong vector đầu vào sparse):
+\begin{equation}
+    \frac{\sigma^2}{\mu^2} = O(k')
+\end{equation}
+
+\textbf{Kết quả thực nghiệm:}
+\begin{itemize}
+    \item Đồ thị tỷ lệ $\sigma^2/\mu^2$ theo $k'$ cho thấy xu hướng tăng tuyến tính rõ ràng
+    \item Độ dốc của đường xu hướng phù hợp với hệ số được dự đoán từ lý thuyết
+    \item Sự phù hợp này xác nhận rằng công thức tính ensemble complexity trong Công thức (8) là chính xác
+\end{itemize}
+
+% TODO: Chèn hình Figure 5 từ paper
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{figures/variance_mean_ratio.pdf}
+%     \caption{Tỷ lệ $\sigma^2/\mu^2$ theo kích thước đầu vào $k'$. Đường nét đứt biểu diễn dự đoán lý thuyết với tăng trưởng tuyến tính. Các điểm thực nghiệm phù hợp chặt chẽ với dự đoán này.}
+%     \label{fig:variance_ratio}
+% \end{figure}
+
+\textbf{Nhận xét:} Sự phù hợp giữa dự đoán lý thuyết và kết quả thực nghiệm xác nhận rằng ensemble complexity $N = O(l^2 \log(1/\delta))$ là ước lượng đáng tin cậy cho số lượng mô hình cần thiết.
+
 \section{Thực nghiệm huấn luyện}
-    \subsection{Bài toán Hoán vị}
-    \subsection{Độ chính xác theo kích thước Ensemble}
+
+Phần này trình bày các thực nghiệm huấn luyện thực tế (training experiments) để đánh giá khả năng học của mạng nơ-ron trong điều kiện thực tiễn.
+
+\subsection{Lựa chọn bài toán}
+
+Nghiên cứu chọn bài toán \textbf{Hoán vị (Permutation)} làm đối tượng thực nghiệm chính với các lý do:
+\begin{itemize}
+    \item \textbf{Ensemble complexity thấp hơn:} So với phép cộng và nhân, phép hoán vị có $C_i = 0$ (không có tương quan không mong muốn), dẫn đến tỷ lệ $\sigma^2/\mu^2$ nhỏ hơn
+    \item \textbf{Tài nguyên tính toán:} Số lượng mô hình ensemble cần thiết nằm trong khả năng của phần cứng hiện có
+    \item \textbf{Tính đại diện:} Mặc dù đơn giản hơn, hoán vị vẫn đủ để chứng minh tính đúng đắn của lý thuyết về ensemble và khả năng đạt độ chính xác tuyệt đối
+\end{itemize}
+
+\subsection{Bài toán Hoán vị}
+
+\textbf{Định nghĩa bài toán:}
+Cho hoán vị $\pi: [n] \rightarrow [n]$ ngẫu nhiên, mạng nơ-ron được huấn luyện để học ánh xạ này trên các vector cơ sở chuẩn (standard basis vectors).
+
+\textbf{Thiết lập thực nghiệm:}
+\begin{itemize}
+    \item \textbf{Tập huấn luyện:} Bao gồm $2n$ template tương ứng với tất cả các ánh xạ vị trí của hoán vị
+    \item \textbf{Tập kiểm tra:} 1000 vector kiểm thử được sinh ngẫu nhiên, mỗi vector có $n_{\hat{x}} = 2$ phần tử khác không (sparse test vectors)
+    \item \textbf{Độ chính xác:} Được tính là tỷ lệ các vector kiểm tra mà tất cả các bit đầu ra đều đúng sau khi làm tròn
+\end{itemize}
+
+\textbf{Điều kiện thành công:}
+Vector kiểm tra được coi là đúng nếu và chỉ nếu:
+\begin{equation}
+    \forall i: \text{sign}(\bar{F}(\hat{\mathbf{x}})_i) = y_i^*
+\end{equation}
+
+trong đó $\bar{F}$ là đầu ra trung bình của ensemble.
+
+\subsection{Độ chính xác theo kích thước Ensemble}
+
+\textbf{Mục tiêu thực nghiệm:}
+So sánh số lượng mô hình thực tế cần thiết để đạt độ chính xác mục tiêu (90\%, 95\%, 99\%) với ngưỡng lý thuyết (theoretical bound) từ Công thức (8):
+\begin{equation}
+    N_{\text{theory}} \geq \frac{2\sigma^2}{\mu^2} \ln\left(\frac{2}{\delta}\right)
+\end{equation}
+
+\textbf{Kết quả Thực nghiệm 1:}
+\begin{itemize}
+    \item Với các giá trị $k$ (kích thước đầu vào sparse) khác nhau, đường độ chính xác thực nghiệm được so sánh với ngưỡng lý thuyết
+    \item \textbf{Quan sát chính:} Số lượng mô hình thực tế cần thiết \textbf{luôn nhỏ hơn} ngưỡng chặn lý thuyết
+    \item Điều này xác nhận rằng ngưỡng lý thuyết có tính chất bảo thủ (conservative), đảm bảo an toàn
+\end{itemize}
+
+\textbf{Kết quả Thực nghiệm 2:}
+\begin{itemize}
+    \item Khi kích thước ensemble tăng lên, độ chính xác tiến dần đến 100\% (perfect accuracy)
+    \item Với $k$ lớn hơn, cần nhiều mô hình hơn để đạt cùng mức độ chính xác
+    \item Xu hướng này phù hợp với dự đoán lý thuyết: ensemble complexity tăng theo $O(k^2)$
+\end{itemize}
+
+% TODO: Chèn hình Figure 7 từ paper (Experiment 1 và Experiment 2)
+% \begin{figure}[h]
+%     \centering
+%     \begin{minipage}{0.48\textwidth}
+%         \includegraphics[width=\textwidth]{figures/experiment1.pdf}
+%     \end{minipage}
+%     \hfill
+%     \begin{minipage}{0.48\textwidth}
+%         \includegraphics[width=\textwidth]{figures/experiment2.pdf}
+%     \end{minipage}
+%     \caption{Độ chính xác theo kích thước ensemble. Trái: So sánh với ngưỡng lý thuyết. Phải: Hội tụ đến độ chính xác tuyệt đối.}
+%     \label{fig:ensemble_experiments}
+% \end{figure}
+
+\subsection{Phân tích kết quả}
+
+\textbf{Tính bảo thủ của ngưỡng lý thuyết:}
+
+Ngưỡng chặn lý thuyết (theoretical bound) được xây dựng dựa trên:
+\begin{itemize}
+    \item Bất đẳng thức Hoeffding cho tổng các biến ngẫu nhiên con-Gaussian
+    \item Kỹ thuật \textit{union bound} để đảm bảo tất cả các bit đầu ra đều đúng đồng thời
+\end{itemize}
+
+Do sử dụng các bất đẳng thức worst-case, ngưỡng này có tính chất \textbf{bảo thủ cao} (highly conservative). Trong thực tế:
+\begin{itemize}
+    \item Các phân phối thực tế thường ``tốt hơn'' giả định worst-case
+    \item Tương quan giữa các sai số ở các bit khác nhau có thể có lợi
+    \item Kết quả là số mô hình thực tế cần thiết thường nhỏ hơn đáng kể so với ngưỡng lý thuyết
+\end{itemize}
+
+\textbf{Ý nghĩa thực tiễn:}
+
+Kết quả thực nghiệm xác nhận hai điều quan trọng:
+\begin{enumerate}
+    \item \textbf{Tính đúng đắn của lý thuyết:} Ngưỡng lý thuyết luôn là chặn trên hợp lệ cho số mô hình cần thiết
+    \item \textbf{Khả năng thực tiễn:} Trong ứng dụng thực tế, có thể sử dụng ít mô hình hơn so với ngưỡng lý thuyết mà vẫn đạt độ chính xác cao
+\end{enumerate}
+
+\section{Tổng hợp và Đánh giá}
+
+\textbf{Kết nối giữa lý thuyết và thực nghiệm:}
+
+Các thực nghiệm trong chương này đã xác nhận ba dự đoán lý thuyết chính:
+\begin{enumerate}
+    \item \textbf{Định lý 5.1:} Bộ dự báo NTK bảo toàn thông tin dấu, cho phép đạt độ chính xác tuyệt đối sau làm tròn
+    \item \textbf{Mối quan hệ $\sigma^2/\mu^2$:} Tỷ lệ này tăng tuyến tính theo kích thước đầu vào, phù hợp với phân tích lý thuyết
+    \item \textbf{Ensemble complexity:} Công thức (8) cung cấp ngưỡng chặn trên hợp lệ và có tính bảo thủ
+\end{enumerate}
+
+\textbf{Kết luận về khả năng học chính xác:}
+
+Kết quả thực nghiệm cung cấp bằng chứng mạnh mẽ rằng:
+\begin{itemize}
+    \item Mạng nơ-ron \textbf{có khả năng} học thực thi chính xác các thuật toán số học và logic
+    \item Phương pháp template matching với kỹ thuật ensemble là \textbf{khả thi về mặt tính toán}
+    \item Lý thuyết NTK cung cấp \textbf{khung phân tích đáng tin cậy} cho việc thiết kế và đánh giá các hệ thống như vậy
+\end{itemize}
+
+Những kết quả này mở ra hướng nghiên cứu về việc xây dựng các mạng nơ-ron có khả năng thực thi chính xác, không chỉ xấp xỉ, các hàm tính toán phức tạp.

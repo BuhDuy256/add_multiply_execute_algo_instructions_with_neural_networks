@@ -22,37 +22,72 @@
 \contentsline {chapter}{\numberline {3}PHƯƠNG PHÁP ĐỀ XUẤT}{10}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Kỹ thuật Template Matching}{10}{section.3.1}%
 \contentsline {subsection}{\numberline {3.1.1}Nguyên lý phân rã thuật toán}{10}{subsection.3.1.1}%
-\contentsline {subsection}{\numberline {3.1.2}Công thức hàm tổng hợp}{10}{subsection.3.1.2}%
-\contentsline {subsection}{\numberline {3.1.3}Cơ chế thực thi lặp}{11}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.1.2}Cơ chế thực thi lặp}{11}{subsection.3.1.2}%
 \contentsline {section}{\numberline {3.2}Cấu trúc dữ liệu và Trực giao hóa}{11}{section.3.2}%
 \contentsline {subsection}{\numberline {3.2.1}Mô hình ``Bag of Rules''}{11}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}Mã hóa mẫu thành vector huấn luyện}{11}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Trực giao hóa dữ liệu huấn luyện}{12}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.2}Mã hóa Block-Partitioned}{11}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Trực giao hóa và Ma trận NTK}{12}{subsection.3.2.3}%
 \contentsline {section}{\numberline {3.3}Định lý về bộ dự báo NTK}{12}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Phát biểu Định lý 5.1}{12}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Ý nghĩa và ứng dụng}{12}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.1}Định lý 5.1: Bảo toàn thông tin dấu}{12}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Ý nghĩa của Định lý}{12}{subsection.3.3.2}%
 \contentsline {section}{\numberline {3.4}Kiểm soát tương quan không mong muốn}{13}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Chi tiết Assumption 5.1}{13}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Điều kiện đủ để học chính xác}{13}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}Xác minh cho các thuật toán cụ thể}{13}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.1}Assumption 5.1: Điều kiện về tương quan}{13}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Phân tích trường hợp xấu nhất}{13}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Kết quả cho các thuật toán cụ thể}{14}{subsection.3.4.3}%
 \contentsline {section}{\numberline {3.5}Triển khai thuật toán cụ thể}{14}{section.3.5}%
 \contentsline {subsection}{\numberline {3.5.1}Phép hoán vị}{14}{subsection.3.5.1}%
 \contentsline {subsection}{\numberline {3.5.2}Phép cộng}{14}{subsection.3.5.2}%
 \contentsline {subsection}{\numberline {3.5.3}Phép nhân}{15}{subsection.3.5.3}%
 \contentsline {subsection}{\numberline {3.5.4}Chỉ thị SBN (Subtract and Branch if Negative)}{15}{subsection.3.5.4}%
 \contentsline {section}{\numberline {3.6}Độ phức tạp tập hợp}{15}{section.3.6}%
-\contentsline {subsection}{\numberline {3.6.1}Tại sao cần Ensemble}{16}{subsection.3.6.1}%
-\contentsline {subsection}{\numberline {3.6.2}Công thức tính kích thước Ensemble}{16}{subsection.3.6.2}%
-\contentsline {subsection}{\numberline {3.6.3}Độ phức tạp theo số bit}{16}{subsection.3.6.3}%
-\contentsline {subsection}{\numberline {3.6.4}So sánh với độ phức tạp mẫu}{17}{subsection.3.6.4}%
-\contentsline {chapter}{\numberline {4}THỰC NGHIỆM VÀ PHÂN TÍCH}{18}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Thiết lập thực nghiệm}{18}{section.4.1}%
+\contentsline {subsection}{\numberline {3.6.1}Tại sao cần Ensemble?}{16}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Công thức tính số lượng mô hình tối thiểu}{16}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Độ phức tạp theo kích thước bài toán}{16}{subsection.3.6.3}%
+\contentsline {chapter}{\numberline {4}THỰC NGHIỆM VÀ PHÂN TÍCH}{17}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Thiết lập thực nghiệm}{17}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Kiến trúc mạng}{17}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Tham số khởi tạo}{17}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Cấu hình huấn luyện}{17}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Đối tượng kiểm thử}{18}{subsection.4.1.4}%
 \contentsline {section}{\numberline {4.2}Xác minh lý thuyết}{18}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Kết quả trên phép cộng và nhân}{18}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}So sánh phương sai và kỳ vọng}{18}{subsection.4.2.2}%
-\contentsline {section}{\numberline {4.3}Thực nghiệm huấn luyện}{18}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Bài toán Hoán vị}{18}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Độ chính xác theo kích thước Ensemble}{18}{subsection.4.3.2}%
-\contentsline {chapter}{\numberline {5}KẾT LUẬN}{19}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Chứng minh toán học bổ trợ}{21}{appendix.A}%
-\contentsline {chapter}{\numberline {B}Mã nguồn cài đặt mô phỏng}{22}{appendix.B}%
+\contentsline {subsection}{\numberline {4.2.1}Phương pháp xác minh}{18}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Kết quả trên phép cộng và nhân}{18}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}So sánh phương sai và kỳ vọng}{19}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Thực nghiệm huấn luyện}{19}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Lựa chọn bài toán}{19}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Bài toán Hoán vị}{20}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Độ chính xác theo kích thước Ensemble}{20}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Phân tích kết quả}{21}{subsection.4.3.4}%
+\contentsline {section}{\numberline {4.4}Tổng hợp và Đánh giá}{21}{section.4.4}%
+\contentsline {chapter}{\numberline {5}KẾT LUẬN}{22}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Tổng kết nghiên cứu}{22}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Ý nghĩa của nghiên cứu}{22}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Hạn chế của phương pháp}{23}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Hướng phát triển tương lai}{23}{section.5.4}%
+\contentsline {chapter}{\numberline {A}Chứng minh toán học bổ trợ}{25}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Các kết quả đại số tuyến tính}{25}{section.A.1}%
+\contentsline {subsection}{\numberline {A.1.1}Định lý Sherman-Morrison}{25}{subsection.A.1.1}%
+\contentsline {section}{\numberline {A.2}Các kết quả xác suất}{26}{section.A.2}%
+\contentsline {subsection}{\numberline {A.2.1}Bổ đề tập trung Gaussian}{26}{subsection.A.2.1}%
+\contentsline {section}{\numberline {A.3}Chi tiết tính toán bộ dự báo NTK}{26}{section.A.3}%
+\contentsline {subsection}{\numberline {A.3.1}Phân rã đầu ra NTK}{26}{subsection.A.3.1}%
+\contentsline {subsection}{\numberline {A.3.2}Trọng số tín hiệu và nhiễu}{27}{subsection.A.3.2}%
+\contentsline {subsection}{\numberline {A.3.3}Điều kiện để dấu đúng}{27}{subsection.A.3.3}%
+\contentsline {section}{\numberline {A.4}Phân tích tiệm cận}{27}{section.A.4}%
+\contentsline {subsection}{\numberline {A.4.1}Lemma 6.1: Bậc của phương sai và kỳ vọng}{27}{subsection.A.4.1}%
+\contentsline {chapter}{\numberline {B}Mã nguồn cài đặt mô phỏng}{28}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Môi trường và thư viện}{28}{section.B.1}%
+\contentsline {subsection}{\numberline {B.1.1}Thư viện Neural Tangents}{28}{subsection.B.1.1}%
+\contentsline {subsection}{\numberline {B.1.2}Nền tảng JAX}{28}{subsection.B.1.2}%
+\contentsline {section}{\numberline {B.2}Cấu trúc mã nguồn}{28}{section.B.2}%
+\contentsline {subsection}{\numberline {B.2.1}Modules định nghĩa Template}{29}{subsection.B.2.1}%
+\contentsline {subsection}{\numberline {B.2.2}Scripts mã hóa dữ liệu}{29}{subsection.B.2.2}%
+\contentsline {subsection}{\numberline {B.2.3}Scripts tính toán Ensemble}{29}{subsection.B.2.3}%
+\contentsline {section}{\numberline {B.3}Quy trình thực thi mô phỏng}{29}{section.B.3}%
+\contentsline {subsection}{\numberline {B.3.1}Bước 1: Khởi tạo cấu trúc Block}{29}{subsection.B.3.1}%
+\contentsline {subsection}{\numberline {B.3.2}Bước 2: Tạo tập dữ liệu huấn luyện}{30}{subsection.B.3.2}%
+\contentsline {subsection}{\numberline {B.3.3}Bước 3: Tính toán ma trận NTK}{30}{subsection.B.3.3}%
+\contentsline {subsection}{\numberline {B.3.4}Bước 4: Thực thi lặp và làm tròn}{30}{subsection.B.3.4}%
+\contentsline {section}{\numberline {B.4}Kiểm chứng thực nghiệm}{31}{section.B.4}%
+\contentsline {subsection}{\numberline {B.4.1}Trường hợp kiểm tra}{31}{subsection.B.4.1}%
+\contentsline {subsection}{\numberline {B.4.2}Kết quả hội tụ}{31}{subsection.B.4.2}%
