@@ -97,13 +97,12 @@ Theo phân tích trong Chương 3, tỷ lệ $\sigma^2/\mu^2$ được dự đo�
     \item Sự phù hợp này xác nhận rằng công thức tính ensemble complexity trong Công thức (8) là chính xác
 \end{itemize}
 
-% TODO: Chèn hình Figure 5 từ paper
-% \begin{figure}[h]
-%     \centering
-%     \includegraphics[width=0.8\textwidth]{figures/variance_mean_ratio.pdf}
-%     \caption{Tỷ lệ $\sigma^2/\mu^2$ theo kích thước đầu vào $k'$. Đường nét đứt biểu diễn dự đoán lý thuyết với tăng trưởng tuyến tính. Các điểm thực nghiệm phù hợp chặt chẽ với dự đoán này.}
-%     \label{fig:variance_ratio}
-% \end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/ensemble_complexity.pdf}
+    \caption{Tỷ lệ $\sigma^2/\mu^2$ theo kích thước đầu vào $k'$. Đường nét đứt biểu diễn dự đoán lý thuyết với tăng trưởng tuyến tính. Các điểm thực nghiệm phù hợp chặt chẽ với dự đoán này.}
+    \label{fig:ensemble_complexity}
+\end{figure}
 
 \textbf{Nhận xét:} Sự phù hợp giữa dự đoán lý thuyết và kết quả thực nghiệm xác nhận rằng ensemble complexity $N = O(l^2 \log(1/\delta))$ là ước lượng đáng tin cậy cho số lượng mô hình cần thiết.
 
@@ -162,19 +161,12 @@ So sánh số lượng mô hình thực tế cần thiết để đạt độ ch
     \item Xu hướng này phù hợp với dự đoán lý thuyết: ensemble complexity tăng theo $O(k^2)$
 \end{itemize}
 
-% TODO: Chèn hình Figure 7 từ paper (Experiment 1 và Experiment 2)
-% \begin{figure}[h]
-%     \centering
-%     \begin{minipage}{0.48\textwidth}
-%         \includegraphics[width=\textwidth]{figures/experiment1.pdf}
-%     \end{minipage}
-%     \hfill
-%     \begin{minipage}{0.48\textwidth}
-%         \includegraphics[width=\textwidth]{figures/experiment2.pdf}
-%     \end{minipage}
-%     \caption{Độ chính xác theo kích thước ensemble. Trái: So sánh với ngưỡng lý thuyết. Phải: Hội tụ đến độ chính xác tuyệt đối.}
-%     \label{fig:ensemble_experiments}
-% \end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/experiments.pdf}
+    \caption{Độ chính xác theo kích thước ensemble. Trái: So sánh với ngưỡng lý thuyết. Phải: Hội tụ đến độ chính xác tuyệt đối.}
+    \label{fig:ensemble_experiments}
+\end{figure}
 
 \subsection{Phân tích kết quả}
 
