@@ -9,7 +9,7 @@ Phụ lục này trình bày các kết quả toán học nền tảng được 
 
 \subsection{Định lý Sherman-Morrison}
 
-Định lý \textit{Sherman-Morrison} (1950) là công cụ quan trọng để tính nghịch đảo của ma trận khi có sự thay đổi hạng 1 (rank-1 update). Đây là nền tảng cho việc phân tích ma trận NTK có cấu trúc ``scaled identity + rank-1 noise''.
+Định lý \textit{Sherman-Morrison} (1950) là công cụ quan trọng để tính nghịch đảo của ma trận khi có sự thay đổi hạng 1 (cập nhật hạng 1). Đây là nền tảng cho việc phân tích ma trận NTK có cấu trúc ``ma trận đơn vị có tỷ lệ + nhiễu hạng 1''.
 
 \textbf{Định lý (Sherman-Morrison):} Cho $A$ là ma trận khả nghịch kích thước $n \times n$ và $u, v$ là các vector cột kích thước $n$. Nếu $1 + v^\top A^{-1} u \neq 0$, thì:
 \begin{equation}
@@ -23,29 +23,29 @@ Ma trận NTK trên tập huấn luyện có dạng:
     \Theta = \alpha I_M + \beta \mathbf{1}\mathbf{1}^\top + \text{(nhiễu bậc cao)}
 \end{equation}
 
-trong đó $\mathbf{1}\mathbf{1}^\top$ là ma trận rank-1. Áp dụng Sherman-Morrison với $A = \alpha I_M$, $u = v = \sqrt{\beta}\mathbf{1}$:
+trong đó $\mathbf{1}\mathbf{1}^\top$ là ma trận hạng 1. Áp dụng Sherman-Morrison với $A = \alpha I_M$, $u = v = \sqrt{\beta}\mathbf{1}$:
 \begin{align}
     \Theta^{-1} &\approx (\alpha I_M + \beta \mathbf{1}\mathbf{1}^\top)^{-1} \\
     &= \frac{1}{\alpha} I_M - \frac{\frac{1}{\alpha^2} \beta \mathbf{1}\mathbf{1}^\top}{1 + \frac{\beta M}{\alpha}} \\
     &= \frac{1}{\alpha} I_M - \frac{\beta}{\alpha(\alpha + \beta M)} \mathbf{1}\mathbf{1}^\top
 \end{align}
 
-Công thức này cho phép tính closed-form của $\Theta^{-1}$ mà không cần thuật toán nghịch đảo ma trận $O(M^3)$, đồng thời làm rõ cấu trúc của bộ dự báo NTK.
+Công thức này cho phép tính dạng tường minh của $\Theta^{-1}$ mà không cần thuật toán nghịch đảo ma trận $O(M^3)$, đồng thời làm rõ cấu trúc của bộ dự báo NTK.
 
 \section{Các kết quả xác suất}
 
 \subsection{Bổ đề tập trung Gaussian}
 
-Bổ đề tập trung (concentration bound) cho phân phối Gaussian là cơ sở để xác định số lượng mô hình ensemble cần thiết.
+Bổ đề tập trung cho phân phối Gaussian là cơ sở để xác định số lượng mô hình trong tổ hợp cần thiết.
 
 \textbf{Bổ đề A.1 (Gaussian Concentration):} Cho $X_1, X_2, \ldots, X_n$ là các biến ngẫu nhiên độc lập, cùng phân phối $\mathcal{N}(\mu, \sigma^2)$. Gọi $\overline{X}_n = \frac{1}{n}\sum_{i=1}^{n} X_i$ là trung bình mẫu. Khi đó, với mọi $t > 0$:
 \begin{equation}
     \mathbb{P}\left\{|\overline{X}_n - \mu| \geq t\right\} \leq 2 \exp\left(-\frac{nt^2}{2\sigma^2}\right)
 \end{equation}
 
-\textbf{Ứng dụng trong tính ensemble size:}
+	extbf{Ứng dụng trong tính kích thước tổ hợp:}
 
-Đầu ra của mỗi mô hình trong ensemble tuân theo phân phối Gaussian với kỳ vọng $\mu$ (có dấu đúng) và phương sai $\sigma^2$. Để đảm bảo trung bình ensemble $\overline{F}$ có dấu đúng với xác suất ít nhất $1 - \delta$, ta cần:
+Đầu ra của mỗi mô hình trong tổ hợp tuân theo phân phối Gaussian với kỳ vọng $\mu$ (có dấu đúng) và phương sai $\sigma^2$. Để đảm bảo trung bình tổ hợp $\overline{F}$ có dấu đúng với xác suất ít nhất $1 - \delta$, ta cần:
 \begin{equation}
     \mathbb{P}\{|\overline{F} - \mu| \geq |\mu|\} \leq \delta
 \end{equation}
@@ -136,7 +136,7 @@ Nghiên cứu sử dụng thư viện \textit{Neural Tangents} (Google Research)
 
 \textbf{Đặc điểm chính:}
 \begin{itemize}
-    \item Tính toán closed-form của kernel NTK cho các kiến trúc mạng phổ biến
+    \item Tính toán dạng tường minh của nhân NTK cho các kiến trúc mạng phổ biến
     \item Hỗ trợ \textit{NTK predictor} để dự báo đầu ra mà không cần huấn luyện thực tế
     \item Tích hợp với hệ sinh thái JAX để tối ưu hóa hiệu năng
 \end{itemize}
@@ -171,7 +171,7 @@ Mỗi thuật toán có module riêng định nghĩa các mẫu (templates):
 
 \begin{itemize}
     \item \texttt{templates/addition.py}: Định nghĩa 8 template cho mỗi vị trí bit của bộ cộng ripple-carry
-    \item \texttt{templates/multiplication.py}: Template cho thuật toán shift-and-add
+    \item \texttt{templates/multiplication.py}: Mẫu cho thuật toán dịch và cộng
     \item \texttt{templates/sbn.py}: Template cho chỉ thị Subtract and Branch if Negative
 \end{itemize}
 

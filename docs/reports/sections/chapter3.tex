@@ -1,6 +1,6 @@
 \chapter{PHƯƠNG PHÁP ĐỀ XUẤT}
 
-\section{Kỹ thuật Template Matching}
+\section{Kỹ thuật khớp mẫu}
 
 Ý tưởng cốt lõi của phương pháp đề xuất là phân rã thuật toán thành các ``mẫu'' cục bộ, mỗi mẫu thao tác trên một khối bit nhỏ. Thay vì yêu cầu mạng nơ-ron học toàn bộ hàm phức tạp, ta chuyển bài toán thành việc nhận dạng và áp dụng các quy tắc cục bộ đơn giản.
 
@@ -23,7 +23,7 @@ trong đó:
     \item $\mathbf{1}[\cdot]$ là hàm chỉ thị
 \end{itemize}
 
-\textbf{Hàm tổng hợp toàn cục:} Đầu ra của thuật toán được tổng hợp từ các hàm cục bộ thông qua phép tuyển bitwise (bitwise disjunction):
+	extbf{Hàm tổng hợp toàn cục:} Đầu ra của thuật toán được tổng hợp từ các hàm cục bộ thông qua phép tuyển theo bit (OR theo bit):
 \begin{equation}
     f(\hat{\mathbf{x}}) = \bigvee_{i=1}^{n} f_i(\hat{\mathbf{x}}_{[S_i]})
 \end{equation}
@@ -32,7 +32,7 @@ Phép tuyển $\bigvee$ hoạt động như phép ``OR'' trên các bit: nếu b
 
 \subsection{Cơ chế thực thi lặp}
 
-Nhiều thuật toán yêu cầu thực thi qua nhiều bước lặp, trong đó trạng thái của bước tiếp theo phụ thuộc vào kết quả của bước hiện tại. Phương pháp template matching hỗ trợ điều này thông qua cơ chế thực thi lặp:
+Nhiều thuật toán yêu cầu thực thi qua nhiều bước lặp, trong đó trạng thái của bước tiếp theo phụ thuộc vào kết quả của bước hiện tại. Phương pháp khớp mẫu hỗ trợ điều này thông qua cơ chế thực thi lặp:
 \begin{equation}
     \hat{\mathbf{x}}_{t+1} = f(\hat{\mathbf{x}}_t)
 \end{equation}
@@ -56,7 +56,7 @@ Cụ thể, với thuật toán có $n$ khối và tổng cộng $M$ quy tắc c
 
 trong đó $\mathbf{q}_j$ là vector mã hóa quy tắc thứ $j$ và $y_j$ là nhãn đầu ra tương ứng.
 
-\subsection{Mã hóa Block-Partitioned}
+\subsection{Mã hóa block-partitioned}
 
 Mỗi mẫu được mã hóa thành vector $\mathbf{q}_{ij}$ theo cấu trúc block-partitioned. Vector này có dạng:
 \begin{equation}
@@ -87,15 +87,15 @@ trong đó:
     \item $\mathbf{1}$ là vector toàn 1
 \end{itemize}
 
-Cấu trúc ``scaled identity + rank-1 noise'' này cho phép phân tích chính xác hành vi của bộ dự đoán NTK và là nền tảng cho các định lý về khả năng học chính xác.
+Cấu trúc ``ma trận đơn vị có tỷ lệ + nhiễu hạng 1'' này cho phép phân tích chính xác hành vi của bộ dự đoán NTK và là nền tảng cho các định lý về khả năng học chính xác.
 
 \section{Định lý về bộ dự báo NTK}
 
-Phần này trình bày kết quả lý thuyết then chốt về hành vi của bộ dự đoán NTK khi áp dụng cho dữ liệu template matching.
+Phần này trình bày kết quả lý thuyết then chốt về hành vi của bộ dự đoán NTK khi áp dụng cho dữ liệu khớp mẫu.
 
 \subsection{Định lý 5.1: Bảo toàn thông tin dấu}
 
-	extbf{Định lý 5.1 (Hành vi bộ dự báo NTK):} Cho mạng nơ-ron hai lớp trong chế độ NTK ở giới hạn chiều rộng vô hạn được huấn luyện trên tập dữ liệu template $\mathcal{D}$. Gọi $\mu(\hat{\mathbf{x}})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng tại điểm kiểm thử $\hat{\mathbf{x}}$. Khi đó, với mỗi bit đầu ra thứ $i$:
+    extbf{Định lý 5.1 (Hành vi bộ dự báo NTK):} Cho mạng nơ-ron hai lớp trong chế độ NTK ở giới hạn chiều rộng vô hạn được huấn luyện trên tập dữ liệu mẫu $\mathcal{D}$. Gọi $\mu(\hat{\mathbf{x}})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng tại điểm kiểm thử $\hat{\mathbf{x}}$. Khi đó, với mỗi bit đầu ra thứ $i$:
 \begin{equation}
     \text{sign}(\mu(\hat{\mathbf{x}})_i) = y_i^*
 \end{equation}
@@ -121,7 +121,7 @@ Kết quả này cho phép mạng nơ-ron đạt được độ chính xác tuy�
 
 Định lý 5.1 không tự động đúng cho mọi thuật toán. Để đảm bảo tính đúng đắn, cần kiểm soát các ``tương quan không mong muốn'' trong dữ liệu huấn luyện.
 
-\subsection{Assumption 5.1: Điều kiện về tương quan}
+\subsection{Giả thiết 5.1: Điều kiện về tương quan}
 
 Phân tích đầu ra của bộ dự đoán NTK cho thấy:
 \begin{equation}
@@ -130,13 +130,13 @@ Phân tích đầu ra của bộ dự đoán NTK cho thấy:
 
 trong đó:
 \begin{itemize}
-    \item $w^1 > 0$ là \textit{trọng số tín hiệu}: Đóng góp từ template khớp chính xác
-    \item $w^0$ là \textit{trọng số nhiễu}: Đóng góp từ các template có tương quan khác không
-    \item $U_i$ là tập các chỉ số của các template không khớp nhưng có tích vô hướng khác không với đầu vào
-    \item $y_j$ là nhãn của template thứ $j$ trong tập nhiễu
+    \item $w^1 > 0$ là \textit{trọng số tín hiệu}: Đóng góp từ mẫu khớp chính xác
+    \item $w^0$ là \textit{trọng số nhiễu}: Đóng góp từ các mẫu có tương quan khác không
+    \item $U_i$ là tập các chỉ số của các mẫu không khớp nhưng có tích vô hướng khác không với đầu vào
+    \item $y_j$ là nhãn của mẫu thứ $j$ trong tập nhiễu
 \end{itemize}
 
-\textbf{Assumption 5.1:} Gọi $C_i = |U_i|$ là số lượng tương quan không mong muốn tại bit thứ $i$. Điều kiện để đầu ra có dấu đúng là:
+	extbf{Giả thiết 5.1:} Gọi $C_i = |U_i|$ là số lượng tương quan không mong muốn tại bit thứ $i$. Điều kiện để đầu ra có dấu đúng là:
 \begin{equation}
     C_i < -\frac{w^1}{w^0}
 \end{equation}
@@ -157,7 +157,7 @@ Trong trường hợp xấu nhất, tất cả các tương quan không mong mu�
 
 \subsection{Kết quả cho các thuật toán cụ thể}
 
-Các tác giả đã chứng minh rằng các thuật toán được xét đều thỏa mãn Assumption 5.1:
+Các tác giả đã chứng minh rằng các thuật toán được xét đều thỏa mãn Giả thiết 5.1:
 \begin{itemize}
     \item \textbf{Phép hoán vị:} $C_i = 0$ (không có tương quan không mong muốn)
     \item \textbf{Phép cộng:} $C_i \leq 1$ (tối đa 1 tương quan không mong muốn)
@@ -169,27 +169,27 @@ Với thiết kế template phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng nhanh hơn
 
 \section{Triển khai thuật toán cụ thể}
 
-Phần này trình bày cách áp dụng khung template matching cho từng thuật toán cụ thể.
+Phần này trình bày cách áp dụng khung khớp mẫu cho từng thuật toán cụ thể.
 
 \subsection{Phép hoán vị}
 
 Phép hoán vị $\pi: [l] \rightarrow [l]$ ánh xạ vị trí bit $i$ sang vị trí mới $\pi(i)$. Đây là thuật toán đơn giản nhất để minh họa phương pháp.
 
-\textbf{Mã hóa template:} Mỗi bit được xử lý độc lập. Với bit thứ $i$, có 2 template:
+	extbf{Mã hóa mẫu:} Mỗi bit được xử lý độc lập. Với bit thứ $i$, có 2 mẫu:
 \begin{itemize}
-    \item Template 1: Đầu vào $x_i = +1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $+1$
-    \item Template 2: Đầu vào $x_i = -1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $-1$
+    \item Mẫu 1: Đầu vào $x_i = +1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $+1$
+    \item Mẫu 2: Đầu vào $x_i = -1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $-1$
 \end{itemize}
 
-\textbf{Số lượng template:} $2l$ template tổng cộng.
+	extbf{Số lượng mẫu:} $2l$ mẫu tổng cộng.
 
-\textbf{Tương quan không mong muốn:} Vì mỗi template chỉ phụ thuộc vào một bit đầu vào duy nhất và các bit được mã hóa trong các block riêng biệt, không có tương quan không mong muốn ($C_i = 0$).
+	extbf{Tương quan không mong muốn:} Vì mỗi mẫu chỉ phụ thuộc vào một bit đầu vào duy nhất và các bit được mã hóa trong các block riêng biệt, không có tương quan không mong muốn ($C_i = 0$).
 
 \subsection{Phép cộng}
 
 Phép cộng hai số nhị phân $l$-bit được triển khai thông qua mô phỏng bộ cộng ripple-carry. Thuật toán gồm 2 giai đoạn:
 
-\textbf{Giai đoạn 1 - Cộng bitwise:} Tính tổng từng bit và bit nhớ cục bộ:
+	extbf{Giai đoạn 1 - Cộng theo bit:} Tính tổng từng bit và bit nhớ cục bộ:
 \begin{align}
     s_i &= a_i \oplus b_i \oplus c_{i-1} \\
     c_i &= \text{MAJ}(a_i, b_i, c_{i-1})
@@ -199,26 +199,26 @@ trong đó $\oplus$ là phép XOR, MAJ là hàm majority, và $c_{i-1}$ là bit 
 
 \textbf{Giai đoạn 2 - Lan truyền bit nhớ:} Bit nhớ được lan truyền từ phải sang trái. Quá trình này yêu cầu $O(\log l)$ bước lặp do kỹ thuật parallel prefix.
 
-\textbf{Template cho mỗi vị trí:} Mỗi vị trí bit $i$ có $2^3 = 8$ template (tương ứng với 8 tổ hợp của $a_i, b_i, c_{i-1}$).
+	extbf{Mẫu cho mỗi vị trí:} Mỗi vị trí bit $i$ có $2^3 = 8$ mẫu (tương ứng với 8 tổ hợp của $a_i, b_i, c_{i-1}$).
 
-\textbf{Tương quan không mong muốn:} Tối đa $C_i = 1$, xảy ra khi hai template có cùng giá trị $(a_i, b_i)$ nhưng khác $c_{i-1}$.
+	extbf{Tương quan không mong muốn:} Tối đa $C_i = 1$, xảy ra khi hai mẫu có cùng giá trị $(a_i, b_i)$ nhưng khác $c_{i-1}$.
 
 \subsection{Phép nhân}
 
-Phép nhân hai số nhị phân $l$-bit sử dụng thuật toán shift-and-add cổ điển. Thuật toán lặp qua từng bit của số nhân (multiplier) và thực hiện:
+Phép nhân hai số nhị phân $l$-bit sử dụng thuật toán dịch và cộng cổ điển. Thuật toán lặp qua từng bit của số nhân và thực hiện:
 \begin{enumerate}
-    \item Kiểm tra bit thấp nhất (LSB) của multiplier
-    \item Nếu LSB = 1: Cộng multiplicand vào kết quả tích lũy
-    \item Dịch trái multiplicand và dịch phải multiplier
+    \item Kiểm tra bit ít quan trọng nhất, ký hiệu LSB, của số nhân
+    \item Nếu LSB = 1: Cộng số bị nhân vào kết quả tích lũy
+    \item Dịch trái số bị nhân và dịch phải số nhân
 \end{enumerate}
 
-\textbf{Số bước lặp:} $l$ bước cho $l$-bit multiplication.
+	extbf{Số bước lặp:} $l$ bước cho phép nhân $l$-bit.
 
-\textbf{Mã hóa template:} Mỗi bước lặp được mã hóa thành các template riêng, bao gồm:
+	extbf{Mã hóa mẫu:} Mỗi bước lặp được mã hóa thành các mẫu riêng, bao gồm:
 \begin{itemize}
-    \item Template kiểm tra LSB
-    \item Template cộng có điều kiện
-    \item Template dịch bit
+    \item Mẫu kiểm tra LSB
+    \item Mẫu cộng có điều kiện
+    \item Mẫu dịch bit
 \end{itemize}
 
 \textbf{Tương quan không mong muốn:} $C_i = O(\log l)$, phát sinh từ sự chồng chéo giữa các bước lặp.
@@ -231,7 +231,7 @@ SBN là một chỉ thị máy tính đơn giản nhưng đủ mạnh để đ�
     \item Nếu kết quả âm, nhảy đến địa chỉ C; ngược lại, tiếp tục tuần tự
 \end{enumerate}
 
-	extbf{Tính đầy đủ Turing:} SBN được chứng minh là đầy đủ Turing, nghĩa là bất kỳ hàm tính toán được nào cũng có thể được biểu diễn bằng một chuỗi hữu hạn các chỉ thị SBN.
+\textbf{Tính đầy đủ Turing:} SBN được chứng minh là đầy đủ Turing, nghĩa là bất kỳ hàm tính toán được nào cũng có thể được biểu diễn bằng một chuỗi hữu hạn các chỉ thị SBN.
 
 \textbf{Mã hóa template cho SBN:} Bao gồm các thành phần:
 \begin{itemize}

@@ -9,8 +9,15 @@
 \usepackage{hyperref} % Tạo liên kết trong văn bản
 \usepackage{listings} % Để trình bày mã nguồn Python
 \usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{calc}
 \usepackage{geometry}
  \geometry{a4paper, margin=2.5cm}
+\usepackage{float} % hỗ trợ [H] cho bảng
+\usepackage{array} % hỗ trợ cột m{...} trong tabular
+\newcolumntype{S}[1]{>{\raggedright\arraybackslash}#1} % S{m{..}}: cột canh trái, xuống dòng đúng
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}} % C{..}: cột canh giữa, xuống dòng đúng
+\usepackage{multirow} % hỗ trợ \multirow trong bảng công việc
 \usepackage{titlesec} % Tùy chỉnh tiêu đề chương
 \usepackage{tocloft} % Tùy chỉnh mục lục
 \usepackage{indentfirst} % Thụt dòng đầu tiên cho mỗi đoạn
@@ -35,11 +42,25 @@
 % --- ĐỊNH NGHĨA TRANG BÌA ---
 \begin{document}
 
+% Tránh cảnh báo hyperref trùng page anchor do bìa không đánh số
+\hypersetup{pageanchor=false}
 \input{sections/titlepage}
+\clearpage
+\hypersetup{pageanchor=true}
+
+% Phần đầu: đánh số La Mã
+\pagenumbering{roman}
 
 \input{sections/group_info}
 
 \input{sections/toc}
+
+\input{sections/glossary}
+
+\clearpage
+% Nội dung chính: đánh số Ả Rập từ 1
+\pagenumbering{arabic}
+\setcounter{page}{1}
 
 \input{sections/chapter1}
 

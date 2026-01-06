@@ -2,12 +2,12 @@
 
 \section{Tổng kết nghiên cứu}
 
-Nghiên cứu này đã giải quyết thành công câu hỏi cốt lõi về khả năng học và thực thi chính xác tuyệt đối các thuật toán nhị phân của mạng nơ-ron hai lớp trong giới hạn chiều rộng vô hạn ($n_h \rightarrow \infty$). Thông qua việc kết hợp kỹ thuật template matching với phân tích Neural Tangent Kernel (NTK), nghiên cứu đã đưa ra các chứng minh lý thuyết vững chắc được xác nhận bởi thực nghiệm.
+Nghiên cứu này đã giải quyết thành công câu hỏi cốt lõi về khả năng học và thực thi chính xác tuyệt đối các thuật toán nhị phân của mạng nơ-ron hai lớp trong giới hạn chiều rộng vô hạn ($n_h \rightarrow \infty$). Thông qua việc kết hợp kỹ thuật khớp mẫu với phân tích Neural Tangent Kernel (NTK), nghiên cứu đã đưa ra các chứng minh lý thuyết vững chắc được xác nhận bởi thực nghiệm.
 
 \textbf{Các kết quả chính đạt được:}
 
 \begin{enumerate}
-    \item \textbf{Chứng minh \textit{exact learnability}:} Nghiên cứu đã chứng minh tính học được chính xác cho bốn nhóm tác vụ cơ bản:
+    \item \textbf{Chứng minh \textit{tính học được chính xác}:} Nghiên cứu đã chứng minh tính học được chính xác cho bốn nhóm tác vụ cơ bản:
     \begin{itemize}
         \item Phép hoán vị
         \item Phép cộng nhị phân
@@ -51,7 +51,7 @@ Phương pháp chưa đạt được tổng quát hóa theo độ dài---khả n
 Dựa trên các kết quả và hạn chế đã phân tích, một số hướng nghiên cứu tiềm năng được đề xuất:
 
 \begin{enumerate}
-    \item \textbf{Dữ liệu có tương quan:} Nghiên cứu khả năng \textit{exact learnability} khi dữ liệu huấn luyện có tương quan thay vì tuân theo giả định trực giao nghiêm ngặt.
+    \item \textbf{Dữ liệu có tương quan:} Nghiên cứu khả năng \textit{tính học được chính xác} khi dữ liệu huấn luyện có tương quan thay vì tuân theo giả định trực giao nghiêm ngặt.
     
     \item \textbf{Kiến trúc có độ dài thay đổi:} Mở rộng khung lý thuyết NTK sang các kiến trúc có khả năng xử lý đầu vào với độ dài thay đổi như Transformer, RNN, hoặc Graph Neural Networks (GNN) trên đồ thị có bậc bị chặn.
     

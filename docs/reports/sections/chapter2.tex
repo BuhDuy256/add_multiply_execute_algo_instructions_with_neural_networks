@@ -25,14 +25,14 @@ Trước khi đi vào phân tích chi tiết khung lý thuyết Neural Tangent K
     \theta(\mathbf{x},\mathbf{x}') = \arccos\left(\frac{\langle \mathbf{x},\mathbf{x}' \rangle}{\|\mathbf{x}\|\,\|\mathbf{x}'\|}\right) \in [0,\pi].
 \end{equation}
 
-\textbf{Bài toán hồi quy và hàm loss:} Xét một mạng nơ-ron với tham số $\theta$ thực hiện ánh xạ đầu vào $\mathbf{x}$ sang đầu ra $F(\mathbf{x}; \theta)$. Cho tập dữ liệu huấn luyện $\{(\mathbf{x}_i, \mathbf{y}_i)\}_{i=1}^{N}$ với $N$ mẫu, mục tiêu huấn luyện là tối thiểu hóa hàm loss Mean Squared Error (MSE):
+	\textbf{Bài toán hồi quy và hàm mất mát:} Xét một mạng nơ-ron với tham số $\theta$ thực hiện ánh xạ đầu vào $\mathbf{x}$ sang đầu ra $F(\mathbf{x}; \theta)$. Cho tập dữ liệu huấn luyện $\{(\mathbf{x}_i, \mathbf{y}_i)\}_{i=1}^{N}$ với $N$ mẫu, mục tiêu huấn luyện là tối thiểu hóa hàm mất mát Mean Squared Error (MSE):
 \begin{equation}
     \mathcal{L}(\theta) = \frac{1}{2} \|F(\mathbf{x}; \theta) - \mathbf{y}\|^2 = \frac{1}{2} \sum_{i=1}^{N} \|F(\mathbf{x}_i; \theta) - \mathbf{y}_i\|^2
 \end{equation}
 
-Trong đó $\mathbf{y}$ biểu thị vector chứa tất cả các nhãn đầu ra mục tiêu. Hàm loss MSE có đạo hàm đơn giản và là lựa chọn tiêu chuẩn cho các bài toán hồi quy, đồng thời cũng là nền tảng cho việc phân tích lý thuyết trong khung NTK.
+Trong đó $\mathbf{y}$ biểu thị vector chứa tất cả các nhãn đầu ra mục tiêu. Hàm mất mát MSE có đạo hàm đơn giản và là lựa chọn tiêu chuẩn cho các bài toán hồi quy, đồng thời cũng là nền tảng cho việc phân tích lý thuyết trong khung NTK.
 
-\section{Miền liên tục và miền rời rạc: khác biệt về sai số}
+\section{Miền liên tục và miền rời rạc:}
 
 Một điểm xuất phát quan trọng của bài báo là sự khác biệt giữa hai kiểu bài toán mà học sâu thường gặp:
 \begin{itemize}
@@ -42,7 +42,7 @@ Một điểm xuất phát quan trọng của bài báo là sự khác biệt gi
 
 Do đó, việc tối ưu trong không gian liên tục bằng hạ gradient không đương nhiên dẫn đến nghiệm thực thi \textbf{đúng tuyệt đối} một quy tắc rời rạc. Nhận xét này tạo động lực cho việc đưa ra một khung phân tích trong đó có thể phát biểu và chứng minh tính học được cho các hàm rời rạc \cite{de_luca_2025}.
 
-\section{Đặc điểm thuật toán số học và ý tưởng template cục bộ}
+\section{Đặc điểm thuật toán số học và ý tưởng mẫu cục bộ}
 
 Các thuật toán số học cổ điển như cộng/nhân nhị phân có cấu trúc phù hợp để phân rã thành các quy tắc cục bộ học được từ dữ liệu. Ba đặc tính thường được sử dụng là:
 \begin{itemize}
@@ -85,7 +85,7 @@ Neural Tangent Kernel (NTK) là một công cụ lý thuyết mạnh mẽ cho ph
         K(\theta(t)) \approx \Theta(\mathcal{X},\mathcal{X})\quad \text{trong } t\in[0,T].
     \end{equation*}
 
-    \item \textbf{Giải ODE và liên hệ kernel regression:} thay $K(\theta(t))$ bởi $\Theta$ (xấp xỉ hằng theo $t$), ta giải được nghiệm giới hạn và nhận được công thức bộ dự đoán NTK tương đương kernel regression \cite{jacot_2018,scholkopf_smola_2002}.
+    \item \textbf{Giải ODE và liên hệ hồi quy nhân:} thay $K(\theta(t))$ bởi $\Theta$ (xấp xỉ hằng theo $t$), ta giải được nghiệm giới hạn và nhận được công thức bộ dự đoán NTK tương đương hồi quy nhân \cite{jacot_2018,scholkopf_smola_2002}.
 \end{enumerate}
 
 \textbf{Ma trận Jacobian:} Xét mạng nơ-ron với đầu ra $F(\mathbf{x}; \theta) \in \mathbb{R}^k$ phụ thuộc vào vector tham số $\theta \in \mathbb{R}^p$. Ma trận Jacobian của đầu ra theo tham số được định nghĩa là:
@@ -105,7 +105,7 @@ Phần tử $(i,j)$ của ma trận kernel này đo lường mức độ tương
     K(\mathbf{x}, \mathbf{x}'; \theta) = \left\langle \frac{\partial F(\mathbf{x}; \theta)}{\partial \theta}, \frac{\partial F(\mathbf{x}'; \theta)}{\partial \theta} \right\rangle
 \end{equation*}
 
-\textbf{Ý nghĩa vật lý của NTK:} NTK cho phép hiểu rõ cách mạng nơ-ron ``học'' từ dữ liệu. Khi huấn luyện bằng gradient descent, sự thay đổi của đầu ra mạng tại một điểm $\mathbf{x}$ không chỉ phụ thuộc vào gradient tại điểm đó mà còn phụ thuộc vào gradient tại tất cả các điểm dữ liệu khác thông qua kernel. Đây chính là cơ chế ``học chuyển giao'' (transfer learning) nội tại trong mạng nơ-ron: thông tin học được từ một mẫu có thể ảnh hưởng đến dự đoán tại các mẫu khác.
+\textbf{Ý nghĩa vật lý của NTK:} NTK cho phép hiểu rõ cách mạng nơ-ron ``học'' từ dữ liệu. Khi huấn luyện bằng hạ gradient, sự thay đổi của đầu ra mạng tại một điểm $\mathbf{x}$ không chỉ phụ thuộc vào gradient tại điểm đó mà còn phụ thuộc vào gradient tại tất cả các điểm dữ liệu khác thông qua kernel. Đây chính là cơ chế \textbf{học chuyển giao} nội tại trong mạng nơ-ron: thông tin học được từ một mẫu có thể ảnh hưởng đến dự đoán tại các mẫu khác.
 
 \subsection{Thiết lập bài toán và ký hiệu động lực học}
 
@@ -195,7 +195,7 @@ Trong NTK regime, ta thay $K(\theta(t))$ bởi $\Theta(\mathcal{X},\mathcal{X})$
 \end{equation*}
 Nếu $\Theta(\mathcal{X},\mathcal{X})$ xác định dương, khi $t\to\infty$ ta có $\mathbf{f}(t)\to\mathbf{y}$ (fit đúng trên tập train).
 
-\subsubsection{Công thức tại điểm test và tương đương kernel regression}
+\subsubsection{Công thức tại điểm test và tương đương hồi quy nhân}
 
 Khi xét một điểm test $\mathbf{x}$, động lực học của $F(\mathbf{x};\theta(t))$ cũng có thể biểu diễn qua kernel giới hạn. Bỏ qua các chi tiết kỹ thuật, nghiệm giới hạn của bộ dự đoán NTK có thể viết dưới dạng:
 \begin{equation*}
@@ -214,7 +214,7 @@ trong đó:
     \item $\Theta(\mathcal{X}, \mathcal{X}) \in \mathbb{R}^{N \times N}$ là ma trận Gram trên tập huấn luyện
 \end{itemize}
 
-Công thức này chính là nghiệm của bài toán kernel regression tiêu chuẩn \cite{scholkopf_smola_2002}. Điều này cho thấy mạng nơ-ron sâu, trong giới hạn chiều rộng vô hạn, hoạt động như một phương pháp kernel cổ điển với một kernel đặc biệt được xác định bởi kiến trúc mạng \cite{jacot_2018}.
+Công thức này chính là nghiệm của bài toán hồi quy nhân tiêu chuẩn \cite{scholkopf_smola_2002}. Điều này cho thấy mạng nơ-ron sâu, trong giới hạn chiều rộng vô hạn, hoạt động như một phương pháp nhân cổ điển với một nhân đặc biệt được xác định bởi kiến trúc mạng \cite{jacot_2018}.
 
 \subsection{Mạng nơ-ron hai lớp trong chế độ NTK}
 
@@ -262,7 +262,7 @@ Nếu không có hệ số này, đầu ra sẽ có phương sai tăng theo $m$,
 
 Để mạng nơ-ron có thể học thực thi chính xác các chỉ thị thuật toán, cần có các điều kiện đảm bảo rằng thông tin tín hiệu không bị nhiễu làm suy giảm. Phần này trình bày các điều kiện then chốt được đề xuất trong nghiên cứu.
 
-\subsubsection{Assumption 5.1: Kiểm soát tương quan không mong muốn}
+\subsubsection{Giả thiết 5.1: Kiểm soát tương quan không mong muốn}
 
 Xét một bước tính toán của thuật toán với đầu vào được biểu diễn dưới dạng template. Đầu ra của bộ dự đoán NTK có thể được phân tích thành hai thành phần:
 \begin{equation*}
@@ -275,7 +275,7 @@ trong đó:
     \item $w^0$ là \textit{trọng số nhiễu}: Đóng góp từ các template không liên quan nhưng có tương quan khác không với đầu vào
 \end{itemize}
 
-\textbf{Định nghĩa tương quan không mong muốn:} Một tương quan được gọi là ``không mong muốn'' (unwanted correlation) khi một template trong tập huấn luyện có tích vô hướng khác không với đầu vào hiện tại, mặc dù template đó không đại diện cho quy tắc cần áp dụng. Gọi $C$ là số lượng các tương quan không mong muốn như vậy.
+	extbf{Định nghĩa tương quan không mong muốn:} Một tương quan được gọi là ``không mong muốn'' khi một mẫu trong tập huấn luyện có tích vô hướng khác không với đầu vào hiện tại, mặc dù mẫu đó không đại diện cho quy tắc cần áp dụng. Gọi $C$ là số lượng các tương quan không mong muốn như vậy.
 
 \textbf{Điều kiện đủ để học chính xác:} Để đầu ra $\hat{y}$ có dấu đúng (từ đó có thể làm tròn về giá trị chính xác), cần đảm bảo rằng thành phần tín hiệu lấn át thành phần nhiễu:
 \begin{equation*}
@@ -309,4 +309,4 @@ Hàm làm tròn đóng vai trò then chốt trong việc:
     \item \textbf{Chuyển đổi xấp xỉ thành chính xác:} Trong khi bộ dự đoán NTK về bản chất là một bộ xấp xỉ liên tục, việc kết hợp với làm tròn biến nó thành một hệ thống thực thi chính xác các phép toán rời rạc.
 \end{enumerate}
 
-Kết hợp Assumption 5.1 và cơ chế làm tròn, nghiên cứu chứng minh rằng mạng nơ-ron trong giới hạn infinite-width có khả năng học và thực thi chính xác các chỉ thị thuật toán, mở đường cho các kết quả về phép cộng, phép nhân, và chỉ thị SBN được trình bày trong các chương tiếp theo \cite{de_luca_2025}.
+Kết hợp Giả thiết 5.1 và cơ chế làm tròn, nghiên cứu chứng minh rằng mạng nơ-ron trong giới hạn chiều rộng vô hạn có khả năng học và thực thi chính xác các chỉ thị thuật toán, mở đường cho các kết quả về phép cộng, phép nhân, và chỉ thị SBN được trình bày trong các chương tiếp theo \cite{de_luca_2025}.

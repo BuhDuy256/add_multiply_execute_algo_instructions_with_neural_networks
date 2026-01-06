@@ -9,7 +9,7 @@ Chương này trình bày các thực nghiệm được thực hiện để xác
 Kiến trúc mạng được sử dụng trong thực nghiệm là mạng nơ-ron hai lớp kết nối đầy đủ với các đặc điểm sau:
 \begin{itemize}
     \item \textbf{Hàm kích hoạt:} ReLU được sử dụng cho lớp ẩn
-    \item \textbf{Bias:} Mạng không sử dụng bias trong các lớp
+    \item \textbf{Hệ số chệch:} Mạng không sử dụng hệ số chệch trong các lớp
     \item \textbf{Chiều rộng lớp ẩn:} $n_h = 50,000$ nơ-ron ẩn, đủ lớn để tiệm cận chế độ NTK ở giới hạn chiều rộng vô hạn
 \end{itemize}
 
@@ -30,7 +30,7 @@ Việc sử dụng NTK parametrization đảm bảo rằng khi $n_h \rightarrow 
 \begin{itemize}
     \item \textbf{Thuật toán tối ưu:} Hạ gradient toàn bộ dữ liệu được sử dụng thay vì huấn luyện theo lô nhỏ, đảm bảo gradient được tính trên toàn bộ tập huấn luyện
     \item \textbf{Tốc độ học:} Được chọn đủ nhỏ để đảm bảo hội tụ ổn định trong chế độ huấn luyện lười
-    \item \textbf{Tiêu chí dừng:} Huấn luyện cho đến khi loss giảm đến ngưỡng đủ nhỏ hoặc đạt số epoch tối đa
+    \item \textbf{Tiêu chí dừng:} Huấn luyện cho đến khi hàm mất mát giảm đến ngưỡng đủ nhỏ hoặc đạt số epoch tối đa
 \end{itemize}
 
 \subsection{Đối tượng kiểm thử}
@@ -73,7 +73,7 @@ Các thực nghiệm xác minh được thực hiện trên hai thuật toán s�
     \item Mọi bit đầu ra đều có dấu đúng, xác nhận Định lý 5.1: $\text{sign}(\mu(\hat{\mathbf{x}})_i) = y_i^*$
 \end{itemize}
 
-\textbf{Ý nghĩa:} Kết quả này xác nhận rằng khung lý thuyết template matching kết hợp với phân tích NTK có thể dự đoán chính xác hành vi của mạng nơ-ron trên các bài toán số học nhị phân.
+	extbf{Ý nghĩa:} Kết quả này xác nhận rằng khung lý thuyết khớp mẫu kết hợp với phân tích NTK có thể dự đoán chính xác hành vi của mạng nơ-ron trên các bài toán số học nhị phân.
 
 \subsection{So sánh phương sai và kỳ vọng}
 
@@ -109,7 +109,7 @@ Theo phân tích trong Chương 3, tỷ lệ $\sigma^2/\mu^2$ được dự đo�
 
 \section{Thực nghiệm huấn luyện}
 
-Phần này trình bày các thực nghiệm huấn luyện thực tế (training experiments) để đánh giá khả năng học của mạng nơ-ron trong điều kiện thực tiễn.
+Phần này trình bày các thực nghiệm huấn luyện thực tế để đánh giá khả năng học của mạng nơ-ron trong điều kiện thực tiễn.
 
 \subsection{Lựa chọn bài toán}
 
@@ -217,7 +217,7 @@ Các thực nghiệm trong chương này đã xác nhận ba dự đoán lý thu
 Kết quả thực nghiệm cung cấp bằng chứng mạnh mẽ rằng:
 \begin{itemize}
     \item Mạng nơ-ron \textbf{có khả năng} học thực thi chính xác các thuật toán số học và logic
-    \item Phương pháp template matching với kỹ thuật ensemble là \textbf{khả thi về mặt tính toán}
+    \item Phương pháp khớp mẫu với kỹ thuật ensemble là \textbf{khả thi về mặt tính toán}
     \item Lý thuyết NTK cung cấp \textbf{khung phân tích đáng tin cậy} cho việc thiết kế và đánh giá các hệ thống như vậy
 \end{itemize}
 
