@@ -32,7 +32,7 @@ Trước khi đi vào phân tích chi tiết khung lý thuyết Neural Tangent K
     \textbf{Tại sao chọn MSE?}
     \begin{itemize}
         \item Đạo hàm $\frac{\partial \mathcal{L}}{\partial F} = F - \mathbf{y}$ có dạng tuyến tính, cho phép gradient descent hội tụ ổn định.
-        \item Trong chế độ NTK, MSE loss dẫn đến nghiệm closed-form dạng kernel regression, tạo nền tảng cho phân tích lý thuyết chính xác.
+        \item Trong chế độ NTK, MSE loss dẫn đến nghiệm dạng tường minh theo hồi quy hạt nhân, tạo nền tảng cho phân tích lý thuyết chính xác.
       \end{itemize}
       $\Rightarrow$ Nhờ đó, ta có thể chứng minh rằng dấu của đầu ra dự đoán luôn khớp với nhãn mục tiêu (tức là nếu $y = +1$ thì $\hat{y} > 0$, và ngược lại). Điều này đảm bảo rằng sau khi làm tròn, kết quả sẽ chính xác tuyệt đối - đây là nền tảng cho khái niệm \textit{Exact Learnability} được trình bày trong Định lý 5.1 (Chương 3).
 \end{enumerate}
@@ -56,7 +56,7 @@ trong đó $N$ là số lượng mẫu dữ liệu, $k$ là chiều của đầu
 
 \subsection{Định nghĩa NTK thực nghiệm}
 
-Neural Tangent Kernel thực nghiệm (empirical NTK) được định nghĩa thông qua tích của ma trận Jacobian với chuyển vị của nó:
+Neural Tangent Kernel thực nghiệm được định nghĩa thông qua tích của ma trận Jacobian với chuyển vị của nó:
 \begin{equation}
     K(\theta) = J(\theta) J(\theta)^\top \in \mathbb{R}^{Nk \times Nk}
 \end{equation}
@@ -68,7 +68,7 @@ Phần tử $(i,j)$ của ma trận kernel này đo lường mức độ tương
 
 \subsection{Ý nghĩa vật lý của NTK}
 
-NTK cho phép hiểu rõ cách mạng nơ-ron ``học'' từ dữ liệu. Khi huấn luyện bằng gradient descent, sự thay đổi của đầu ra mạng tại một điểm $\mathbf{x}$ không chỉ phụ thuộc vào gradient tại điểm đó mà còn phụ thuộc vào gradient tại tất cả các điểm dữ liệu khác thông qua kernel. Đây chính là cơ chế ``học chuyển giao'' (transfer learning) nội tại trong mạng nơ-ron: thông tin học được từ một mẫu có thể ảnh hưởng đến dự đoán tại các mẫu khác.
+NTK cho phép hiểu rõ cách mạng nơ-ron ``học'' từ dữ liệu. Khi huấn luyện bằng gradient descent, sự thay đổi của đầu ra mạng tại một điểm $\mathbf{x}$ không chỉ phụ thuộc vào gradient tại điểm đó mà còn phụ thuộc vào gradient tại tất cả các điểm dữ liệu khác thông qua kernel. Đây chính là cơ chế ``học chuyển giao'' nội tại trong mạng nơ-ron: thông tin học được từ một mẫu có thể ảnh hưởng đến dự đoán tại các mẫu khác.
 
 \section{Giới hạn chiều rộng vô hạn và Động lực học}
 
@@ -186,7 +186,7 @@ Nếu không có hệ số này, đầu ra sẽ có phương sai tăng theo $m$,
 
 Để mạng nơ-ron có thể học thực thi chính xác các chỉ thị thuật toán, cần có các điều kiện đảm bảo rằng thông tin tín hiệu không bị nhiễu làm suy giảm. Phần này trình bày các điều kiện then chốt được đề xuất trong nghiên cứu.
 
-\subsection{Assumption 5.1: Kiểm soát tương quan không mong muốn}
+\subsection{Giả thuyết 5.1: Kiểm soát tương quan không mong muốn}
 
 Xét một bước tính toán của thuật toán với đầu vào được biểu diễn dưới dạng mẫu (template). Đầu ra của bộ dự đoán NTK có thể được phân tích thành hai thành phần:
 \begin{equation*}
@@ -235,4 +235,4 @@ Hàm làm tròn đóng vai trò then chốt trong việc:
     \item \textbf{Chuyển đổi xấp xỉ thành chính xác:} Trong khi bộ dự đoán NTK về bản chất là một bộ xấp xỉ liên tục, việc kết hợp với làm tròn biến nó thành một hệ thống thực thi chính xác các phép toán rời rạc.
 \end{enumerate}
 
-Kết hợp Assumption 5.1 và cơ chế làm tròn, nghiên cứu chứng minh rằng mạng nơ-ron trong giới hạn infinite-width có khả năng học và thực thi chính xác các chỉ thị thuật toán, mở đường cho các kết quả về phép cộng, phép nhân, và chỉ thị SBN được trình bày trong các chương tiếp theo.
+Kết hợp Giả thuyết 5.1 và cơ chế làm tròn, nghiên cứu chứng minh rằng mạng nơ-ron trong giới hạn infinite-width có khả năng học và thực thi chính xác các chỉ thị thuật toán, mở đường cho các kết quả về phép cộng, phép nhân, và chỉ thị SBN được trình bày trong các chương tiếp theo.
