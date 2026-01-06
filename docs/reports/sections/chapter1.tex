@@ -10,9 +10,9 @@ Mục tiêu cốt lõi của nghiên cứu là chứng minh một cách chặt c
 
 \section{Các nghiên cứu liên quan}
 
-Khả năng tính toán của mạng nơ-ron đã được nghiên cứu rộng rãi trong nhiều thập kỷ qua. Các nghiên cứu tiên phong về Recurrent Neural Networks (RNN) đã chứng minh rằng RNN có thể mô phỏng máy Turing (Turing-complete) về mặt lý thuyết, nghĩa là chúng có khả năng biểu diễn bất kỳ hàm tính toán được (computable function) nào. Gần đây hơn, kiến trúc Transformer cũng được chứng minh có khả năng biểu diễn tương đương, củng cố thêm quan điểm về tính phổ quát của mạng nơ-ron.
+Khả năng tính toán của mạng nơ-ron đã được nghiên cứu rộng rãi trong nhiều thập kỷ qua. Các nghiên cứu tiên phong về mạng nơ-ron hồi quy (RNN) đã chứng minh rằng RNN có thể mô phỏng máy Turing về mặt lý thuyết, nghĩa là chúng có khả năng biểu diễn bất kỳ hàm tính toán được nào. Gần đây hơn, kiến trúc Transformer cũng được chứng minh có khả năng biểu diễn tương đương, củng cố thêm quan điểm về tính phổ quát của mạng nơ-ron.
 
-Tuy nhiên, điều quan trọng cần phân biệt là tính khả thi về mặt biểu diễn (expressive power) hoàn toàn khác với khả năng học được (learnability) thông qua gradient descent. Một mạng nơ-ron có thể có khả năng biểu diễn một hàm phức tạp, nhưng điều đó không đảm bảo rằng thuật toán tối ưu hóa như gradient descent có thể tìm được tập tham số phù hợp để thực hiện hàm đó từ dữ liệu huấn luyện hữu hạn. Đây chính là khoảng cách then chốt mà các nghiên cứu trước đó chưa giải quyết triệt để.
+Tuy nhiên, điều quan trọng cần phân biệt là tính khả thi về mặt biểu diễn hoàn toàn khác với khả năng học được thông qua gradient descent. Một mạng nơ-ron có thể có khả năng biểu diễn một hàm phức tạp, nhưng điều đó không đảm bảo rằng thuật toán tối ưu hóa như gradient descent có thể tìm được tập tham số phù hợp để thực hiện hàm đó từ dữ liệu huấn luyện hữu hạn. Đây chính là khoảng cách then chốt mà các nghiên cứu trước đó chưa giải quyết triệt để.
 
 Nhiều kiến trúc chuyên biệt đã được đề xuất để thu hẹp khoảng cách này. Neural GPU mở rộng khả năng của mạng tích chập để xử lý các phép toán số học song song. Neural Arithmetic Logic Unit (NALU) được thiết kế đặc biệt để học các phép toán số học như cộng, trừ, nhân và chia. Mặc dù các kiến trúc này đạt được kết quả thực nghiệm tốt trong một số trường hợp, chúng thiếu nền tảng lý thuyết vững chắc về việc tại sao và khi nào quá trình học hội tụ đến giải pháp chính xác.
 
@@ -28,15 +28,16 @@ Các bộ dữ liệu tiêu chuẩn cho bài toán số học thường không �
 
 \section{Câu hỏi nghiên cứu}
 
-Câu hỏi nghiên cứu trọng tâm mà tác giả đặt ra là:
+Nghiên cứu đặt ra một câu hỏi tổng quát, gồm \textbf{ba phần} tương ứng với (i) khía cạnh \textbf{lý thuyết}, (ii) khía cạnh \textbf{hiệu quả dữ liệu}, và (iii) khía cạnh \textbf{kết nối với thực nghiệm}:
+\begin{quote}
+        \textit{(1) Về mặt lý thuyết, liệu có thể chứng minh rằng một mạng nơ-ron học được cơ chế template matching để thực thi \textbf{chính xác} các chỉ thị thuật toán, dưới các giả định như NTK và mô hình nhiễu; (2) lượng dữ liệu huấn luyện tối thiểu cần thiết (độ phức tạp mẫu) là bao nhiêu; và (3) trong thực tế khi mạng có độ rộng hữu hạn và dữ liệu hữu hạn, các bảo đảm/dự đoán từ lý thuyết được phản ánh như thế nào?}
+\end{quote}
 
-$\Rightarrow$ \textit{Liệu mạng nơ-ron có thể học thực thi chính xác các chỉ thị thuật toán thông qua cơ chế template matching, và nếu có thể, lượng dữ liệu huấn luyện tối thiểu cần thiết là bao nhiêu?}
-
-Câu hỏi này bao hàm nhiều khía cạnh quan trọng:
+Từ đó, báo cáo cụ thể hóa câu hỏi nghiên cứu thành \textbf{ba phần}:
 \begin{itemize}
-    \item \textbf{Tính khả thi về mặt học:} Liệu gradient descent có thể hội tụ đến một giải pháp thực hiện chính xác thuật toán hay không?
-    \item \textbf{Hiệu quả dữ liệu:} Số lượng ví dụ huấn luyện cần thiết có thể được kiểm soát ở mức nào? Liệu có thể đạt được độ phức tạp mẫu logarithmic thay vì tuyến tính hay đa thức theo kích thước đầu vào?
-    \item \textbf{Tính phổ quát:} Kết quả có thể mở rộng cho lớp các chỉ thị thuật toán nào? Liệu có thể đạt được tính Turing-complete không?
+    \item \textbf{Phần 1 (Lý thuyết/NTK).} Trong khuôn khổ NTK ở giới hạn chiều rộng vô hạn, liệu gradient descent có thể hội tụ đến nghiệm thực thi \textbf{đúng} thuật toán (ở mức bit) hay không?
+    \item \textbf{Phần 2 (Thực nghiệm/mạng hữu hạn).} Khi rời khỏi giả định chiều rộng vô hạn (mạng hữu hạn và dữ liệu hữu hạn), mô hình còn có thể học và khái quát hóa việc thực thi chỉ thị thuật toán ở mức độ nào? Mức suy giảm so với dự đoán/bảo đảm lý thuyết thể hiện ra sao theo độ dài bit, theo seed/khởi tạo, và theo quy mô dữ liệu?
+    \item \textbf{Phần 3 (Độ phức tạp mẫu).} Lượng dữ liệu huấn luyện tối thiểu phụ thuộc như thế nào vào kích thước đầu vào?
 \end{itemize}
 
 \section{Đóng góp của bài báo}
@@ -52,9 +53,9 @@ Nghiên cứu của De Luca và cộng sự đã mang lại những đóng góp 
     
     \item \textbf{Hiệu quả về dữ liệu:} Phương pháp chỉ cần số lượng ví dụ huấn luyện ở quy mô logarithmic thay vì tuyến tính hoặc đa thức, cho phép huấn luyện hiệu quả ngay cả với các bài toán có kích thước đầu vào lớn.
     
-    \item \textbf{Tính phổ quát:} Vì chỉ thị SBN là Turing-complete, việc chứng minh mạng nơ-ron có thể học chính xác SBN đồng nghĩa với việc mạng nơ-ron có thể, về nguyên tắc, học thực thi bất kỳ thuật toán nào.
+    \item \textbf{Tính phổ quát:} Vì chỉ thị SBN là đầy đủ Turing, việc chứng minh mạng nơ-ron có thể học chính xác SBN đồng nghĩa với việc mạng nơ-ron có thể, về nguyên tắc, học thực thi bất kỳ thuật toán nào.
     
-    \item \textbf{Góc nhìn giáo dục (của báo cáo này):} Báo cáo tổng hợp và trình bày lại các kết quả từ nghiên cứu gốc, giúp người đọc tiếp cận các khái niệm phức tạp như NTK, infinite-width limit, và template matching một cách có hệ thống.
+    \item \textbf{Góc nhìn giáo dục (của báo cáo này):} Báo cáo tổng hợp và trình bày lại các kết quả từ nghiên cứu gốc, giúp người đọc tiếp cận các khái niệm phức tạp như NTK, giới hạn chiều rộng vô hạn, và template matching một cách có hệ thống.
 \end{itemize}
 
 Các đóng góp này không chỉ có giá trị về mặt lý thuyết thuần túy mà còn mở ra hướng phát triển mới cho việc thiết kế và huấn luyện mạng nơ-ron trong các ứng dụng yêu cầu độ chính xác tuyệt đối, như xác minh phần cứng, mã hóa và giải mã, và các hệ thống nhúng quan trọng.

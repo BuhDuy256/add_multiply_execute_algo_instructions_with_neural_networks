@@ -4,6 +4,8 @@
 
 Trước khi đi vào phân tích chi tiết khung lý thuyết Neural Tangent Kernel (NTK), chúng ta cần thiết lập các ký hiệu toán học cơ bản được sử dụng xuyên suốt báo cáo này.
 
+{\bfseries Quy ước ký hiệu:} Ta dùng chữ \textbf{in đậm} để chỉ vector (ví dụ $\mathbf{x}$). Hai ký hiệu $\mathbf{1}$ và $\mathbf{0}$ lần lượt là vector toàn 1 và toàn 0 với độ dài phù hợp theo ngữ cảnh.
+
 \textbf{Vector và ma trận:} Một vector cột $n$ chiều được ký hiệu là $\mathbf{x} \in \mathbb{R}^n$, trong đó phần tử thứ $i$ được ký hiệu là $x_i$ hoặc $[\mathbf{x}]_i$. Ma trận đơn vị kích thước $n \times n$ được ký hiệu là $I_n$. Tích vô hướng giữa hai vector $\mathbf{x}$ và $\mathbf{y}$ được ký hiệu là $\langle \mathbf{x}, \mathbf{y} \rangle = \mathbf{x}^\top \mathbf{y} = \sum_{i=1}^{n} x_i y_i$.
 
 \textbf{Chuẩn Euclidean:} Chuẩn Euclidean (hay chuẩn $L^2$) của một vector $\mathbf{x}$ được định nghĩa là:
@@ -11,9 +13,16 @@ Trước khi đi vào phân tích chi tiết khung lý thuyết Neural Tangent K
     \|\mathbf{x}\| = \sqrt{\sum_{i=1}^{n} x_i^2} = \sqrt{\langle \mathbf{x}, \mathbf{x} \rangle}
 \end{equation}
 
-\textbf{Tập hợp chỉ số:} Ký hiệu $[n]$ biểu thị tập hợp các số nguyên dương từ 1 đến $n$:
+{\bfseries Tập hợp chỉ số:} Ký hiệu $[n]$ biểu thị tập hợp các số nguyên dương từ 1 đến $n$:
+
 \begin{equation}
     [n] = \{1, 2, \ldots, n\}
+\end{equation}
+
+{\bfseries Góc giữa hai vector:} Với hai vector khác không $\mathbf{x},\mathbf{x}' \in \mathbb{R}^n$, ta ký hiệu góc giữa chúng là
+
+\begin{equation}
+    \theta(\mathbf{x},\mathbf{x}') = \arccos\left(\frac{\langle \mathbf{x},\mathbf{x}' \rangle}{\|\mathbf{x}\|\,\|\mathbf{x}'\|}\right) \in [0,\pi].
 \end{equation}
 
 \textbf{Bài toán hồi quy và hàm loss:} Xét một mạng nơ-ron với tham số $\theta$ thực hiện ánh xạ đầu vào $\mathbf{x}$ sang đầu ra $F(\mathbf{x}; \theta)$. Cho tập dữ liệu huấn luyện $\{(\mathbf{x}_i, \mathbf{y}_i)\}_{i=1}^{N}$ với $N$ mẫu, mục tiêu huấn luyện là tối thiểu hóa hàm loss Mean Squared Error (MSE):
@@ -23,96 +32,195 @@ Trước khi đi vào phân tích chi tiết khung lý thuyết Neural Tangent K
 
 Trong đó $\mathbf{y}$ biểu thị vector chứa tất cả các nhãn đầu ra mục tiêu. Hàm loss MSE có đạo hàm đơn giản và là lựa chọn tiêu chuẩn cho các bài toán hồi quy, đồng thời cũng là nền tảng cho việc phân tích lý thuyết trong khung NTK.
 
+\section{Miền liên tục và miền rời rạc: khác biệt về sai số}
+
+Một điểm xuất phát quan trọng của bài báo là sự khác biệt giữa hai kiểu bài toán mà học sâu thường gặp:
+\begin{itemize}
+    \item \textbf{Bài toán liên tục:} đầu vào/đầu ra mang tính trơn. Sai số nhỏ thường không làm thay đổi ý nghĩa kết quả (ví dụ $0.99 \approx 1.00$).
+    \item \textbf{Bài toán rời rạc:} đầu vào/đầu ra ở mức bit; chỉ cần sai một bit là kết quả có thể sai hoàn toàn, không còn khái niệm “gần đúng”.
+\end{itemize}
+
+Do đó, việc tối ưu trong không gian liên tục bằng hạ gradient không đương nhiên dẫn đến nghiệm thực thi \textbf{đúng tuyệt đối} một quy tắc rời rạc. Nhận xét này tạo động lực cho việc đưa ra một khung phân tích trong đó có thể phát biểu và chứng minh tính học được cho các hàm rời rạc \cite{de_luca_2025}.
+
+\section{Đặc điểm thuật toán số học và ý tưởng template cục bộ}
+
+Các thuật toán số học cổ điển như cộng/nhân nhị phân có cấu trúc phù hợp để phân rã thành các quy tắc cục bộ học được từ dữ liệu. Ba đặc tính thường được sử dụng là:
+\begin{itemize}
+    \item \textbf{Cục bộ:} mỗi bước chỉ phụ thuộc vào một phần rất nhỏ của trạng thái (ví dụ: hai bit và bit nhớ), cho phép mô tả dưới dạng quy tắc cục bộ.
+    \item \textbf{Lặp lại:} cùng một quy tắc được áp dụng lặp đi lặp lại theo vị trí bit, tạo điều kiện cho việc lặp khi thực thi chuỗi dài.
+    \item \textbf{Gần độc lập theo vị trí:} quy tắc tại vị trí $i$ chủ yếu phụ thuộc vào thông tin lân cận, giúp tách thuật toán thành các bước nhỏ có thể học và phân tích độc lập.
+\end{itemize}
+
+Trên nền tảng đó, bài báo mô hình hóa việc học thuật toán như việc học đúng các ánh xạ cục bộ $X \rightarrow Y$ trên các khối trạng thái, sau đó \textbf{lặp} các ánh xạ đã học để thực thi thuật toán hoàn chỉnh \cite{de_luca_2025}.
+
+\section{Tính đầy đủ Turing và lệnh SBN}
+
+Một hệ thống được gọi là \textbf{đầy đủ Turing} nếu nó có thể mô phỏng mọi thuật toán khả tính (tương đương một máy Turing) \cite{turing_1936,hopcroft_ullman_1979}. Ở mức trực giác, để đạt đầy đủ Turing, một tập lệnh/mô hình tính toán cần có (ít nhất) ba năng lực cốt lõi:
+\begin{enumerate}
+    \item \textbf{Thao tác bộ nhớ:} có khả năng cập nhật trạng thái/bộ nhớ (đọc--ghi--biến đổi các biến).
+    \item \textbf{Logic điều kiện:} có khả năng kiểm tra một điều kiện trên trạng thái hiện tại để quyết định hành động tiếp theo.
+    \item \textbf{Điều khiển luồng/vòng lặp:} có cơ chế nhảy/vòng lặp để thực thi chuỗi thao tác với số bước không bị chặn trước.
+\end{enumerate}
+
+Lệnh \textbf{SBN} có dạng “\textit{trừ và nếu kết quả âm thì nhảy}”, nên thỏa cả cập nhật trạng thái, điều kiện, và điều khiển luồng; do đó có thể đạt đầy đủ Turing khi được lặp lại/ghép chuỗi phù hợp \cite{minsky_1967,hopcroft_ullman_1979}.
+
+Tác giả đưa SBN vào để nhấn mạnh rằng khung template và phân tích NTK không chỉ nhắm tới các phép toán số học cụ thể, mà còn đóng vai trò \textbf{nền tảng lý thuyết} hướng tới việc học và thực thi \textbf{mọi thuật toán} \cite{de_luca_2025}.
+
 \section{Neural Tangent Kernel (NTK)}
 
-Neural Tangent Kernel (NTK) là một công cụ lý thuyết mạnh mẽ cho phép phân tích động lực học huấn luyện của mạng nơ-ron. Ý tưởng cốt lõi là mô tả sự thay đổi của đầu ra mạng theo thời gian huấn luyện thông qua một kernel cố định.
+Neural Tangent Kernel (NTK) là một công cụ lý thuyết mạnh mẽ cho phép phân tích động lực học huấn luyện của mạng nơ-ron \cite{jacot_2018}. Ý tưởng cốt lõi là mô tả sự thay đổi của đầu ra mạng theo thời gian huấn luyện thông qua một kernel gần như cố định trong chế độ chiều rộng lớn (chế độ huấn luyện lười) \cite{jacot_2018,chizat_bach_2019}.
+
+\subsection{Khung chứng minh: ba mục tiêu chính}
+
+Để chứng minh lý thuyết của NTK, ta tập trung vào ba mục tiêu chính:
+\begin{enumerate}
+    \item \textbf{Động lực học của đầu ra trên tập huấn luyện:} thiết lập phương trình vi phân cho vector đầu ra $\mathbf{f}(t)$ dưới gradient flow,
+    \begin{equation*}
+    \frac{d}{dt}\mathbf{f}(t) = -K(\theta(t))\bigl(\mathbf{f}(t)-\mathbf{y}\bigr).
+    \end{equation*}
+    trong đó $K(\theta)=J(\theta)J(\theta)^\top$ là NTK thực nghiệm.
+
+    \item \textbf{Chế độ NTK / huấn luyện lười:} khi chiều rộng $m\to\infty$, kernel gần như \emph{đóng băng theo thời gian}, và hội tụ về một kernel giới hạn xác định $\Theta$ \cite{jacot_2018,chizat_bach_2019}:
+    \begin{equation*}
+        K(\theta(t)) \approx \Theta(\mathcal{X},\mathcal{X})\quad \text{trong } t\in[0,T].
+    \end{equation*}
+
+    \item \textbf{Giải ODE và liên hệ kernel regression:} thay $K(\theta(t))$ bởi $\Theta$ (xấp xỉ hằng theo $t$), ta giải được nghiệm giới hạn và nhận được công thức bộ dự đoán NTK tương đương kernel regression \cite{jacot_2018,scholkopf_smola_2002}.
+\end{enumerate}
 
 \textbf{Ma trận Jacobian:} Xét mạng nơ-ron với đầu ra $F(\mathbf{x}; \theta) \in \mathbb{R}^k$ phụ thuộc vào vector tham số $\theta \in \mathbb{R}^p$. Ma trận Jacobian của đầu ra theo tham số được định nghĩa là:
-\begin{equation}
+\begin{equation*}
     J(\theta) = \frac{\partial F(\mathbf{x}; \theta)}{\partial \theta} \in \mathbb{R}^{Nk \times p}
-\end{equation}
+\end{equation*}
 
 trong đó $N$ là số lượng mẫu dữ liệu, $k$ là chiều của đầu ra, và $p$ là số lượng tham số. Mỗi hàng của ma trận Jacobian biểu thị gradient của một thành phần đầu ra theo toàn bộ tham số.
 
-\textbf{Định nghĩa NTK thực nghiệm:} Neural Tangent Kernel thực nghiệm (empirical NTK) được định nghĩa thông qua tích của ma trận Jacobian với chuyển vị của nó:
-\begin{equation}
+\textbf{Định nghĩa NTK thực nghiệm:} Neural Tangent Kernel thực nghiệm được định nghĩa thông qua tích của ma trận Jacobian với chuyển vị của nó:
+\begin{equation*}
     K(\theta) = J(\theta) J(\theta)^\top \in \mathbb{R}^{Nk \times Nk}
-\end{equation}
+\end{equation*}
 
 Phần tử $(i,j)$ của ma trận kernel này đo lường mức độ tương quan giữa gradient của đầu ra thứ $i$ và đầu ra thứ $j$ trong không gian tham số. Cụ thể hơn, với hai điểm dữ liệu $\mathbf{x}$ và $\mathbf{x}'$, giá trị kernel được tính như sau:
-\begin{equation}
+\begin{equation*}
     K(\mathbf{x}, \mathbf{x}'; \theta) = \left\langle \frac{\partial F(\mathbf{x}; \theta)}{\partial \theta}, \frac{\partial F(\mathbf{x}'; \theta)}{\partial \theta} \right\rangle
-\end{equation}
+\end{equation*}
 
 \textbf{Ý nghĩa vật lý của NTK:} NTK cho phép hiểu rõ cách mạng nơ-ron ``học'' từ dữ liệu. Khi huấn luyện bằng gradient descent, sự thay đổi của đầu ra mạng tại một điểm $\mathbf{x}$ không chỉ phụ thuộc vào gradient tại điểm đó mà còn phụ thuộc vào gradient tại tất cả các điểm dữ liệu khác thông qua kernel. Đây chính là cơ chế ``học chuyển giao'' (transfer learning) nội tại trong mạng nơ-ron: thông tin học được từ một mẫu có thể ảnh hưởng đến dự đoán tại các mẫu khác.
 
-\section{Giới hạn chiều rộng vô hạn và Động lực học}
+\subsection{Thiết lập bài toán và ký hiệu động lực học}
 
-Một trong những đóng góp quan trọng nhất của lý thuyết NTK là khám phá hành vi của mạng nơ-ron khi chiều rộng lớp ẩn tiến tới vô hạn. Trong giới hạn này, việc huấn luyện mạng nơ-ron trở nên đơn giản hóa đáng kể và có thể được phân tích chính xác.
+Xét tập huấn luyện $\{(\mathbf{x}_i,\mathbf{y}_i)\}_{i=1}^N$. Đặt $\mathcal{X}=\{\mathbf{x}_1,\ldots,\mathbf{x}_N\}$ và gom vector đầu ra trên tập train:
+\begin{equation*}
+    \mathbf{f}(\theta)=\begin{bmatrix}F(\mathbf{x}_1;\theta)\\ \vdots \\ F(\mathbf{x}_N;\theta)\end{bmatrix}\in\mathbb{R}^{Nk},\qquad
+    \mathbf{y}=\begin{bmatrix}\mathbf{y}_1\\ \vdots \\ \mathbf{y}_N\end{bmatrix}.
+\end{equation*}
+Ta dùng hàm mất mát MSE $\mathcal{L}(\theta)=\tfrac12\|\mathbf{f}(\theta)-\mathbf{y}\|^2$ và xét \textbf{gradient flow}:
+\begin{equation*}
+    \frac{d\theta(t)}{dt}=-\nabla_\theta\mathcal{L}(\theta(t)).
+\end{equation*}
 
-\subsection{Chế độ Lazy Training}
+\subsection{Mục tiêu 1: động lực học đầu ra trên tập huấn luyện}
+
+Một trong những đóng góp quan trọng nhất của lý thuyết NTK là khám phá hành vi của mạng nơ-ron khi chiều rộng lớp ẩn tiến tới vô hạn \cite{jacot_2018}. Trong giới hạn này, việc huấn luyện mạng nơ-ron trở nên đơn giản hóa đáng kể và có thể được phân tích chính xác.
+
+Từ định nghĩa $\mathcal{L}(\theta)=\tfrac12\|\mathbf{f}(\theta)-\mathbf{y}\|^2$ ta có
+\begin{equation*}
+    \nabla_\theta\mathcal{L}(\theta)=J(\theta)^\top(\mathbf{f}(\theta)-\mathbf{y}).
+\end{equation*}
+Do đó gradient flow cho tham số là
+\begin{equation*}
+    \frac{d\theta(t)}{dt}=-J(\theta(t))^\top(\mathbf{f}(t)-\mathbf{y}).
+\end{equation*}
+Áp dụng quy tắc dây chuyền cho $\mathbf{f}(t)=\mathbf{f}(\theta(t))$:
+\begin{equation*}
+    \frac{d\mathbf{f}(t)}{dt}=J(\theta(t))\frac{d\theta(t)}{dt}=-J(\theta(t))J(\theta(t))^\top(\mathbf{f}(t)-\mathbf{y}).
+\end{equation*}
+Đặt $K(\theta)=J(\theta)J(\theta)^\top$, ta thu được phương trình mục tiêu:
+\begin{equation*}
+    \boxed{\;\frac{d\mathbf{f}(t)}{dt}=-K(\theta(t))(\mathbf{f}(t)-\mathbf{y}).\;}
+\end{equation*}
+
+\subsection{Mục tiêu 2: NTK regime và hiện tượng kernel đóng băng}
+
+Vấn đề còn lại là $K(\theta(t))$ vẫn phụ thuộc vào thời gian thông qua $\theta(t)$. Lý thuyết NTK cho thấy rằng khi chiều rộng $m\to\infty$, ta có (trong một khoảng thời gian hữu hạn $[0,T]$) \cite{jacot_2018,chizat_bach_2019}:
+\begin{equation*}
+    \sup_{t\in[0,T]}\,\|K_m(\theta(t)) - K_m(\theta(0))\| \to 0,
+\end{equation*}
+và đồng thời $K_m(\theta(0))$ hội tụ về một kernel giới hạn xác định $\Theta(\mathcal{X},\mathcal{X})$.
+
+\subsubsection{Bước 2.1: hội tụ của NTK tại khởi tạo}
+
+Với mạng hai lớp độ rộng $m$, NTK thực nghiệm tại khởi tạo có thể viết như tổng theo các neuron ẩn:
+\begin{equation*}
+    K_{m,ij}(0)=\sum_{r=1}^{m}\langle g_{ir}(0),g_{jr}(0)\rangle,
+\end{equation*}
+trong đó $g_{ir}(0)=\nabla_{\theta_r}F(\mathbf{x}_i;\theta(0))$ là gradient của đầu ra tại điểm $\mathbf{x}_i$ theo tham số của neuron ẩn thứ $r$.
+Với tham số khởi tạo i.i.d., các hạng tử theo $r$ là i.i.d. (và có kỳ vọng hữu hạn), do đó theo luật số lớn, khi $m\to\infty$ ta thu được
+\begin{equation*}
+    K_m(\theta(0)) \to \Theta(\mathcal{X},\mathcal{X}).
+\end{equation*}
+
+\subsubsection{Bước 2.2: lazy training và kernel gần như không đổi}
+
+Trực giác chính của lazy training là: với chuẩn hóa NTK, mỗi neuron đóng góp cỡ nhỏ vào gradient, nên từng tham số thay đổi rất ít trong thời gian hữu hạn.
+Khi kết hợp với tính Lipschitz (cục bộ) của gradient theo tham số, ta suy ra $g_{ir}(t)$ thay đổi rất nhỏ, và vì $K$ là tổng các tích trong $\langle g_{ir}(t),g_{jr}(t)\rangle$, tổng thể $K_m(\theta(t))$ gần như không đổi theo $t$.
+
+\subsection{Mục tiêu 3: giải ODE và công thức bộ dự đoán NTK}
 
 Khi chiều rộng lớp ẩn $m \rightarrow \infty$, mạng nơ-ron hoạt động trong chế độ được gọi là \textit{lazy training}. Trong chế độ này, các tham số của mạng thay đổi cực nhỏ quanh điểm khởi tạo trong suốt quá trình huấn luyện:
-\begin{equation}
+\begin{equation*}
     \|\theta(t) - \theta(0)\| \approx O\left(\frac{1}{\sqrt{m}}\right) \rightarrow 0 \quad \text{khi } m \rightarrow \infty
-\end{equation}
+\end{equation*}
 
 Điều này có vẻ nghịch lý: làm sao mạng có thể học được nếu tham số hầu như không thay đổi? Câu trả lời nằm ở việc với số lượng tham số cực lớn, ngay cả những thay đổi nhỏ trong mỗi tham số cũng đủ để tạo ra thay đổi đáng kể trong đầu ra. Đây chính là sức mạnh của việc có nhiều chiều trong không gian tham số.
 
-\subsection{Sự ổn định của Kernel (Kernel đóng băng)}
+\subsubsection{Sự ổn định của kernel (hiện tượng đóng băng)}
 
-Một hệ quả quan trọng của lazy training là NTK trở nên ổn định (``đóng băng'') trong suốt quá trình huấn luyện. Cụ thể, khi $m \rightarrow \infty$:
-\begin{equation}
+Một hệ quả quan trọng của chế độ huấn luyện lười là NTK trở nên ổn định (``đóng băng'') trong suốt quá trình huấn luyện. Cụ thể, khi $m \rightarrow \infty$:
+\begin{equation*}
     K_m(\theta(t)) \rightarrow \Theta(\mathbf{x}, \mathbf{x}') \quad \text{với mọi } t \geq 0
-\end{equation}
+\end{equation*}
 
-trong đó $\Theta(\mathbf{x}, \mathbf{x}')$ là \textit{infinite-width NTK}, một kernel xác định và cố định chỉ phụ thuộc vào cặp đầu vào $(\mathbf{x}, \mathbf{x}')$ và kiến trúc mạng, không phụ thuộc vào quá trình huấn luyện. Sự ổn định này là chìa khóa cho phép phân tích chính xác động lực học huấn luyện.
+trong đó $\Theta(\mathbf{x}, \mathbf{x}')$ là NTK ở giới hạn chiều rộng vô hạn, một kernel xác định và cố định chỉ phụ thuộc vào cặp đầu vào $(\mathbf{x}, \mathbf{x}')$ và kiến trúc mạng, không phụ thuộc vào quá trình huấn luyện. Sự ổn định này là chìa khóa cho phép phân tích chính xác động lực học huấn luyện.
 
-\subsection{Phương trình vi phân cho đầu ra mạng}
+\subsubsection{Phương trình vi phân cho đầu ra mạng}
 
-Xét việc huấn luyện mạng bằng gradient flow (gradient descent với learning rate vô cùng nhỏ). Động lực học của tham số được mô tả bởi:
-\begin{equation}
-    \frac{d\theta}{dt} = -\nabla_\theta \mathcal{L}(\theta) = -J(\theta)^\top (F(\mathbf{x}; \theta) - \mathbf{y})
-\end{equation}
+Trong NTK regime, ta thay $K(\theta(t))$ bởi $\Theta(\mathcal{X},\mathcal{X})$ (hằng theo $t$) để được ODE tuyến tính:
+\begin{equation*}
+    \frac{d\mathbf{f}(t)}{dt} = -\Theta(\mathcal{X},\mathcal{X})\,(\mathbf{f}(t)-\mathbf{y}).
+\end{equation*}
+Đặt $\mathbf{u}(t)=\mathbf{f}(t)-\mathbf{y}$, ta có $\tfrac{d\mathbf{u}(t)}{dt}=-\Theta(\mathcal{X},\mathcal{X})\mathbf{u}(t)$ và nghiệm tường minh:
+\begin{equation*}
+    \mathbf{f}(t)=\mathbf{y}+e^{-\Theta(\mathcal{X},\mathcal{X})t}(\mathbf{f}(0)-\mathbf{y}).
+\end{equation*}
+Nếu $\Theta(\mathcal{X},\mathcal{X})$ xác định dương, khi $t\to\infty$ ta có $\mathbf{f}(t)\to\mathbf{y}$ (fit đúng trên tập train).
 
-Từ đây, có thể suy ra phương trình vi phân cho đầu ra mạng. Đặt $f(t) = F(\mathbf{x}; \theta(t))$ là vector đầu ra tại thời điểm $t$, ta có:
-\begin{equation}
-    \frac{df}{dt} = J(\theta) \frac{d\theta}{dt} = -J(\theta) J(\theta)^\top (f(t) - \mathbf{y}) = -K(\theta(t))(f(t) - \mathbf{y})
-\end{equation}
+\subsubsection{Công thức tại điểm test và tương đương kernel regression}
 
-Trong giới hạn infinite-width, với $K(\theta(t)) \approx \Theta$ cố định, phương trình trên trở thành phương trình vi phân tuyến tính:
-\begin{equation}
-    \frac{df}{dt} = -\Theta(f(t) - \mathbf{y})
-\end{equation}
-
-Nghiệm của phương trình này có dạng giải tích tường minh:
-\begin{equation}
-    f(t) = \mathbf{y} + e^{-\Theta t}(f(0) - \mathbf{y})
-\end{equation}
-
-trong đó $e^{-\Theta t}$ là exponential của ma trận. Khi $t \rightarrow \infty$, nếu $\Theta$ là ma trận xác định dương, ta có $f(t) \rightarrow \mathbf{y}$, nghĩa là mạng học được chính xác nhãn đầu ra.
-
-\subsection{Tương đương với Kernel Regression}
-
-Kết quả quan trọng nhất của phân tích trên là việc huấn luyện mạng nơ-ron trong giới hạn infinite-width hoàn toàn tương đương với bài toán \textit{kernel regression} cổ điển. Cho một điểm test mới $\mathbf{x}^*$, dự đoán của mạng sau khi huấn luyện hội tụ là:
-\begin{equation}
-    f_\infty(\mathbf{x}^*) = \Theta(\mathbf{x}^*, \mathcal{X}) \Theta(\mathcal{X}, \mathcal{X})^{-1} \mathbf{y}
-\end{equation}
+Khi xét một điểm test $\mathbf{x}$, động lực học của $F(\mathbf{x};\theta(t))$ cũng có thể biểu diễn qua kernel giới hạn. Bỏ qua các chi tiết kỹ thuật, nghiệm giới hạn của bộ dự đoán NTK có thể viết dưới dạng:
+\begin{equation*}
+    F_\infty(\mathbf{x}) = F(\mathbf{x};\theta(0)) - \Theta(\mathbf{x},\mathcal{X})\,\Theta(\mathcal{X},\mathcal{X})^{-1}\,(\mathbf{f}(0)-\mathbf{y}).
+\end{equation*}
+Trong nhiều trường hợp (hoặc sau khi lấy kỳ vọng theo khởi tạo), ta có thể xem $F(\mathbf{x};\theta(0))\approx 0$ và khi đó công thức rút gọn thành
+\begin{equation*}
+    \boxed{\;F_\infty(\mathbf{x})=\Theta(\mathbf{x},\mathcal{X})\,\Theta(\mathcal{X},\mathcal{X})^{-1}\,\mathbf{y}.\;}
+\end{equation*}
+Đây chính là nghiệm của hồi quy kernel với kernel $\Theta$ \cite{jacot_2018,scholkopf_smola_2002}.
 
 trong đó:
 \begin{itemize}
     \item $\mathcal{X} = \{\mathbf{x}_1, \ldots, \mathbf{x}_N\}$ là tập các điểm huấn luyện
     \item $\Theta(\mathbf{x}^*, \mathcal{X}) \in \mathbb{R}^{1 \times N}$ là vector kernel giữa điểm test và các điểm huấn luyện
-    \item $\Theta(\mathcal{X}, \mathcal{X}) \in \mathbb{R}^{N \times N}$ là ma trận kernel (Gram matrix) trên tập huấn luyện
+    \item $\Theta(\mathcal{X}, \mathcal{X}) \in \mathbb{R}^{N \times N}$ là ma trận Gram trên tập huấn luyện
 \end{itemize}
 
-Công thức này chính là nghiệm của bài toán kernel regression tiêu chuẩn. Điều này cho thấy mạng nơ-ron sâu, trong giới hạn chiều rộng vô hạn, hoạt động như một phương pháp kernel cổ điển với một kernel đặc biệt được xác định bởi kiến trúc mạng.
+Công thức này chính là nghiệm của bài toán kernel regression tiêu chuẩn \cite{scholkopf_smola_2002}. Điều này cho thấy mạng nơ-ron sâu, trong giới hạn chiều rộng vô hạn, hoạt động như một phương pháp kernel cổ điển với một kernel đặc biệt được xác định bởi kiến trúc mạng \cite{jacot_2018}.
 
-\section{Kiến trúc mạng nơ-ron hai lớp}
+\subsection{Mạng nơ-ron hai lớp trong chế độ NTK}
 
-Nghiên cứu của Back de Luca và cộng sự tập trung vào mạng nơ-ron hai lớp với kiến trúc đơn giản nhưng đủ mạnh để phân tích lý thuyết.
+Nghiên cứu của Back de Luca và cộng sự tập trung vào mạng nơ-ron hai lớp với kiến trúc đơn giản nhưng đủ mạnh để phân tích lý thuyết \cite{de_luca_2025}.
 
-\subsection{Cấu trúc mạng}
+\subsubsection{Cấu trúc mạng}
 
 Mạng nơ-ron hai lớp được sử dụng có cấu trúc như sau:
 \begin{itemize}
@@ -122,9 +230,9 @@ Mạng nơ-ron hai lớp được sử dụng có cấu trúc như sau:
 \end{itemize}
 
 Công thức toán học của mạng được viết là:
-\begin{equation}
+\begin{equation*}
     F(\mathbf{x}) = W^2 \cdot \text{ReLU}(W^1 \mathbf{x})
-\end{equation}
+\end{equation*}
 
 trong đó:
 \begin{itemize}
@@ -135,62 +243,62 @@ trong đó:
 
 Việc không sử dụng bias đơn giản hóa phân tích lý thuyết mà không làm mất tính tổng quát về mặt biểu diễn, vì bias có thể được mô phỏng bằng cách thêm một chiều hằng số vào đầu vào.
 
-\subsection{NTK Parametrization}
+\subsubsection{Chuẩn hóa tham số theo NTK}
 
-Để đảm bảo tính hội tụ trong giới hạn infinite-width, các trọng số được khởi tạo theo chuẩn \textit{NTK parametrization}. Cụ thể:
+Để đảm bảo tính hội tụ trong giới hạn chiều rộng vô hạn, các trọng số được khởi tạo theo chuẩn tham số hóa NTK \cite{jacot_2018,de_luca_2025}. Cụ thể:
 \begin{itemize}
     \item Các phần tử của $W^1$ được khởi tạo i.i.d. từ phân phối $\mathcal{N}(0, 1)$
     \item Các phần tử của $W^2$ được khởi tạo i.i.d. từ phân phối $\mathcal{N}(0, 1/m)$
 \end{itemize}
 
 Hệ số $1/m$ trong phương sai của $W^2$ là then chốt. Nó đảm bảo rằng đầu ra của mạng có phương sai $O(1)$ khi $m \rightarrow \infty$:
-\begin{equation}
+\begin{equation*}
     \text{Var}[F(\mathbf{x})] = \text{Var}\left[\sum_{j=1}^{m} W^2_{ij} \cdot \text{ReLU}(W^1_j \mathbf{x})\right] \approx m \cdot \frac{1}{m} \cdot O(1) = O(1)
-\end{equation}
+\end{equation*}
 
 Nếu không có hệ số này, đầu ra sẽ có phương sai tăng theo $m$, làm mất tính ổn định khi $m \rightarrow \infty$.
 
-\section{Điều kiện về khả năng học chính xác}
+\subsection{Điều kiện để học chính xác và cơ chế làm tròn}
 
 Để mạng nơ-ron có thể học thực thi chính xác các chỉ thị thuật toán, cần có các điều kiện đảm bảo rằng thông tin tín hiệu không bị nhiễu làm suy giảm. Phần này trình bày các điều kiện then chốt được đề xuất trong nghiên cứu.
 
-\subsection{Assumption 5.1: Kiểm soát tương quan không mong muốn}
+\subsubsection{Assumption 5.1: Kiểm soát tương quan không mong muốn}
 
 Xét một bước tính toán của thuật toán với đầu vào được biểu diễn dưới dạng template. Đầu ra của bộ dự đoán NTK có thể được phân tích thành hai thành phần:
-\begin{equation}
+\begin{equation*}
     \hat{y} = w^1 \cdot (\text{tín hiệu chính xác}) + w^0 \cdot (\text{tổng các tương quan không mong muốn})
-\end{equation}
+\end{equation*}
 
 trong đó:
 \begin{itemize}
-    \item $w^1$ là \textit{trọng số tín hiệu} (signal weight): Đóng góp từ các template khớp chính xác với quy tắc cần áp dụng
-    \item $w^0$ là \textit{trọng số nhiễu} (interference weight): Đóng góp từ các template không liên quan nhưng có tương quan khác không với đầu vào
+    \item $w^1$ là \textit{trọng số tín hiệu}: Đóng góp từ các template khớp chính xác với quy tắc cần áp dụng
+    \item $w^0$ là \textit{trọng số nhiễu}: Đóng góp từ các template không liên quan nhưng có tương quan khác không với đầu vào
 \end{itemize}
 
 \textbf{Định nghĩa tương quan không mong muốn:} Một tương quan được gọi là ``không mong muốn'' (unwanted correlation) khi một template trong tập huấn luyện có tích vô hướng khác không với đầu vào hiện tại, mặc dù template đó không đại diện cho quy tắc cần áp dụng. Gọi $C$ là số lượng các tương quan không mong muốn như vậy.
 
 \textbf{Điều kiện đủ để học chính xác:} Để đầu ra $\hat{y}$ có dấu đúng (từ đó có thể làm tròn về giá trị chính xác), cần đảm bảo rằng thành phần tín hiệu lấn át thành phần nhiễu:
-\begin{equation}
+\begin{equation*}
     |w^1| > C \cdot |w^0|
-\end{equation}
+\end{equation*}
 
 hay tương đương:
-\begin{equation}
+\begin{equation*}
     C < \frac{|w^1|}{|w^0|}
-\end{equation}
+\end{equation*}
 
-Điều kiện này có ý nghĩa trực quan: số lượng tương quan không mong muốn phải đủ nhỏ so với tỷ lệ giữa trọng số tín hiệu và trọng số nhiễu. Trong thiết kế template của nghiên cứu này, các tác giả đã chứng minh rằng với cách mã hóa phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng theo kích thước bài toán, trong khi $C$ chỉ tăng theo logarithm, đảm bảo điều kiện trên được thỏa mãn.
+Điều kiện này có ý nghĩa trực quan: số lượng tương quan không mong muốn phải đủ nhỏ so với tỷ lệ giữa trọng số tín hiệu và trọng số nhiễu. Trong thiết kế template của nghiên cứu này, các tác giả đã chứng minh rằng với cách mã hóa phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng theo kích thước bài toán, trong khi $C$ chỉ tăng theo logarithm, đảm bảo điều kiện trên được thỏa mãn \cite{de_luca_2025}.
 
-\subsection{Vai trò của hàm làm tròn}
+\subsubsection{Vai trò của hàm làm tròn}
 
-Một thành phần quan trọng trong khung lý thuyết là việc áp dụng hàm làm tròn (rounding) sau mỗi bước dự đoán. Cụ thể:
-\begin{equation}
+Một thành phần quan trọng trong khung lý thuyết là việc áp dụng hàm làm tròn sau mỗi bước dự đoán. Cụ thể:
+\begin{equation*}
     y_{\text{output}} = \text{round}(\hat{y}) = 
     \begin{cases}
         +1 & \text{nếu } \hat{y} > 0 \\
         -1 & \text{nếu } \hat{y} < 0
     \end{cases}
-\end{equation}
+\end{equation*}
 
 Hàm làm tròn đóng vai trò then chốt trong việc:
 \begin{enumerate}
@@ -201,4 +309,4 @@ Hàm làm tròn đóng vai trò then chốt trong việc:
     \item \textbf{Chuyển đổi xấp xỉ thành chính xác:} Trong khi bộ dự đoán NTK về bản chất là một bộ xấp xỉ liên tục, việc kết hợp với làm tròn biến nó thành một hệ thống thực thi chính xác các phép toán rời rạc.
 \end{enumerate}
 
-Kết hợp Assumption 5.1 và cơ chế làm tròn, nghiên cứu chứng minh rằng mạng nơ-ron trong giới hạn infinite-width có khả năng học và thực thi chính xác các chỉ thị thuật toán, mở đường cho các kết quả về phép cộng, phép nhân, và chỉ thị SBN được trình bày trong các chương tiếp theo.
+Kết hợp Assumption 5.1 và cơ chế làm tròn, nghiên cứu chứng minh rằng mạng nơ-ron trong giới hạn infinite-width có khả năng học và thực thi chính xác các chỉ thị thuật toán, mở đường cho các kết quả về phép cộng, phép nhân, và chỉ thị SBN được trình bày trong các chương tiếp theo \cite{de_luca_2025}.

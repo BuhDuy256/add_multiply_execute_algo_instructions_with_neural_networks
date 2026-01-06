@@ -2,11 +2,11 @@
 
 \section{Kỹ thuật Template Matching}
 
-Ý tưởng cốt lõi của phương pháp đề xuất là phân rã thuật toán thành các ``mẫu'' (templates) cục bộ, mỗi mẫu thao tác trên một khối bit nhỏ. Thay vì yêu cầu mạng nơ-ron học toàn bộ hàm phức tạp, ta chuyển bài toán thành việc nhận dạng và áp dụng các quy tắc cục bộ đơn giản.
+Ý tưởng cốt lõi của phương pháp đề xuất là phân rã thuật toán thành các ``mẫu'' cục bộ, mỗi mẫu thao tác trên một khối bit nhỏ. Thay vì yêu cầu mạng nơ-ron học toàn bộ hàm phức tạp, ta chuyển bài toán thành việc nhận dạng và áp dụng các quy tắc cục bộ đơn giản.
 
 \subsection{Nguyên lý phân rã thuật toán}
 
-Xét một thuật toán hoạt động trên chuỗi bit $\mathbf{x} = (x_1, x_2, \ldots, x_l)$ với $l$ bit. Thuật toán được phân rã thành $n$ khối (blocks), mỗi khối $i$ chịu trách nhiệm tính toán một phần đầu ra dựa trên một tập con các bit đầu vào. Mỗi khối được đặc trưng bởi một hàm cục bộ $f_i$ thao tác trên các bit trong phạm vi của nó.
+Xét một thuật toán hoạt động trên chuỗi bit $\mathbf{x} = (x_1, x_2, \ldots, x_l)$ với $l$ bit. Thuật toán được phân rã thành $n$ khối, mỗi khối $i$ chịu trách nhiệm tính toán một phần đầu ra dựa trên một tập con các bit đầu vào. Mỗi khối được đặc trưng bởi một hàm cục bộ $f_i$ thao tác trên các bit trong phạm vi của nó.
 
 \textbf{Hàm khớp mẫu cục bộ:} Mỗi hàm cục bộ $f_i: \{-1, +1\}^{b_i} \rightarrow \{-1, +1\}^{o_i}$ nhận đầu vào là $b_i$ bit và trả về $o_i$ bit đầu ra. Hàm này được định nghĩa thông qua một tập các mẫu (templates):
 \begin{equation}
@@ -20,7 +20,7 @@ trong đó:
     \item $T_i$ là tập các mẫu thuộc khối $i$
     \item $\mathbf{t}_j$ là vector mẫu đầu vào thứ $j$
     \item $\mathbf{o}_j$ là vector đầu ra tương ứng với mẫu $j$
-    \item $\mathbf{1}[\cdot]$ là hàm chỉ thị (indicator function)
+    \item $\mathbf{1}[\cdot]$ là hàm chỉ thị
 \end{itemize}
 
 \textbf{Hàm tổng hợp toàn cục:} Đầu ra của thuật toán được tổng hợp từ các hàm cục bộ thông qua phép tuyển bitwise (bitwise disjunction):
@@ -32,14 +32,14 @@ Phép tuyển $\bigvee$ hoạt động như phép ``OR'' trên các bit: nếu b
 
 \subsection{Cơ chế thực thi lặp}
 
-Nhiều thuật toán yêu cầu thực thi qua nhiều bước lặp, trong đó trạng thái của bước tiếp theo phụ thuộc vào kết quả của bước hiện tại. Phương pháp template matching hỗ trợ điều này thông qua cơ chế thực thi lặp (iterative execution):
+Nhiều thuật toán yêu cầu thực thi qua nhiều bước lặp, trong đó trạng thái của bước tiếp theo phụ thuộc vào kết quả của bước hiện tại. Phương pháp template matching hỗ trợ điều này thông qua cơ chế thực thi lặp:
 \begin{equation}
     \hat{\mathbf{x}}_{t+1} = f(\hat{\mathbf{x}}_t)
 \end{equation}
 
 trong đó $\hat{\mathbf{x}}_t$ là trạng thái tại bước thứ $t$. Quá trình lặp tiếp tục cho đến khi đạt được trạng thái kết thúc hoặc sau một số bước cố định được xác định bởi thuật toán.
 
-Điểm quan trọng là sau mỗi bước lặp, đầu ra được làm tròn (rounding) về các giá trị rời rạc $\{-1, +1\}$ trước khi đưa vào bước tiếp theo. Điều này ngăn chặn tích lũy sai số và đảm bảo tính chính xác tuyệt đối.
+Điểm quan trọng là sau mỗi bước lặp, đầu ra được làm tròn về các giá trị rời rạc $\{-1, +1\}$ trước khi đưa vào bước tiếp theo. Điều này ngăn chặn tích lũy sai số và đảm bảo tính chính xác tuyệt đối.
 
 \section{Cấu trúc dữ liệu và Trực giao hóa}
 
@@ -65,14 +65,14 @@ Mỗi mẫu được mã hóa thành vector $\mathbf{q}_{ij}$ theo cấu trúc b
 
 Ý nghĩa của cấu trúc này:
 \begin{itemize}
-    \item Vector được chia thành $n$ phân đoạn (partitions), mỗi phân đoạn tương ứng với một khối của thuật toán
+    \item Vector được chia thành $n$ phân đoạn, mỗi phân đoạn tương ứng với một khối của thuật toán
     \item Chỉ phân đoạn thứ $i$ chứa thông tin mẫu $\mathbf{t}_{ij}$, các phân đoạn khác đều bằng 0
     \item Điều này đảm bảo các mẫu thuộc các khối khác nhau có tích vô hướng bằng 0 với nhau
 \end{itemize}
 
 \subsection{Trực giao hóa và Ma trận NTK}
 
-Tầm quan trọng của cấu trúc block-partitioned nằm ở việc nó tạo ra tính trực giao (orthogonalization) trong dữ liệu huấn luyện. Khi các mẫu thuộc các khối khác nhau trực giao với nhau, ma trận NTK có cấu trúc đặc biệt.
+Tầm quan trọng của cấu trúc block-partitioned nằm ở việc nó tạo ra tính trực giao trong dữ liệu huấn luyện. Khi các mẫu thuộc các khối khác nhau trực giao với nhau, ma trận NTK có cấu trúc đặc biệt.
 
 Gọi $\Theta$ là ma trận NTK trên tập huấn luyện. Với dữ liệu được mã hóa block-partitioned, ma trận này tiệm cận dạng:
 \begin{equation}
@@ -83,7 +83,7 @@ trong đó:
 \begin{itemize}
     \item $\alpha$ là hệ số đường chéo chính
     \item $I_M$ là ma trận đơn vị kích thước $M \times M$
-    \item $\beta \mathbf{1}\mathbf{1}^\top$ là ma trận hạng 1 (rank-1 noise)
+    \item $\beta \mathbf{1}\mathbf{1}^\top$ là ma trận hạng 1
     \item $\mathbf{1}$ là vector toàn 1
 \end{itemize}
 
@@ -95,7 +95,7 @@ Phần này trình bày kết quả lý thuyết then chốt về hành vi của
 
 \subsection{Định lý 5.1: Bảo toàn thông tin dấu}
 
-\textbf{Định lý 5.1 (NTK Predictor Behavior):} Cho mạng nơ-ron hai lớp trong chế độ NTK (infinite-width limit) được huấn luyện trên tập dữ liệu template $\mathcal{D}$. Gọi $\mu(\hat{\mathbf{x}})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng tại điểm test $\hat{\mathbf{x}}$. Khi đó, với mỗi bit đầu ra thứ $i$:
+	extbf{Định lý 5.1 (Hành vi bộ dự báo NTK):} Cho mạng nơ-ron hai lớp trong chế độ NTK ở giới hạn chiều rộng vô hạn được huấn luyện trên tập dữ liệu template $\mathcal{D}$. Gọi $\mu(\hat{\mathbf{x}})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng tại điểm kiểm thử $\hat{\mathbf{x}}$. Khi đó, với mỗi bit đầu ra thứ $i$:
 \begin{equation}
     \text{sign}(\mu(\hat{\mathbf{x}})_i) = y_i^*
 \end{equation}
@@ -115,11 +115,11 @@ trong đó $y_i^* \in \{-1, +1\}$ là giá trị bit đầu ra đúng theo thu�
     y_{\text{output}} = \text{round}(\mu(\hat{\mathbf{x}})_i) = \text{sign}(\mu(\hat{\mathbf{x}})_i) = y_i^*
 \end{equation}
 
-Kết quả này cho phép mạng nơ-ron đạt được độ chính xác tuyệt đối (exact execution) thay vì chỉ xấp xỉ, giải quyết thách thức cốt lõi về việc học các hàm rời rạc.
+Kết quả này cho phép mạng nơ-ron đạt được độ chính xác tuyệt đối thay vì chỉ xấp xỉ, giải quyết thách thức cốt lõi về việc học các hàm rời rạc.
 
 \section{Kiểm soát tương quan không mong muốn}
 
-Định lý 5.1 không tự động đúng cho mọi thuật toán. Để đảm bảo tính đúng đắn, cần kiểm soát các ``tương quan không mong muốn'' (unwanted correlations) trong dữ liệu huấn luyện.
+Định lý 5.1 không tự động đúng cho mọi thuật toán. Để đảm bảo tính đúng đắn, cần kiểm soát các ``tương quan không mong muốn'' trong dữ liệu huấn luyện.
 
 \subsection{Assumption 5.1: Điều kiện về tương quan}
 
@@ -130,8 +130,8 @@ Phân tích đầu ra của bộ dự đoán NTK cho thấy:
 
 trong đó:
 \begin{itemize}
-    \item $w^1 > 0$ là \textit{trọng số tín hiệu} (signal weight): Đóng góp từ template khớp chính xác
-    \item $w^0$ là \textit{trọng số nhiễu} (interference weight): Đóng góp từ các template có tương quan khác không
+    \item $w^1 > 0$ là \textit{trọng số tín hiệu}: Đóng góp từ template khớp chính xác
+    \item $w^0$ là \textit{trọng số nhiễu}: Đóng góp từ các template có tương quan khác không
     \item $U_i$ là tập các chỉ số của các template không khớp nhưng có tích vô hướng khác không với đầu vào
     \item $y_j$ là nhãn của template thứ $j$ trong tập nhiễu
 \end{itemize}
@@ -223,19 +223,19 @@ Phép nhân hai số nhị phân $l$-bit sử dụng thuật toán shift-and-add
 
 \textbf{Tương quan không mong muốn:} $C_i = O(\log l)$, phát sinh từ sự chồng chéo giữa các bước lặp.
 
-\subsection{Chỉ thị SBN (Subtract and Branch if Negative)}
+\subsection{Chỉ thị SBN}
 
-SBN là một chỉ thị máy tính đơn giản nhưng đủ mạnh để đạt tính Turing-complete. Chỉ thị SBN(A, B, C) thực hiện:
+SBN là một chỉ thị máy tính đơn giản nhưng đủ mạnh để đạt tính đầy đủ Turing. Chỉ thị SBN(A, B, C) thực hiện:
 \begin{enumerate}
     \item Tính $\text{Mem}[A] \leftarrow \text{Mem}[A] - \text{Mem}[B]$
     \item Nếu kết quả âm, nhảy đến địa chỉ C; ngược lại, tiếp tục tuần tự
 \end{enumerate}
 
-\textbf{Tính Turing-complete:} SBN được chứng minh là Turing-complete, nghĩa là bất kỳ hàm tính toán được (computable function) nào cũng có thể được biểu diễn bằng một chuỗi hữu hạn các chỉ thị SBN.
+	extbf{Tính đầy đủ Turing:} SBN được chứng minh là đầy đủ Turing, nghĩa là bất kỳ hàm tính toán được nào cũng có thể được biểu diễn bằng một chuỗi hữu hạn các chỉ thị SBN.
 
 \textbf{Mã hóa template cho SBN:} Bao gồm các thành phần:
 \begin{itemize}
-    \item Template cho phép trừ (subtraction): Tương tự phép cộng với số bù 2
+    \item Template cho phép trừ: Tương tự phép cộng với số bù 2
     \item Template kiểm tra dấu kết quả
     \item Template cập nhật program counter
 \end{itemize}
@@ -267,7 +267,7 @@ Phương sai của đầu ra trung bình giảm theo $1/N$:
 
 \subsection{Công thức tính số lượng mô hình tối thiểu}
 
-Để đảm bảo xác suất lỗi không vượt quá $\delta$, số lượng mô hình $N$ cần thỏa mãn (Equation 8 trong paper):
+Để đảm bảo xác suất lỗi không vượt quá $\delta$, số lượng mô hình $N$ cần thỏa mãn (Công thức (8) trong bài báo gốc):
 \begin{equation}
     N \geq \frac{2\sigma^2}{\mu^2} \ln\left(\frac{2}{\delta}\right)
 \end{equation}
@@ -290,9 +290,9 @@ Phân tích cho thấy tỷ lệ $\sigma^2/\mu^2$ tăng theo $O(l^2)$ với $l$ 
 
 Kết quả này có ý nghĩa thực tiễn quan trọng:
 \begin{itemize}
-    \item Độ phức tạp chỉ tăng đa thức (polynomial) theo kích thước bài toán
+    \item Độ phức tạp chỉ tăng đa thức theo kích thước bài toán
     \item Với $l = 64$ bit (số nguyên 64-bit), cần khoảng $N = O(4096)$ mô hình
     \item Các mô hình có thể được huấn luyện song song, phù hợp với phần cứng GPU hiện đại
 \end{itemize}
 
-Kết luận, phương pháp đề xuất có khả năng mở rộng tốt (scalable) cho các bài toán thực tế, không bị giới hạn bởi sự tăng trưởng exponential thường gặp trong các phương pháp học máy truyền thống cho bài toán tổ hợp.
+Kết luận, phương pháp đề xuất có khả năng mở rộng tốt cho các bài toán thực tế, không bị giới hạn bởi sự tăng trưởng theo hàm mũ thường gặp trong các phương pháp học máy truyền thống cho bài toán tổ hợp.
