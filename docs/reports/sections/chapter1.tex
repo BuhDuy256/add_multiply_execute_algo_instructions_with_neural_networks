@@ -39,20 +39,22 @@ Câu hỏi này bao hàm nhiều khía cạnh quan trọng:
     \item \textbf{Tính phổ quát:} Kết quả có thể mở rộng cho lớp các chỉ thị thuật toán nào? Liệu có thể đạt được tính Turing-complete không?
 \end{itemize}
 
-\section{Đóng góp của báo cáo}
+\section{Đóng góp của bài báo}
 
-Nghiên cứu của đã mang lại 5 đóng góp chính về mặt lý thuyết và phương pháp luận:
+Nghiên cứu của De Luca và cộng sự đã mang lại những đóng góp quan trọng về mặt lý thuyết và phương pháp luận:
 
 \begin{itemize}
     \item \textbf{Biểu diễn thuật toán dưới dạng template:} Mỗi quy tắc cấp độ bit của thuật toán được mã hóa thành một vector mẫu riêng biệt, cho phép cô lập các quy tắc logic và tạo ra cấu trúc dữ liệu phù hợp cho việc áp dụng cơ chế template matching.
-    
-    \item \textbf{Chứng minh lý thuyết dựa trên NTK:} Nghiên cứu cung cấp chứng minh chặt chẽ rằng mạng nơ-ron hai lớp trong giới hạn infinite-width có thể học chính xác: phép hoán vị, phép cộng nhị phân, phép nhân nhị phân, và chỉ thị SBN.
+
+    \item \textbf{Kiểm soát tương quan trong chế độ NTK:} Bằng cách điều chỉnh sự tương quan giữa các mẫu trong chế độ Neural Tangent Kernel, nghiên cứu đảm bảo rằng dự đoán của mô hình đồng nhất với việc thực thi thuật toán mục tiêu.
+
+    \item \textbf{Phương pháp Ensemble:} Chứng minh rằng một tập hợp (ensemble) đủ lớn các mạng nơ-ron hai lớp trong giới hạn chiều rộng vô hạn có thể đạt độ chính xác tuyệt đối với xác suất cao cho các tác vụ như phép hoán vị, phép cộng, phép nhân và chỉ thị SBN.
     
     \item \textbf{Hiệu quả về dữ liệu:} Phương pháp chỉ cần số lượng ví dụ huấn luyện ở quy mô logarithmic thay vì tuyến tính hoặc đa thức, cho phép huấn luyện hiệu quả ngay cả với các bài toán có kích thước đầu vào lớn.
     
     \item \textbf{Tính phổ quát:} Vì chỉ thị SBN là Turing-complete, việc chứng minh mạng nơ-ron có thể học chính xác SBN đồng nghĩa với việc mạng nơ-ron có thể, về nguyên tắc, học thực thi bất kỳ thuật toán nào.
     
-    \item \textbf{Góc nhìn giáo dục:} Báo cáo này tổng hợp và trình bày lại các kết quả từ nghiên cứu gốc, giúp người đọc tiếp cận các khái niệm phức tạp như NTK, infinite-width limit, và template matching một cách có hệ thống.
+    \item \textbf{Góc nhìn giáo dục (của báo cáo này):} Báo cáo tổng hợp và trình bày lại các kết quả từ nghiên cứu gốc, giúp người đọc tiếp cận các khái niệm phức tạp như NTK, infinite-width limit, và template matching một cách có hệ thống.
 \end{itemize}
 
 Các đóng góp này không chỉ có giá trị về mặt lý thuyết thuần túy mà còn mở ra hướng phát triển mới cho việc thiết kế và huấn luyện mạng nơ-ron trong các ứng dụng yêu cầu độ chính xác tuyệt đối, như xác minh phần cứng, mã hóa và giải mã, và các hệ thống nhúng quan trọng.

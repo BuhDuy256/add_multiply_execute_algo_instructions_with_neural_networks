@@ -4,7 +4,7 @@
 \contentsline {section}{\numberline {1.2}Các nghiên cứu liên quan}{1}{section.1.2}%
 \contentsline {section}{\numberline {1.3}Động lực nghiên cứu}{2}{section.1.3}%
 \contentsline {section}{\numberline {1.4}Câu hỏi nghiên cứu}{2}{section.1.4}%
-\contentsline {section}{\numberline {1.5}Đóng góp của báo cáo}{3}{section.1.5}%
+\contentsline {section}{\numberline {1.5}Đóng góp của bài báo}{3}{section.1.5}%
 \contentsline {chapter}{\numberline {2}CƠ SỞ LÝ THUYẾT}{4}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Ký hiệu và các khái niệm cơ bản}{4}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Neural Tangent Kernel (NTK)}{4}{section.2.2}%
