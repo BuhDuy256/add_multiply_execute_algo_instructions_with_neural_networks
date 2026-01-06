@@ -1,5 +1,5 @@
 \babel@toc {vietnamese}{}\relax 
-\contentsline {chapter}{Bảng thuật ngữ (Anh--Việt)}{1}{chapter*.1}%
+\contentsline {chapter}{Bảng thuật ngữ và từ viết tắt}{1}{chapter*.1}%
 \contentsline {chapter}{\numberline {1}TỔNG QUAN}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Giới thiệu}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Các nghiên cứu liên quan}{1}{section.1.2}%
@@ -11,7 +11,7 @@
 \contentsline {section}{\numberline {2.2}Neural Tangent Kernel (NTK)}{5}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Ma trận Jacobian}{5}{subsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.2.2}Định nghĩa NTK thực nghiệm}{5}{subsection.2.2.2}%
-\contentsline {subsection}{\numberline {2.2.3}Ý nghĩa vật lý của NTK}{5}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.3}Ý nghĩa vật lý của NTK}{6}{subsection.2.2.3}%
 \contentsline {section}{\numberline {2.3}Giới hạn chiều rộng vô hạn và Động lực học}{6}{section.2.3}%
 \contentsline {subsection}{\numberline {2.3.1}Chế độ Lazy Training}{6}{subsection.2.3.1}%
 \contentsline {subsection}{\numberline {2.3.2}Sự ổn định của Kernel (Kernel đóng băng)}{6}{subsection.2.3.2}%

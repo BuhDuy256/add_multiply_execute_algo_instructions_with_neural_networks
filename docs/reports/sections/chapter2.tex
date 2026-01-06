@@ -37,6 +37,10 @@ Trước khi đi vào phân tích chi tiết khung lý thuyết Neural Tangent K
       $\Rightarrow$ Nhờ đó, ta có thể chứng minh rằng dấu của đầu ra dự đoán luôn khớp với nhãn mục tiêu (tức là nếu $y = +1$ thì $\hat{y} > 0$, và ngược lại). Điều này đảm bảo rằng sau khi làm tròn, kết quả sẽ chính xác tuyệt đối - đây là nền tảng cho khái niệm \textit{Exact Learnability} được trình bày trong Định lý 5.1 (Chương 3).
 \end{enumerate}
 
+Lệnh \textbf{SBN} có dạng “\textit{trừ và nếu kết quả âm thì nhảy}”, nên thỏa cả cập nhật trạng thái, điều kiện, và điều khiển luồng; do đó có thể đạt đầy đủ Turing khi được lặp lại/ghép chuỗi phù hợp \cite{minsky_1967,hopcroft_ullman_1979}.
+
+Tác giả đưa SBN vào để nhấn mạnh rằng khung khớp mẫu và phân tích NTK không chỉ nhắm tới các phép toán số học cụ thể, mà còn đóng vai trò \textbf{nền tảng lý thuyết} hướng tới việc học và thực thi \textbf{mọi thuật toán} \cite{de_luca_2025}.
+
 \section{Neural Tangent Kernel (NTK)}
 
 Neural Tangent Kernel (NTK) là một công cụ lý thuyết mạnh mẽ cho phép phân tích động lực học huấn luyện của mạng nơ-ron. Ý tưởng cốt lõi là mô tả sự thay đổi của đầu ra mạng theo thời gian huấn luyện thông qua một kernel cố định.
@@ -140,7 +144,7 @@ Mạng nơ-ron hai lớp được sử dụng có cấu trúc như sau:
 \begin{quote}
 \begin{itemize}
     \item \textbf{Lớp đầu vào:} Nhận vector $\mathbf{x} \in \mathbb{R}^d$
-    \item \textbf{Lớp ẩn:} Gồm $m$ nơ-ron với hàm kích hoạt ReLU, không sử dụng bias
+    \item \textbf{Lớp ẩn:} Gồm $m$ nơ-ron với hàm kích hoạt ReLU, không sử dụng hệ số chệch (bias)
     \item \textbf{Lớp đầu ra:} Ánh xạ tuyến tính từ $m$ nơ-ron ẩn sang $k$ đầu ra
 \end{itemize}
 \end{quote}
@@ -159,7 +163,7 @@ trong đó:
 \end{itemize}
 \end{quote}
 
-Việc không sử dụng bias đơn giản hóa phân tích lý thuyết mà không làm mất tính tổng quát về mặt biểu diễn, vì bias có thể được mô phỏng bằng cách thêm một chiều hằng số vào đầu vào.
+Việc không sử dụng hệ số chệch đơn giản hóa phân tích lý thuyết mà không làm mất tính tổng quát về mặt biểu diễn, vì hệ số chệch (bias) có thể được mô phỏng bằng cách thêm một chiều hằng số vào đầu vào.
 
 \subsection{NTK Parametrization}
 
@@ -184,20 +188,20 @@ Nếu không có hệ số này, đầu ra sẽ có phương sai tăng theo $m$,
 
 \subsection{Assumption 5.1: Kiểm soát tương quan không mong muốn}
 
-Xét một bước tính toán của thuật toán với đầu vào được biểu diễn dưới dạng template. Đầu ra của bộ dự đoán NTK có thể được phân tích thành hai thành phần:
-\begin{equation}
+Xét một bước tính toán của thuật toán với đầu vào được biểu diễn dưới dạng mẫu (template). Đầu ra của bộ dự đoán NTK có thể được phân tích thành hai thành phần:
+\begin{equation*}
     \hat{y} = w^1 \cdot (\text{tín hiệu chính xác}) + w^0 \cdot (\text{tổng các tương quan không mong muốn})
 \end{equation}
 
 trong đó:
 \begin{quote}
 \begin{itemize}
-    \item $w^1$ là \textit{trọng số tín hiệu} (signal weight): Đóng góp từ các template khớp chính xác với quy tắc cần áp dụng
-    \item $w^0$ là \textit{trọng số nhiễu} (interference weight): Đóng góp từ các template không liên quan nhưng có tương quan khác không với đầu vào
+    \item $w^1$ là \textit{trọng số tín hiệu}: Đóng góp từ các mẫu khớp chính xác với quy tắc cần áp dụng
+    \item $w^0$ là \textit{trọng số nhiễu}: Đóng góp từ các mẫu không liên quan nhưng có tương quan khác không với đầu vào
 \end{itemize}
 \end{quote}
 
-\textbf{Định nghĩa tương quan không mong muốn:} Một tương quan được gọi là ``không mong muốn'' (unwanted correlation) khi một template trong tập huấn luyện có tích vô hướng khác không với đầu vào hiện tại, mặc dù template đó không đại diện cho quy tắc cần áp dụng. Gọi $C$ là số lượng các tương quan không mong muốn như vậy.
+	\textbf{Định nghĩa tương quan không mong muốn:} Một tương quan được gọi là ``không mong muốn'' khi một mẫu trong tập huấn luyện có tích vô hướng khác không với đầu vào hiện tại, mặc dù mẫu đó không đại diện cho quy tắc cần áp dụng. Gọi $C$ là số lượng các tương quan không mong muốn như vậy.
 
 \textbf{Điều kiện đủ để học chính xác:} Để đầu ra $\hat{y}$ có dấu đúng (từ đó có thể làm tròn về giá trị chính xác), cần đảm bảo rằng thành phần tín hiệu lấn át thành phần nhiễu:
 \begin{equation}
@@ -209,7 +213,7 @@ hay tương đương:
     C < \frac{|w^1|}{|w^0|}
 \end{equation}
 
-Điều kiện này có ý nghĩa trực quan: số lượng tương quan không mong muốn phải đủ nhỏ so với tỷ lệ giữa trọng số tín hiệu và trọng số nhiễu. Trong thiết kế template của nghiên cứu này, các tác giả đã chứng minh rằng với cách mã hóa phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng theo kích thước bài toán, trong khi $C$ chỉ tăng theo logarithm, đảm bảo điều kiện trên được thỏa mãn.
+Điều kiện này có ý nghĩa trực quan: số lượng tương quan không mong muốn phải đủ nhỏ so với tỷ lệ giữa trọng số tín hiệu và trọng số nhiễu. Trong thiết kế mẫu của nghiên cứu này, các tác giả đã chứng minh rằng với cách mã hóa phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng theo kích thước bài toán, trong khi $C$ chỉ tăng theo logarithm, đảm bảo điều kiện trên được thỏa mãn \cite{de_luca_2025}.
 
 \subsection{Vai trò của hàm làm tròn}
 

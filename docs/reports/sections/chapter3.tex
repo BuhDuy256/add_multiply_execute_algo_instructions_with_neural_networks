@@ -25,7 +25,7 @@ trong đó:
 \end{itemize}
 \end{quote}
 
-\textbf{Hàm tổng hợp toàn cục:} Đầu ra của thuật toán được tổng hợp từ các hàm cục bộ thông qua phép tuyển bitwise (bitwise disjunction):
+        \textbf{Hàm tổng hợp toàn cục:} Đầu ra của thuật toán được tổng hợp từ các hàm cục bộ thông qua phép tuyển theo bit (OR theo bit):
 \begin{equation}
     f(\hat{\mathbf{x}}) = \bigvee_{i=1}^{n} f_i(\hat{\mathbf{x}}_{[S_i]})
 \end{equation}
@@ -45,7 +45,7 @@ trong đó $\hat{\mathbf{x}}_t$ là trạng thái tại bước thứ $t$. Quá 
 
 \section{Cấu trúc dữ liệu và Trực giao hóa}
 
-Để huấn luyện mạng nơ-ron học được các template, cần có chiến lược mã hóa phù hợp biến đổi các quy tắc thuật toán thành dữ liệu huấn luyện.
+Để huấn luyện mạng nơ-ron học được các mẫu (template), cần có chiến lược mã hóa phù hợp biến đổi các quy tắc thuật toán thành dữ liệu huấn luyện.
 
 \subsection{Mô hình ``Bag of Rules''}
 
@@ -101,7 +101,7 @@ Phần này trình bày kết quả lý thuyết then chốt về hành vi của
 
 \subsection{Định lý 5.1: Bảo toàn thông tin dấu}
 
-\textbf{Định lý 5.1 (NTK Predictor Behavior):} Cho mạng nơ-ron hai lớp trong chế độ NTK (infinite-width limit) được huấn luyện trên tập dữ liệu template $\mathcal{D}$. Gọi $\mu(\hat{\mathbf{x}})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng tại điểm test $\hat{\mathbf{x}}$. Khi đó, với mỗi bit đầu ra thứ $i$:
+    	\textbf{Định lý 5.1 (Hành vi bộ dự báo NTK):} Cho mạng nơ-ron hai lớp trong chế độ NTK ở giới hạn chiều rộng vô hạn được huấn luyện trên tập dữ liệu mẫu $\mathcal{D}$. Gọi $\mu(\hat{\mathbf{x}})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng tại điểm kiểm thử $\hat{\mathbf{x}}$. Khi đó, với mỗi bit đầu ra thứ $i$:
 \begin{equation}
     \text{sign}(\mu(\hat{\mathbf{x}})_i) = y_i^*
 \end{equation}
@@ -144,7 +144,7 @@ trong đó:
 \end{itemize}
 \end{quote}
 
-\textbf{Assumption 5.1:} Gọi $C_i = |U_i|$ là số lượng tương quan không mong muốn tại bit thứ $i$. Điều kiện để đầu ra có dấu đúng là:
+        \textbf{Giả thiết 5.1:} Gọi $C_i = |U_i|$ là số lượng tương quan không mong muốn tại bit thứ $i$. Điều kiện để đầu ra có dấu đúng là:
 \begin{equation}
     C_i < -\frac{w^1}{w^0}
 \end{equation}
@@ -173,7 +173,7 @@ Các tác giả đã chứng minh rằng các thuật toán được xét đều
     \item \textbf{SBN:} $C_i = O(\log l)$
 \end{itemize}
 
-Với thiết kế template phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng nhanh hơn $C_i$ khi kích thước bài toán tăng, đảm bảo điều kiện được thỏa mãn.
+Với thiết kế mẫu phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng nhanh hơn $C_i$ khi kích thước bài toán tăng, đảm bảo điều kiện được thỏa mãn.
 
 \section{Triển khai thuật toán cụ thể}
 
@@ -183,21 +183,21 @@ Phần này trình bày cách áp dụng khung template matching cho từng thu�
 
 Phép hoán vị $\pi: [l] \rightarrow [l]$ ánh xạ vị trí bit $i$ sang vị trí mới $\pi(i)$. Đây là thuật toán đơn giản nhất để minh họa phương pháp.
 
-\textbf{Mã hóa template:} Mỗi bit được xử lý độc lập. Với bit thứ $i$, có 2 template:
+        \textbf{Mã hóa mẫu:} Mỗi bit được xử lý độc lập. Với bit thứ $i$, có 2 mẫu:
 \begin{itemize}
     \item Template 1: Đầu vào $x_i = +1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $+1$
     \item Template 2: Đầu vào $x_i = -1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $-1$
 \end{itemize}
 
-\textbf{Số lượng template:} $2l$ template tổng cộng.
+        \textbf{Số lượng mẫu:} $2l$ mẫu tổng cộng.
 
-\textbf{Tương quan không mong muốn:} Vì mỗi template chỉ phụ thuộc vào một bit đầu vào duy nhất và các bit được mã hóa trong các block riêng biệt, không có tương quan không mong muốn ($C_i = 0$).
+        \textbf{Tương quan không mong muốn:} Vì mỗi mẫu chỉ phụ thuộc vào một bit đầu vào duy nhất và các bit được mã hóa trong các block riêng biệt, không có tương quan không mong muốn ($C_i = 0$).
 
 \subsection{Phép cộng}
 
 Phép cộng hai số nhị phân $l$-bit được triển khai thông qua mô phỏng bộ cộng ripple-carry. Thuật toán gồm 2 giai đoạn:
 
-\textbf{Giai đoạn 1 - Cộng bitwise:} Tính tổng từng bit và bit nhớ cục bộ:
+		\textbf{Giai đoạn 1 - Cộng theo bit:} Tính tổng từng bit và bit nhớ cục bộ:
 \begin{align}
     s_i &= a_i \oplus b_i \oplus c_{i-1} \\
     c_i &= \text{MAJ}(a_i, b_i, c_{i-1})
@@ -207,9 +207,9 @@ trong đó $\oplus$ là phép XOR, MAJ là hàm majority, và $c_{i-1}$ là bit 
 
 \textbf{Giai đoạn 2 - Lan truyền bit nhớ:} Bit nhớ được lan truyền từ phải sang trái. Quá trình này yêu cầu $O(\log l)$ bước lặp do kỹ thuật parallel prefix.
 
-\textbf{Template cho mỗi vị trí:} Mỗi vị trí bit $i$ có $2^3 = 8$ template (tương ứng với 8 tổ hợp của $a_i, b_i, c_{i-1}$).
+        \textbf{Mẫu cho mỗi vị trí:} Mỗi vị trí bit $i$ có $2^3 = 8$ mẫu (tương ứng với 8 tổ hợp của $a_i, b_i, c_{i-1}$).
 
-\textbf{Tương quan không mong muốn:} Tối đa $C_i = 1$, xảy ra khi hai template có cùng giá trị $(a_i, b_i)$ nhưng khác $c_{i-1}$.
+        \textbf{Tương quan không mong muốn:} Tối đa $C_i = 1$, xảy ra khi hai mẫu có cùng giá trị $(a_i, b_i)$ nhưng khác $c_{i-1}$.
 
 \subsection{Phép nhân}
 
@@ -220,9 +220,9 @@ Phép nhân hai số nhị phân $l$-bit sử dụng thuật toán shift-and-add
     \item Dịch trái multiplicand và dịch phải multiplier
 \end{enumerate}
 
-\textbf{Số bước lặp:} $l$ bước cho $l$-bit multiplication.
+        \textbf{Số bước lặp:} $l$ bước cho phép nhân $l$-bit.
 
-\textbf{Mã hóa template:} Mỗi bước lặp được mã hóa thành các template riêng, bao gồm:
+        \textbf{Mã hóa mẫu:} Mỗi bước lặp được mã hóa thành các mẫu riêng, bao gồm:
 \begin{itemize}
     \item Template kiểm tra LSB
     \item Template cộng có điều kiện
@@ -241,11 +241,11 @@ SBN là một chỉ thị máy tính đơn giản nhưng đủ mạnh để đ�
 
 \textbf{Tính Turing-complete:} SBN được chứng minh là Turing-complete, nghĩa là bất kỳ hàm tính toán được (computable function) nào cũng có thể được biểu diễn bằng một chuỗi hữu hạn các chỉ thị SBN.
 
-\textbf{Mã hóa template cho SBN:} Bao gồm các thành phần:
+Mã hóa mẫu cho SBN: Bao gồm các thành phần:
 \begin{itemize}
-    \item Template cho phép trừ (subtraction): Tương tự phép cộng với số bù 2
-    \item Template kiểm tra dấu kết quả
-    \item Template cập nhật program counter
+    \item Mẫu cho phép trừ: Tương tự phép cộng với số bù 2
+    \item Mẫu kiểm tra dấu kết quả
+    \item Mẫu cập nhật program counter
 \end{itemize}
 
 \textbf{Ý nghĩa:} Việc chứng minh mạng nơ-ron có thể học chính xác SBN đồng nghĩa với việc mạng nơ-ron có khả năng, về nguyên tắc, học thực thi bất kỳ thuật toán nào có thể được mô tả bằng chương trình máy tính.

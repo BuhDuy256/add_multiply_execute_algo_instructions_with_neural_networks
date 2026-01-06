@@ -38,7 +38,7 @@ Việc sử dụng NTK parametrization đảm bảo rằng khi $n_h \rightarrow 
 Các thực nghiệm được thực hiện trên các chuỗi bit có độ dài $l$ thay đổi:
 \begin{itemize}
     \item Phạm vi độ dài bit: $l \in \{2, 3, 4, \ldots, 30\}$
-    \item Với mỗi giá trị $l$, tập huấn luyện bao gồm tất cả các template cần thiết cho thuật toán tương ứng
+    \item Với mỗi giá trị $l$, tập huấn luyện bao gồm tất cả các mẫu (template) cần thiết cho thuật toán tương ứng
     \item Tập kiểm tra gồm các đầu vào ngẫu nhiên để đánh giá khả năng tổng quát hóa
 \end{itemize}
 
@@ -66,14 +66,14 @@ trong đó $\Theta$ là ma trận kernel NTK.
 
 Các thực nghiệm xác minh được thực hiện trên hai thuật toán số học cơ bản: phép cộng và phép nhân nhị phân.
 
-\textbf{Kết quả chính:}
+	\textbf{Kết quả chính:}
 \begin{itemize}
     \item Với cả phép cộng và phép nhân nhị phân, bộ dự báo NTK cho kết quả \textbf{chính xác tuyệt đối} (exact accuracy) sau khi làm tròn
     \item Độ chính xác 100\% được đạt được cho các chuỗi bit có độ dài lên đến $l = 10$
     \item Mọi bit đầu ra đều có dấu đúng, xác nhận Định lý 5.1: $\text{sign}(\mu(\hat{\mathbf{x}})_i) = y_i^*$
 \end{itemize}
 
-\textbf{Ý nghĩa:} Kết quả này xác nhận rằng khung lý thuyết template matching kết hợp với phân tích NTK có thể dự đoán chính xác hành vi của mạng nơ-ron trên các bài toán số học nhị phân.
+            	\textbf{Ý nghĩa:} Kết quả này xác nhận rằng khung lý thuyết khớp mẫu kết hợp với phân tích NTK có thể dự đoán chính xác hành vi của mạng nơ-ron trên các bài toán số học nhị phân.
 
 \subsection{So sánh phương sai và kỳ vọng}
 
@@ -94,7 +94,7 @@ Theo phân tích trong Chương 3, tỷ lệ $\sigma^2/\mu^2$ được dự đo�
 \begin{itemize}
     \item Đồ thị tỷ lệ $\sigma^2/\mu^2$ theo $k'$ cho thấy xu hướng tăng tuyến tính rõ ràng
     \item Độ dốc của đường xu hướng phù hợp với hệ số được dự đoán từ lý thuyết
-    \item Sự phù hợp này xác nhận rằng công thức tính ensemble complexity trong Công thức (8) là chính xác
+    \item Sự phù hợp này xác nhận rằng công thức tính độ phức tạp tập hợp (ensemble complexity) trong Công thức (8) là chính xác
 \end{itemize}
 
 % TODO: Chèn hình Figure 5 từ paper
@@ -105,7 +105,7 @@ Theo phân tích trong Chương 3, tỷ lệ $\sigma^2/\mu^2$ được dự đo�
 %     \label{fig:variance_ratio}
 % \end{figure}
 
-\textbf{Nhận xét:} Sự phù hợp giữa dự đoán lý thuyết và kết quả thực nghiệm xác nhận rằng ensemble complexity $N = O(l^2 \log(1/\delta))$ là ước lượng đáng tin cậy cho số lượng mô hình cần thiết.
+    	\textbf{Nhận xét:} Sự phù hợp giữa dự đoán lý thuyết và kết quả thực nghiệm xác nhận rằng độ phức tạp tập hợp $N = O(l^2 \log(1/\delta))$ là ước lượng đáng tin cậy cho số lượng mô hình cần thiết.
 
 \section{Thực nghiệm huấn luyện}
 
@@ -115,7 +115,7 @@ Phần này trình bày các thực nghiệm huấn luyện thực tế (trainin
 
 Nghiên cứu chọn bài toán \textbf{Hoán vị (Permutation)} làm đối tượng thực nghiệm chính với các lý do:
 \begin{itemize}
-    \item \textbf{Ensemble complexity thấp hơn:} So với phép cộng và nhân, phép hoán vị có $C_i = 0$ (không có tương quan không mong muốn), dẫn đến tỷ lệ $\sigma^2/\mu^2$ nhỏ hơn
+    \item \textbf{Độ phức tạp tập hợp thấp hơn:} So với phép cộng và nhân, phép hoán vị có $C_i = 0$ (không có tương quan không mong muốn), dẫn đến tỷ lệ $\sigma^2/\mu^2$ nhỏ hơn
     \item \textbf{Tài nguyên tính toán:} Số lượng mô hình ensemble cần thiết nằm trong khả năng của phần cứng hiện có
     \item \textbf{Tính đại diện:} Mặc dù đơn giản hơn, hoán vị vẫn đủ để chứng minh tính đúng đắn của lý thuyết về ensemble và khả năng đạt độ chính xác tuyệt đối
 \end{itemize}
@@ -127,8 +127,8 @@ Cho hoán vị $\pi: [n] \rightarrow [n]$ ngẫu nhiên, mạng nơ-ron được
 
 \textbf{Thiết lập thực nghiệm:}
 \begin{itemize}
-    \item \textbf{Tập huấn luyện:} Bao gồm $2n$ template tương ứng với tất cả các ánh xạ vị trí của hoán vị
-    \item \textbf{Tập kiểm tra:} 1000 vector kiểm thử được sinh ngẫu nhiên, mỗi vector có $n_{\hat{x}} = 2$ phần tử khác không (sparse test vectors)
+    \item \textbf{Tập huấn luyện:} Bao gồm $2n$ mẫu (template) tương ứng với tất cả các ánh xạ vị trí của hoán vị
+    \item \textbf{Tập kiểm tra:} 1000 vector kiểm thử được sinh ngẫu nhiên, mỗi vector có $n_{\hat{x}} = 2$ phần tử khác không
     \item \textbf{Độ chính xác:} Được tính là tỷ lệ các vector kiểm tra mà tất cả các bit đầu ra đều đúng sau khi làm tròn
 \end{itemize}
 
@@ -159,7 +159,7 @@ So sánh số lượng mô hình thực tế cần thiết để đạt độ ch
 \begin{itemize}
     \item Khi kích thước ensemble tăng lên, độ chính xác tiến dần đến 100\% (perfect accuracy)
     \item Với $k$ lớn hơn, cần nhiều mô hình hơn để đạt cùng mức độ chính xác
-    \item Xu hướng này phù hợp với dự đoán lý thuyết: ensemble complexity tăng theo $O(k^2)$
+    \item Xu hướng này phù hợp với dự đoán lý thuyết: độ phức tạp tập hợp tăng theo $O(k^2)$
 \end{itemize}
 
 % TODO: Chèn hình Figure 7 từ paper (Experiment 1 và Experiment 2)
@@ -209,7 +209,7 @@ Các thực nghiệm trong chương này đã xác nhận ba dự đoán lý thu
 \begin{enumerate}
     \item \textbf{Định lý 5.1:} Bộ dự báo NTK bảo toàn thông tin dấu, cho phép đạt độ chính xác tuyệt đối sau làm tròn
     \item \textbf{Mối quan hệ $\sigma^2/\mu^2$:} Tỷ lệ này tăng tuyến tính theo kích thước đầu vào, phù hợp với phân tích lý thuyết
-    \item \textbf{Ensemble complexity:} Công thức (8) cung cấp ngưỡng chặn trên hợp lệ và có tính bảo thủ
+    \item \textbf{Độ phức tạp tập hợp:} Công thức (8) cung cấp ngưỡng chặn trên hợp lệ và có tính bảo thủ
 \end{enumerate}
 
 \textbf{Kết luận về khả năng học chính xác:}
