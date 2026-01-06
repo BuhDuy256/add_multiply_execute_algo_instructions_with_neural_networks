@@ -1,0 +1,96 @@
+\section{Thực nghiệm \& Kết luận}
+
+% ==================== EXPERIMENTAL RESULTS ====================
+\begin{frame}{Validation thực nghiệm (Paper Figure 5)}
+  \textbf{Thiết lập:}
+  \begin{itemize}
+    \item Mạng 2 lớp, 50,000 nút ẩn (hidden units)
+    \item Full-batch gradient descent
+    \item Bit length $\ell$ từ 2 đến 30
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Kết quả:} Ensemble complexity tăng theo $O(\ell^2 \log \ell)$ như lý thuyết dự đoán.
+\end{frame}
+
+\begin{frame}{Thí nghiệm 2: Accuracy vs ensemble size}
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=11cm,height=7cm,title={Experiment 2\\Accuracy vs ensemble size},title style={align=center},xlabel={Ensemble size},ylabel={Accuracy},xmin=0,xmax=300,ymin=0,ymax=1.05,enlarge y limits={lower,value=0.06},grid=both,minor tick num=1,xtick={1,50,100,150,200,250,300},xticklabel style={xshift=2pt},ytick={0,0.2,0.4,0.6,0.8,1.0},yticklabel style={/pgf/number format/fixed,/pgf/number format/precision=1},legend pos=south east,legend cell align=left,unbounded coords=discard]
+\addplot table[col sep=comma,x=ensemble_size,y=accuracy,restrict expr to domain={\thisrow{k}}{5:5}] {figures/experiment_2.csv};
+\addlegendentry{$k=5$}
+\addplot table[col sep=comma,x=ensemble_size,y=accuracy,restrict expr to domain={\thisrow{k}}{10:10}] {figures/experiment_2.csv};
+\addlegendentry{$k=10$}
+\addplot table[col sep=comma,x=ensemble_size,y=accuracy,restrict expr to domain={\thisrow{k}}{15:15}] {figures/experiment_2.csv};
+\addlegendentry{$k=15$}
+\addplot table[col sep=comma,x=ensemble_size,y=accuracy,restrict expr to domain={\thisrow{k}}{20:20}] {figures/experiment_2.csv};
+\addlegendentry{$k=20$}
+\addplot table[col sep=comma,x=ensemble_size,y=accuracy,restrict expr to domain={\thisrow{k}}{25:25}] {figures/experiment_2.csv};
+\addlegendentry{$k=25$}
+\addplot table[col sep=comma,x=ensemble_size,y=accuracy,restrict expr to domain={\thisrow{k}}{30:30}] {figures/experiment_2.csv};
+\addlegendentry{$k=30$}
+\end{axis}
+\end{tikzpicture}
+\end{frame}
+
+
+
+
+
+\begin{frame}{Kết quả thí nghiệm (từ bài báo)}
+  \centering
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/experiments_paper.pdf}
+   
+  \end{figure}
+\end{frame}
+
+
+
+
+
+
+
+
+% ==================== KẾT LUẬN ====================
+\begin{frame}{Kết luận}
+  \textbf{Điều bài báo đã chứng minh:}
+  \begin{itemize}
+    \item Mạng 2 lớp ($n_h \to \infty$) học \textbf{chính xác} lệnh thuật toán nhị phân.
+    \item Chỉ cần $O(b)$ training samples (logarithmic).
+    \item Ensemble: $N \in O(\ell^2 \log \ell)$.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Ý nghĩa:}
+  \begin{itemize}
+    \item Kết quả NTK-based đầu tiên cho exact learnability.
+    \item SBN Turing-complete $\Rightarrow$ mở rộng cho mọi hàm tính được.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Hạn chế và hướng phát triển}
+  \textbf{Hạn chế:}
+  \begin{itemize}
+    \item Giả định data orthogonality
+    \item Bounded memory (retrain khi thay đổi input size)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Hướng phát triển:}
+  \begin{itemize}
+    \item Correlated training examples
+    \item GNN trên đồ thị bounded degree
+    \item Mở rộng cho Transformer
+  \end{itemize}
+\end{frame}
+
+% ===== SLIDE KẾT THÚC =====
+\begin{frame}{}
+  \centering
+  \vfill
+  {\Huge \textbf{Cảm ơn vì đã lắng nghe!}}\\[0.5cm]
+  {\Large Q\&A}
+  \vfill
+\end{frame}

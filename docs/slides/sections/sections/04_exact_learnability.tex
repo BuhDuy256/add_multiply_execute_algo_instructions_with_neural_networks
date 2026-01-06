@@ -1,0 +1,190 @@
+
+\section{Exact Learnability}
+
+% ==================== PART I: NTK PREDICTOR BEHAVIOR ====================
+\begin{frame}{Phần I: Huấn luyện với dữ liệu trực chuẩn hoá}
+  \textbf{Mã hóa Template thành Training Data:}
+  \begin{itemize}
+    \item Template $(x^{(i,j)}, y^{(i,j)}) \in T_i$ $\to$ vector $q_{ij} \in \mathbb{R}^{k'}$
+    \item $q_{ij}$ có cấu trúc block-partitioned: chỉ block $i$ khác 0
+    \item Các $q_{ij}$ được \textbf{trực giao hóa} trong mỗi block
+  \end{itemize}
+
+  \vspace{0.3cm}
+  $\Rightarrow$ NTK matrix $\Theta(X,X)$ = \textbf{scaled identity + rank-1 noise}
+\end{frame}
+
+\begin{frame}{Ví dụ minh họa: Phân rã thành các Luật Cục bộ}
+  Thay vì học bảng cộng cho toàn bộ chuỗi bit (ví dụ $011 + 101$), thuật toán được phân rã thành các \textbf{thao tác cục bộ} tại mỗi vị trí $i$:
+
+  \begin{itemize}
+    \item \textbf{Nhóm 1: Bitwise Addition (Tại bit i)}
+      \begin{itemize}
+        \item Quy tắc $A_i$: $(p_i=1, q_i=0) \to p_i=1$
+        \item Quy tắc $B_i$: $(p_i=1, q_i=1) \to p_i=0, \text{sinh bit nhớ } c_i=1$
+      \end{itemize}
+    
+    \item \textbf{Nhóm 2: Carry Propagation (Tại bit i)}
+      \begin{itemize}
+        \item Quy tắc $C_i$: Nếu có bit nhớ $c_i=1 \to$ cộng dồn vào $q_{i+1}$ (hoặc lan truyền tiếp).
+      \end{itemize}
+  \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Chiến lược Encode: "Bag of Rules" \& Training Data}
+  \textbf{Tổng hợp Templates:}
+  Với chuỗi $L$ bit, ta có tập hợp tất cả các quy tắc cục bộ cho mọi $i$:
+  \[ T_{total} = \bigcup_{i=0}^{L-1} \{ \text{Rules tại } i \} \]
+
+  \textbf{Mã hóa (Encoding):}
+  Ta gộp tất cả $N$ rules cục bộ vào một không gian vector chung $\mathbb{R}^N$. Mỗi rule $t_k \in T_{total}$ được one-hot encoding.
+
+  \textbf{Training Data (Identity Matrix):}
+  \[
+    X_{train} = I_N = 
+    \begin{bmatrix}
+    e_1 & e_2 & \dots & e_N
+    \end{bmatrix}
+  \]
+  $\Rightarrow$ Mạng học song song tất cả các quy tắc cục bộ.
+\end{frame}
+
+
+
+\begin{frame}{Minh họa cụ thể cho Binary Addition}
+  \centering
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/input_diagram.pdf}
+   
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}{Cấu trúc dữ liệu đầu vào thử nghiệm}
+  \textbf{Cấu trúc:} $\hat{x} = \frac{1}{\sqrt{n_{\hat{x}}}} (\hat{x}_1, \ldots, \hat{x}_b)^\top$
+  
+  \begin{itemize}
+    \item Mỗi block $\hat{x}_i$ = 0 hoặc match một sample trong $X$
+    \item $n_{\hat{x}}$ = số blocks active
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Quan trọng:}
+  \begin{itemize}
+    \item Training: $O(b)$ samples
+    \item Test: $O(2^b)$ possible inputs 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Theorem 5.1: NTK Predictor Behavior}
+  \textbf{Assumption 5.1:} Số tương quan không mong muốn $<$ tỷ lệ $-w_1/w_0$
+
+  \vspace{0.3cm}
+  \textbf{Theorem:} Dưới Assumption 5.1, NTK predictor bảo toàn dấu:
+  \[
+    \begin{cases}
+      \mu(\hat{x})_i \le 0 & \text{nếu } f(\hat{x})_i = 0 \\
+      \mu(\hat{x})_i > 0 & \text{nếu } f(\hat{x})_i = 1
+    \end{cases}
+  \]
+
+  $\Rightarrow$ \textbf{Rounding $\mu(\hat{x})_i$ cho kết quả chính xác!}
+\end{frame}
+
+\begin{frame}{Proof Sketch của Theorem 5.1}
+  NTK predictor có dạng:
+  \[
+    \mu(\hat{x})_i = \sum_{(j,l) \in I^+} f(q_{jl})_i \cdot w_1 + \sum_{(j,l) \in I^-} f(q_{jl})_i \cdot w_0
+  \]
+  
+  Trong đó:
+  \begin{itemize}
+    \item $I^+$: training samples match $\hat{x}$ ($w_1 > 0$)
+    \item $I^-$: training samples không match ($w_0 \le 0$)
+  \end{itemize}
+  
+  \vspace{0.2cm}
+  Assumption 5.1: $|I^-_1| < -w_1/w_0$ $\Rightarrow$ dấu được bảo toàn.
+\end{frame}
+
+% ==================== PART II: ENSEMBLE COMPLEXITY ====================
+\begin{frame}{Phần 2: Ensemble Complexity}
+  \textbf{Vấn đề:} Theorem 5.1 đúng cho \emph{kỳ vọng} $\mu(\hat{x})$.
+  
+  Thực tế: mỗi model có variance $\sigma^2(\hat{x})$.
+
+  \vspace{0.3cm}
+  \textbf{Giải pháp:} Ensemble $N$ models:
+  \[
+    G(\hat{x}) = \frac{1}{N}\sum_{j=1}^N F^j(\hat{x})
+  \]
+  
+  Rounding $G(\hat{x})$ cho xác suất cao nếu $N$ đủ lớn.
+\end{frame}
+
+\begin{frame}{Công thức Ensemble Complexity (Equation 8)}
+  \textbf{Bound:}
+  \[
+    \boxed{N \ge 8 \max_{\hat{x}, i \in [k]} \left\{ \frac{\sigma^2(\hat{x})}{\mu^2(\hat{x})_i} \right\} \ln\left(\frac{2k'}{\delta}\right)}
+  \]
+
+  Với xác suất $1 - \delta$, rounding ensemble mean cho kết quả \textbf{chính xác}.
+\end{frame}
+\begin{frame}{Lemma 6.1: Asymptotic Orders \& Union Bound}
+    \begin{itemize}
+        \item \textbf{Phân tích tiệm cận (Lemma 6.1):} 
+            \begin{itemize}
+                \item Variance: $\sigma^2(\hat{x}) \in O(1/k')$ [cite: 489]
+                \item Mean: $|\mu(\hat{x})_i|$ đạt tối thiểu $\Theta(1/\sqrt{k'})$ khi $n_{\hat{x}} = ck'$ 
+                \item Tỉ lệ: $\frac{\sigma^2}{\mu^2} \in O(k')$ 
+            \end{itemize}
+        \item \textbf{Từ 1 input đến toàn bộ không gian ($2^b$ inputs):}
+            \begin{itemize}
+                \item Áp dụng \textbf{Union Bound} cho tất cả các trường hợp và $m$ bước lặp:
+                \item $N \ge 8 \max \frac{\sigma^2}{\mu^2} \ln(\frac{2k' \cdot 2^b \cdot m}{\delta}) \approx O(k'b + k' \log m)$ 
+            \end{itemize}
+        \item \textbf{Ý chính:} Khi xét toàn bộ thuật toán, thành phần \textbf{$k'b$} trở thành hạng tử chủ đạo.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Remark 6.1: Kết quả Ensemble Complexity ($N$)}
+    \textbf{Độ phức tạp cho các tác vụ với số bit $\ell$:} 
+    
+    \begin{center}
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        \textbf{Tác vụ} & $b$ & $k'$ & $m$ (Iter) & \textbf{Complexity $N$} \\
+        \hline
+        Permutation & $\ell$ & $\ell$ & $1$ & $\mathbf{O(\ell^2)}$ \\
+        Addition & $2\ell$ & $4\ell$ & $2\ell$ & $\mathbf{O(\ell^2)}$ \\
+        Multiplication & $11\ell$ & $21\ell$ & $4\ell^2 + 3\ell$ & $\mathbf{O(\ell^2)}$ \\
+        \hline
+    \end{tabular}
+    \end{center}
+
+    \begin{itemize}
+        \item \textbf{Giải thích:} 
+            \begin{itemize}
+                \item Trong mọi tác vụ, $k'$ và $b$ đều tỷ lệ tuyến tính với $\ell$.
+                \item $N \in O(\ell \cdot \ell + \ell \log \ell) \Rightarrow$ \textbf{Bậc cao nhất là $O(\ell^2)$}.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+
+
+
+% ===== SLIDE CHUYỂN TIẾP SANG PHẦN 5 =====
+\begin{frame}{}
+  \centering
+  \vfill
+  {\Huge \textbf{Phần 5}}\\[0.5cm]
+  {\Large Thực nghiệm \& Kết luận}
+  \vfill
+\end{frame}

@@ -1,0 +1,70 @@
+
+\section{Template Matching}
+
+\begin{frame}{Nguyên lý Template Matching}
+  \textbf{Ý tưởng:}
+  \begin{itemize}
+    \item Thuật toán được phân rã thành các \textbf{template} thao tác trên từng block bit.
+    \item Mỗi template: $(x, y)$ input block $\to$ output vector.
+    \item Thực thi = \textbf{matching} input với template đã học.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Cấu trúc Block:}
+  \begin{itemize}
+    \item Input $\hat{x} \in \{0,1\}^k$ chia thành $b$ blocks.
+    \item Tổng số template: $O(b) \ll O(2^b)$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Hàm Template Matching}
+  Với mỗi block $B_i$:
+  \[
+    f_i(x') = \begin{cases} y & \text{nếu } (x', y) \in T_i \\ \mathbf{0} & \text{ngược lại} \end{cases}
+  \]
+
+  \textbf{Hàm tổng hợp:} $f(\hat{x}) = \bigvee_{i=1}^{b} f_i(\hat{x}[B_i])$
+  
+  \vspace{0.3cm}
+  \textbf{Thực thi lặp:} $\hat{x}_{t+1} = f(\hat{x}_t)$ cho đến trạng thái ổn định.
+\end{frame}
+
+\begin{frame}{Ví dụ: Binary Addition}
+  \textbf{Thiết lập cho 2 số $\ell$-bit:}
+  \begin{itemize}
+    \item $2\ell$ blocks: $(p_i, q_i)$ và carry $c_i$
+    \item Templates: bitwise sum + carry propagation
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Thống kê:}
+  \begin{itemize}
+    \item Số templates: $4\ell$ (tuyến tính)
+    \item Số bước lặp: $2\ell$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Ví dụ: Binary Multiplication}
+  \textbf{Mô phỏng Shift-and-Add:}
+  \begin{enumerate}
+    \item Kiểm tra LSB multiplier
+    \item Cộng multiplicand vào tổng
+    \item Shift multiplicand trái, multiplier phải
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Thống kê:}
+  \begin{itemize}
+    \item Số templates: $21\ell$
+    \item Worst-case: $4\ell^2 + 3\ell$ iterations
+  \end{itemize}
+\end{frame}
+
+% ===== SLIDE CHUYỂN TIẾP SANG PHẦN 4 =====
+\begin{frame}{}
+  \centering
+  \vfill
+  {\Huge \textbf{Phần 4}}\\[0.5cm]
+  {\Large Exact Learnability}
+  \vfill
+\end{frame}

@@ -1,0 +1,46 @@
+
+\section{Giới thiệu}
+
+% ===== SLIDE CHUYỂN TIẾP PHẦN 1 =====
+\begin{frame}{}
+  \centering
+  \vfill
+  {\Huge \textbf{Phần 1}}\\[0.5cm]
+  {\Large Giới thiệu}
+  \vfill
+\end{frame}
+
+\begin{frame}{Câu hỏi nghiên cứu chính}
+  \textbf{Vấn đề cốt lõi:}
+  \begin{itemize}
+    \item Mạng Neural thường \emph{xấp xỉ tốt} các hàm trơn, nhưng \textbf{thất bại} khi tổng quát hóa trên các phép toán rời rạc.
+    \item \textbf{Câu hỏi:} Liệu mạng Neural có thể học thực thi các chỉ dẫn thuật toán mã hóa nhị phân \textbf{một cách chính xác}?
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Phạm vi bài báo:}
+  \begin{itemize}
+    \item Hoán vị nhị phân, Phép cộng, Phép nhân
+    \item Lệnh SBN $\Rightarrow$ \textbf{Turing-complete}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Đóng góp chính của bài báo}
+  \textbf{Hai đổi mới quan trọng:}
+  \begin{enumerate}
+    \item \textbf{Biểu diễn theo mẫu thuật toán:} Dữ liệu huấn luyện dạng "template" - số lượng chỉ tăng \textbf{logarithmic}.
+    \item \textbf{Tính học được chính xác:} Ensemble mạng 2 lớp ($n_h \to \infty$) học \textbf{chính xác} với xác suất cao.
+  \end{enumerate}
+  
+  \vspace{0.3cm}
+  $\Rightarrow$ \textbf{Kết quả NTK-based đầu tiên} cho exact learnability.
+\end{frame}
+
+% ===== SLIDE CHUYỂN TIẾP SANG PHẦN 2 =====
+\begin{frame}{}
+  \centering
+  \vfill
+  {\Huge \textbf{Phần 2}}\\[0.5cm]
+  {\Large Chứng minh lý thuyết NTK}
+  \vfill
+\end{frame}
