@@ -6,56 +6,53 @@ Mạng nơ-ron đã chứng minh khả năng xấp xỉ vượt trội đối v�
 
 Nghiên cứu đã đề xuất một hướng tiếp cận đột phá để giải quyết vấn đề này thông qua khung lý thuyết Neural Tangent Kernel (NTK). Bằng cách phân tích mạng nơ-ron hai lớp trong giới hạn chiều rộng vô hạn, các tác giả chứng minh rằng mạng nơ-ron có thể được huấn luyện để thực thi chính xác các chỉ thị thuật toán được mã hóa ở dạng nhị phân. Đây là kết quả có ý nghĩa lý thuyết quan trọng, mở ra khả năng sử dụng mạng nơ-ron như một công cụ tính toán phổ quát thay vì chỉ giới hạn ở vai trò xấp xỉ hàm số.
 
-Mục tiêu cốt lõi của nghiên cứu là chứng minh một cách chặt chẽ về mặt toán học rằng mạng nơ-ron, khi được huấn luyện thông qua hạ gradient với cơ chế khớp mẫu, có khả năng học và thực thi chính xác các chỉ thị thuật toán mà không cần xấp xỉ.
+Mục tiêu cốt lõi của nghiên cứu là chứng minh một cách chặt chẽ về mặt toán học rằng mạng nơ-ron, khi được huấn luyện thông qua gradient descent với cơ chế template matching, có khả năng học và thực thi chính xác các chỉ thị thuật toán mà không cần xấp xỉ.
 
 \section{Các nghiên cứu liên quan}
 
-Khả năng tính toán của mạng nơ-ron đã được nghiên cứu rộng rãi trong nhiều thập kỷ qua. Các nghiên cứu tiên phong về mạng nơ-ron hồi quy (RNN) đã chứng minh rằng RNN có thể mô phỏng máy Turing về mặt lý thuyết, nghĩa là chúng có khả năng biểu diễn bất kỳ hàm tính toán được nào. Gần đây hơn, kiến trúc Transformer cũng được chứng minh có khả năng biểu diễn tương đương, củng cố thêm quan điểm về tính phổ quát của mạng nơ-ron.
+Khả năng tính toán của mạng nơ-ron đã được nghiên cứu rộng rãi trong nhiều thập kỷ qua. Các nghiên cứu tiên phong về Recurrent Neural Networks (RNN) đã chứng minh rằng RNN có thể mô phỏng máy Turing (Turing-complete) về mặt lý thuyết, nghĩa là chúng có khả năng biểu diễn bất kỳ hàm tính toán được (computable function) nào. Gần đây hơn, kiến trúc Transformer cũng được chứng minh có khả năng biểu diễn tương đương, củng cố thêm quan điểm về tính phổ quát của mạng nơ-ron.
 
-Tuy nhiên, điều quan trọng cần phân biệt là tính khả thi về mặt biểu diễn hoàn toàn khác với khả năng học được thông qua hạ gradient. Một mạng nơ-ron có thể có khả năng biểu diễn một hàm phức tạp, nhưng điều đó không đảm bảo rằng thuật toán tối ưu hóa như hạ gradient có thể tìm được tập tham số phù hợp để thực hiện hàm đó từ dữ liệu huấn luyện hữu hạn. Đây chính là khoảng cách then chốt mà các nghiên cứu trước đó chưa giải quyết triệt để.
+Tuy nhiên, điều quan trọng cần phân biệt là tính khả thi về mặt biểu diễn (expressive power) hoàn toàn khác với khả năng học được (learnability) thông qua gradient descent. Một mạng nơ-ron có thể có khả năng biểu diễn một hàm phức tạp, nhưng điều đó không đảm bảo rằng thuật toán tối ưu hóa như gradient descent có thể tìm được tập tham số phù hợp để thực hiện hàm đó từ dữ liệu huấn luyện hữu hạn. Đây chính là khoảng cách then chốt mà các nghiên cứu trước đó chưa giải quyết triệt để.
 
 Nhiều kiến trúc chuyên biệt đã được đề xuất để thu hẹp khoảng cách này. Neural GPU mở rộng khả năng của mạng tích chập để xử lý các phép toán số học song song. Neural Arithmetic Logic Unit (NALU) được thiết kế đặc biệt để học các phép toán số học như cộng, trừ, nhân và chia. Mặc dù các kiến trúc này đạt được kết quả thực nghiệm tốt trong một số trường hợp, chúng thiếu nền tảng lý thuyết vững chắc về việc tại sao và khi nào quá trình học hội tụ đến giải pháp chính xác.
 
-Nghiên cứu đã cho thấy sự khác biệt cơ bản ở chỗ chứng minh lý thuyết chặt chẽ dựa trên khung NTK, đảm bảo rằng mạng nơ-ron không chỉ có khả năng biểu diễn mà thực sự có thể học được các phép toán chính xác thông qua hạ gradient với lượng dữ liệu huấn luyện có thể kiểm soát được.
+Nghiên cứu đã cho thấy sự khác biệt cơ bản ở chỗ chứng minh lý thuyết chặt chẽ dựa trên khung NTK, đảm bảo rằng mạng nơ-ron không chỉ có khả năng biểu diễn mà thực sự có thể học được các phép toán chính xác thông qua gradient descent với lượng dữ liệu huấn luyện có thể kiểm soát được.
 
 \section{Động lực nghiên cứu}
 
-Một trong những thách thức cốt lõi khi huấn luyện mạng nơ-ron thực hiện các phép toán rời rạc là sự khó khăn trong việc hội tụ hạ gradient đối với các hàm không liên tục. Hạ gradient hoạt động dựa trên việc tính toán đạo hàm của hàm mất mát theo các tham số mạng, nhưng đối với các hàm bước nhảy hay các phép toán nhị phân, đạo hàm hầu như bằng không hoặc không xác định tại hầu hết các điểm. Điều này dẫn đến hiện tượng gradient biến mất hoặc gradient không cung cấp thông tin hữu ích cho việc cập nhật tham số.
+Một trong những thách thức cốt lõi khi huấn luyện mạng nơ-ron thực hiện các phép toán rời rạc là sự khó khăn trong việc hội tụ gradient descent đối với các hàm không liên tục. Gradient descent hoạt động dựa trên việc tính toán đạo hàm của hàm mất mát theo các tham số mạng, nhưng đối với các hàm bước nhảy hay các phép toán nhị phân, đạo hàm hầu như bằng không hoặc không xác định tại hầu hết các điểm. Điều này dẫn đến hiện tượng gradient biến mất hoặc gradient không cung cấp thông tin hữu ích cho việc cập nhật tham số.
 
 Các bộ dữ liệu tiêu chuẩn cho bài toán số học thường không được thiết kế để giải quyết vấn đề này một cách có hệ thống. Hệ quả là mạng nơ-ron được huấn luyện trên các bộ dữ liệu như vậy có thể đạt độ chính xác cao trên tập huấn luyện nhưng thất bại khi khái quát hóa sang các ví dụ mới, đặc biệt khi kích thước đầu vào tăng lên.
 
-Động lực chính của nghiên cứu này xuất phát từ nhu cầu tìm kiếm một cơ chế huấn luyện có thể đảm bảo mạng nơ-ron đạt được độ chính xác tuyệt đối thay vì chỉ xấp xỉ. Thay vì cố gắng xấp xỉ một hàm rời rạc bằng một hàm liên tục, nghiên cứu này đề xuất mã hóa dữ liệu và thuật toán theo cách cho phép mạng nơ-ron nhận dạng và áp dụng các quy tắc cấp độ bit một cách chính xác thông qua cơ chế khớp mẫu. Cách tiếp cận này biến bài toán từ xấp xỉ hàm thành bài toán nhận dạng mẫu, nơi mạng nơ-ron có thể phát huy thế mạnh vốn có.
+Động lực chính của nghiên cứu này xuất phát từ nhu cầu tìm kiếm một cơ chế huấn luyện có thể đảm bảo mạng nơ-ron đạt được độ chính xác tuyệt đối thay vì chỉ xấp xỉ. Thay vì cố gắng xấp xỉ một hàm rời rạc bằng một hàm liên tục, nghiên cứu này đề xuất mã hóa dữ liệu và thuật toán theo cách cho phép mạng nơ-ron nhận dạng và áp dụng các quy tắc cấp độ bit một cách chính xác thông qua cơ chế template matching. Cách tiếp cận này biến bài toán từ xấp xỉ hàm thành bài toán nhận dạng mẫu, nơi mạng nơ-ron có thể phát huy thế mạnh vốn có.
 
 \section{Câu hỏi nghiên cứu}
 
-Nghiên cứu đặt ra một câu hỏi tổng quát, gồm \textbf{ba phần} tương ứng với (i) khía cạnh \textbf{lý thuyết}, (ii) khía cạnh \textbf{hiệu quả dữ liệu}, và (iii) khía cạnh \textbf{kết nối với thực nghiệm}:
-\begin{quote}
-    	\textit{(1) Về mặt lý thuyết, liệu có thể chứng minh rằng một mạng nơ-ron học được cơ chế khớp mẫu để thực thi \textbf{chính xác} các chỉ thị thuật toán, dưới các giả định như NTK và mô hình nhiễu; (2) lượng dữ liệu huấn luyện tối thiểu cần thiết (độ phức tạp mẫu) là bao nhiêu; và (3) trong thực tế khi mạng có độ rộng hữu hạn và dữ liệu hữu hạn, các bảo đảm/dự đoán từ lý thuyết được phản ánh như thế nào?}
-\end{quote}
+Câu hỏi nghiên cứu trọng tâm mà tác giả đặt ra là:
 
-Từ đó, báo cáo cụ thể hóa câu hỏi nghiên cứu thành \textbf{ba phần}:
+$\Rightarrow$ \textit{Liệu mạng nơ-ron có thể học thực thi chính xác các chỉ thị thuật toán thông qua cơ chế template matching, và nếu có thể, lượng dữ liệu huấn luyện tối thiểu cần thiết là bao nhiêu?}
+
+Câu hỏi này bao hàm nhiều khía cạnh quan trọng:
 \begin{itemize}
-    \item \textbf{Phần 1 (Lý thuyết/NTK).} Trong khuôn khổ NTK ở giới hạn chiều rộng vô hạn, liệu hạ gradient có thể hội tụ đến nghiệm thực thi \textbf{đúng} thuật toán (ở mức bit) hay không?
-    \item \textbf{Phần 2 (Thực nghiệm/mạng hữu hạn).} Khi rời khỏi giả định chiều rộng vô hạn (mạng hữu hạn và dữ liệu hữu hạn), mô hình còn có thể học và khái quát hóa việc thực thi chỉ thị thuật toán ở mức độ nào? Mức suy giảm so với dự đoán/bảo đảm lý thuyết thể hiện ra sao theo độ dài bit, theo seed/khởi tạo, và theo quy mô dữ liệu?
-    \item \textbf{Phần 3 (Độ phức tạp mẫu).} Lượng dữ liệu huấn luyện tối thiểu phụ thuộc như thế nào vào kích thước đầu vào?
+    \item \textbf{Tính khả thi về mặt học:} Liệu gradient descent có thể hội tụ đến một giải pháp thực hiện chính xác thuật toán hay không?
+    \item \textbf{Hiệu quả dữ liệu:} Số lượng ví dụ huấn luyện cần thiết có thể được kiểm soát ở mức nào? Liệu có thể đạt được độ phức tạp mẫu logarithmic thay vì tuyến tính hay đa thức theo kích thước đầu vào?
+    \item \textbf{Tính phổ quát:} Kết quả có thể mở rộng cho lớp các chỉ thị thuật toán nào? Liệu có thể đạt được tính Turing-complete không?
 \end{itemize}
 
-\section{Đóng góp của bài báo}
+\section{Đóng góp của báo cáo}
 
-Nghiên cứu của De Luca và cộng sự đã mang lại những đóng góp quan trọng về mặt lý thuyết và phương pháp luận:
+Nghiên cứu của đã mang lại 5 đóng góp chính về mặt lý thuyết và phương pháp luận:
 
 \begin{itemize}
-    \item \textbf{Biểu diễn thuật toán dưới dạng mẫu:} Mỗi quy tắc cấp độ bit của thuật toán được mã hóa thành một vector mẫu riêng biệt, cho phép cô lập các quy tắc logic và tạo ra cấu trúc dữ liệu phù hợp cho việc áp dụng cơ chế khớp mẫu.
-
-    \item \textbf{Kiểm soát tương quan trong chế độ NTK:} Bằng cách điều chỉnh sự tương quan giữa các mẫu trong chế độ Neural Tangent Kernel, nghiên cứu đảm bảo rằng dự đoán của mô hình đồng nhất với việc thực thi thuật toán mục tiêu.
-
-    \item \textbf{Phương pháp Ensemble:} Chứng minh rằng một tập hợp (ensemble) đủ lớn các mạng nơ-ron hai lớp trong giới hạn chiều rộng vô hạn có thể đạt độ chính xác tuyệt đối với xác suất cao cho các tác vụ như phép hoán vị, phép cộng, phép nhân và chỉ thị SBN.
+    \item \textbf{Biểu diễn thuật toán dưới dạng template:} Mỗi quy tắc cấp độ bit của thuật toán được mã hóa thành một vector mẫu riêng biệt, cho phép cô lập các quy tắc logic và tạo ra cấu trúc dữ liệu phù hợp cho việc áp dụng cơ chế template matching.
+    
+    \item \textbf{Chứng minh lý thuyết dựa trên NTK:} Nghiên cứu cung cấp chứng minh chặt chẽ rằng mạng nơ-ron hai lớp trong giới hạn infinite-width có thể học chính xác: phép hoán vị, phép cộng nhị phân, phép nhân nhị phân, và chỉ thị SBN.
     
     \item \textbf{Hiệu quả về dữ liệu:} Phương pháp chỉ cần số lượng ví dụ huấn luyện ở quy mô logarithmic thay vì tuyến tính hoặc đa thức, cho phép huấn luyện hiệu quả ngay cả với các bài toán có kích thước đầu vào lớn.
     
-    \item \textbf{Tính phổ quát:} Vì chỉ thị SBN là đầy đủ Turing, việc chứng minh mạng nơ-ron có thể học chính xác SBN đồng nghĩa với việc mạng nơ-ron có thể, về nguyên tắc, học thực thi bất kỳ thuật toán nào.
+    \item \textbf{Tính phổ quát:} Vì chỉ thị SBN là Turing-complete, việc chứng minh mạng nơ-ron có thể học chính xác SBN đồng nghĩa với việc mạng nơ-ron có thể, về nguyên tắc, học thực thi bất kỳ thuật toán nào.
     
-    \item \textbf{Góc nhìn giáo dục (của báo cáo này):} Báo cáo tổng hợp và trình bày lại các kết quả từ nghiên cứu gốc, giúp người đọc tiếp cận các khái niệm phức tạp như NTK, giới hạn chiều rộng vô hạn, và khớp mẫu một cách có hệ thống.
+    \item \textbf{Góc nhìn giáo dục:} Báo cáo này tổng hợp và trình bày lại các kết quả từ nghiên cứu gốc, giúp người đọc tiếp cận các khái niệm phức tạp như NTK, infinite-width limit, và template matching một cách có hệ thống.
 \end{itemize}
 
 Các đóng góp này không chỉ có giá trị về mặt lý thuyết thuần túy mà còn mở ra hướng phát triển mới cho việc thiết kế và huấn luyện mạng nơ-ron trong các ứng dụng yêu cầu độ chính xác tuyệt đối, như xác minh phần cứng, mã hóa và giải mã, và các hệ thống nhúng quan trọng.

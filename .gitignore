@@ -178,14 +178,3 @@ pyrightconfig.json
 # Personal Docs folder
 personal_docs/
 training/results/
-
-# LaTeX auxiliary files
-*.aux
-*.fdb_latexmk
-*.fls
-*.toc
-*.lof
-*.lot
-*.log
-*.out
-*.synctex.gz

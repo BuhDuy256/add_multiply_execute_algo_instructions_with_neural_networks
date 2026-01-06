@@ -2,20 +2,20 @@
 
 \section{Tổng kết nghiên cứu}
 
-Nghiên cứu này đã giải quyết thành công câu hỏi cốt lõi về khả năng học và thực thi chính xác tuyệt đối các thuật toán nhị phân của mạng nơ-ron hai lớp trong giới hạn chiều rộng vô hạn ($n_h \rightarrow \infty$). Thông qua việc kết hợp kỹ thuật khớp mẫu với phân tích Neural Tangent Kernel (NTK), nghiên cứu đã đưa ra các chứng minh lý thuyết vững chắc được xác nhận bởi thực nghiệm.
+Nghiên cứu này đã giải quyết thành công câu hỏi cốt lõi về khả năng học và thực thi chính xác tuyệt đối các thuật toán nhị phân của mạng nơ-ron hai lớp trong giới hạn chiều rộng vô hạn ($n_h \rightarrow \infty$). Thông qua việc kết hợp kỹ thuật template matching với phân tích Neural Tangent Kernel (NTK), nghiên cứu đã đưa ra các chứng minh lý thuyết vững chắc được xác nhận bởi thực nghiệm.
 
 \textbf{Các kết quả chính đạt được:}
 
 \begin{enumerate}
-    \item \textbf{Chứng minh \textit{tính học được chính xác}:} Nghiên cứu đã chứng minh tính học được chính xác cho bốn nhóm tác vụ cơ bản:
+    \item \textbf{Chứng minh \textit{exact learnability}:} Nghiên cứu đã chứng minh tính học được chính xác cho bốn nhóm tác vụ cơ bản:
     \begin{itemize}
-        \item Phép hoán vị
-        \item Phép cộng nhị phân
-        \item Phép nhân nhị phân
-        \item Chỉ thị \textit{SBN}
+        \item Phép hoán vị (Permutation)
+        \item Phép cộng nhị phân (Addition)
+        \item Phép nhân nhị phân (Multiplication)
+        \item Chỉ thị \textit{SBN} (Subtract and Branch if Negative)
     \end{itemize}
     
-    \item \textbf{Hiệu quả dữ liệu vượt trội:} Phương pháp chỉ yêu cầu số lượng mẫu huấn luyện theo bậc logarit so với kích thước không gian đầu vào ($O(\log 2^l) = O(l)$ thay vì $O(2^l)$), giúp việc huấn luyện khả thi cho các bài toán với số bit lớn.
+    \item \textbf{Hiệu quả dữ liệu vượt trội:} Phương pháp chỉ yêu cầu số lượng mẫu huấn luyện theo bậc \textit{logarithmic} so với kích thước không gian đầu vào ($O(\log 2^l) = O(l)$ thay vì $O(2^l)$), giúp việc huấn luyện khả thi cho các bài toán với số bit lớn.
     
     \item \textbf{Vai trò của lý thuyết NTK:} Khung toán học NTK cho phép dự báo chính xác hành vi của mạng mà không cần huấn luyện thực tế, cung cấp công cụ phân tích mạnh mẽ cho việc thiết kế và đánh giá hệ thống.
 \end{enumerate}
@@ -24,40 +24,40 @@ Nghiên cứu này đã giải quyết thành công câu hỏi cốt lõi về k
 
 \textbf{Tính phổ quát của kết quả:}
 
-Việc thực thi thành công chỉ thị \textit{SBN}---vốn được chứng minh là đầy đủ Turing---có ý nghĩa sâu sắc: về nguyên tắc, mạng nơ-ron có khả năng thực thi mọi hàm số tính toán được. Điều này thiết lập cầu nối lý thuyết giữa khả năng biểu diễn của mạng nơ-ron và lý thuyết tính toán cổ điển.
+Việc thực thi thành công chỉ thị \textit{SBN}---vốn được chứng minh là \textit{Turing-complete}---có ý nghĩa sâu sắc: về nguyên tắc, mạng nơ-ron có khả năng thực thi mọi hàm số tính toán được (computable functions). Điều này thiết lập cầu nối lý thuyết giữa khả năng biểu diễn của mạng nơ-ron và lý thuyết tính toán cổ điển.
 
 \textbf{Đóng góp lý thuyết:}
 
-Đây là chứng minh dựa trên NTK đầu tiên cho việc thực thi thuật toán chính xác. Khác với các nghiên cứu trước đó chỉ tập trung vào xấp xỉ các hàm trơn, nghiên cứu này chứng minh rằng mạng nơ-ron có thể học các hàm rời rạc với độ chính xác tuyệt đối thông qua cơ chế làm tròn.
+Đây là chứng minh dựa trên NTK đầu tiên cho việc thực thi thuật toán chính xác. Khác với các nghiên cứu trước đó chỉ tập trung vào xấp xỉ các hàm trơn (smooth functions), nghiên cứu này chứng minh rằng mạng nơ-ron có thể học các hàm rời rạc với độ chính xác tuyệt đối thông qua cơ chế làm tròn.
 
 \section{Hạn chế của phương pháp}
 
 Mặc dù đạt được các kết quả lý thuyết quan trọng, phương pháp vẫn tồn tại một số hạn chế cần được nhận thức rõ:
 
-	\textbf{Tính trực giao của dữ liệu:}
+\textbf{Tính trực giao của dữ liệu (\textit{orthogonalization}):}
 
-Phương pháp phụ thuộc mạnh vào giả định rằng dữ liệu huấn luyện được trực giao hóa và cấu trúc hóa theo dạng block-partitioned. Trong các tập dữ liệu tự nhiên, tính chất trực giao này khó đạt được một cách tự động.
+Phương pháp phụ thuộc mạnh vào giả định rằng dữ liệu huấn luyện được trực giao hóa và cấu trúc hóa theo dạng block-partitioned. Trong các tập dữ liệu tự nhiên (natural datasets), tính chất trực giao này khó đạt được một cách tự động.
 
-	\textbf{Bộ nhớ hữu hạn:}
+\textbf{Bộ nhớ hữu hạn (\textit{bounded memory}):}
 
 Mô hình bị giới hạn bởi kích thước đầu vào cố định. Khi thay đổi kích thước bit---ví dụ từ 10 bit lên 20 bit---mạng cần được huấn luyện lại hoàn toàn do kiến trúc không tự động mở rộng. Điều này hạn chế tính linh hoạt trong ứng dụng thực tế.
 
 \textbf{Khả năng tổng quát hóa độ dài:}
 
-Phương pháp chưa đạt được tổng quát hóa theo độ dài---khả năng tổng quát hóa cho các chuỗi đầu vào dài hơn so với dữ liệu huấn luyện. Đây là một hạn chế so với các kiến trúc RNN hay Transformer hiện đại, vốn có khả năng xử lý trường hợp ngoài phân phối về độ dài một cách tự nhiên hơn.
+Phương pháp chưa đạt được \textit{length generalization}---khả năng tổng quát hóa cho các chuỗi đầu vào dài hơn so với dữ liệu huấn luyện. Đây là một hạn chế so với các kiến trúc RNN hay Transformer hiện đại, vốn có khả năng xử lý \textit{out-of-distribution} về độ dài một cách tự nhiên hơn.
 
 \section{Hướng phát triển tương lai}
 
 Dựa trên các kết quả và hạn chế đã phân tích, một số hướng nghiên cứu tiềm năng được đề xuất:
 
 \begin{enumerate}
-    \item \textbf{Dữ liệu có tương quan:} Nghiên cứu khả năng \textit{tính học được chính xác} khi dữ liệu huấn luyện có tương quan thay vì tuân theo giả định trực giao nghiêm ngặt.
+    \item \textbf{Dữ liệu có tương quan:} Nghiên cứu khả năng \textit{exact learnability} khi dữ liệu huấn luyện có tương quan (\textit{correlated training examples}) thay vì tuân theo giả định trực giao nghiêm ngặt.
     
-    \item \textbf{Kiến trúc có độ dài thay đổi:} Mở rộng khung lý thuyết NTK sang các kiến trúc có khả năng xử lý đầu vào với độ dài thay đổi như Transformer, RNN, hoặc Graph Neural Networks (GNN) trên đồ thị có bậc bị chặn.
+    \item \textbf{Kiến trúc có độ dài thay đổi:} Mở rộng khung lý thuyết NTK sang các kiến trúc có khả năng xử lý đầu vào với độ dài thay đổi như Transformer, RNN, hoặc Graph Neural Networks (GNN) trên đồ thị có bậc bị chặn (bounded-degree graphs).
     
-    \item \textbf{Học chỉ thị từ dữ liệu:} Khám phá khả năng mạng tự suy diễn ra các chỉ thị nguyên thủy từ các cặp đầu vào-đầu ra thực tế, thay vì được cung cấp sẵn các template như trong phương pháp hiện tại.
+    \item \textbf{Học chỉ thị từ dữ liệu:} Khám phá khả năng mạng tự suy diễn ra các chỉ thị nguyên thủy (primitive instructions) từ các cặp đầu vào-đầu ra thực tế, thay vì được cung cấp sẵn các template như trong phương pháp hiện tại.
 \end{enumerate}
 
 \vspace{1em}
 
-	\textbf{Kết luận:} Nghiên cứu này đã chứng minh rằng ranh giới giữa tính toán logic-thuật toán và học máy không phải là không thể vượt qua. Việc mạng nơ-ron có thể học thực thi chính xác các phép toán cơ bản---và thậm chí là các chỉ thị đầy đủ Turing---mở ra triển vọng về một thế hệ hệ thống AI mới: kết hợp khả năng học từ dữ liệu của mạng nơ-ron với độ tin cậy và tính chính xác của tính toán thuật toán truyền thống.
+\textbf{Kết luận:} Nghiên cứu này đã chứng minh rằng ranh giới giữa tính toán logic-thuật toán và học máy không phải là không thể vượt qua. Việc mạng nơ-ron có thể học thực thi chính xác các phép toán cơ bản---và thậm chí là các chỉ thị \textit{Turing-complete}---mở ra triển vọng về một thế hệ hệ thống AI mới: kết hợp khả năng học từ dữ liệu của mạng nơ-ron với độ tin cậy và tính chính xác của tính toán thuật toán truyền thống.

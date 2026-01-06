@@ -1,3 +1,4 @@
+
 # add_multiply_execute_algo_instructions_with_neural_networks
 
 Repo này hiện mới ở mức **validation / proof-of-concept** (NTK + template matching), chưa phải code training đầy đủ để reproduce toàn bộ phần thực nghiệm của paper.
@@ -8,7 +9,7 @@ Repo này hiện mới ở mức **validation / proof-of-concept** (NTK + templa
 - `validation/validate_addition.py` và `validation/validate_permutation.py` là các script kiểm chứng logic theo hướng **Neural Tangents / NTK**.
 - `validation/validate_multiplication.py` và `validation/templates/multiplication.py` đang **trống**.
 
-Nói cách khác: repo có thể dùng để kiểm tra "đúng logic" cho một phần nhỏ (addition/permutation), nhưng **không đủ để reproduce kết quả thực nghiệm chính**.
+Nói cách khác: repo có thể dùng để kiểm tra “đúng logic” cho một phần nhỏ (addition/permutation), nhưng **không đủ để reproduce kết quả thực nghiệm chính**.
 
 ## Chạy validation trên laptop
 
@@ -28,20 +29,8 @@ Các flags hữu ích:
 
 `neural_tangents` thường kéo theo `tensorflow` (qua `jax2tf`). Trên Windows, quá trình `pip install tensorflow` có thể fail do **Windows Long Paths**.
 
-Nếu gặp lỗi kiểu "No such file or directory … enable-long-paths":
+Nếu gặp lỗi kiểu “No such file or directory … enable-long-paths”:
 
-1. Bật Long Paths trong Windows (Group Policy hoặc registry `LongPathsEnabled=1`).
-2. Hoặc đặt workspace vào đường dẫn ngắn hơn (vd `C:\ws\proj`) để giảm độ dài path.
+1) Bật Long Paths trong Windows (Group Policy hoặc registry `LongPathsEnabled=1`).
+2) Hoặc đặt workspace vào đường dẫn ngắn hơn (vd `C:\ws\proj`) để giảm độ dài path.
 
-## Biên dịch LaTeX report
-
-Để build báo cáo LaTeX trong `docs/reports/`:
-
-```bash
-cd docs/reports
-pdflatex main.tex
-# hoặc sử dụng latexmk nếu có
-latexmk -pdf main.tex
-```
-
-**Lưu ý**: Các file phụ LaTeX (`.aux`, `.fls`, `.toc`, v.v.) đã được thêm vào [.gitignore](.gitignore) và không nên commit vào repo.
