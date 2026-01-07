@@ -204,15 +204,74 @@ Các kết quả phân tích cho thấy ba điểm chính:
     \item \textbf{Tính khả thi thực tiễn:} Vì số lượng mô hình chỉ tăng theo hàm đa thức nên việc triển khai là hoàn toàn khả thi. Trong thực tế, các phân phối thường tốt hơn giả định xấu nhất và các sai số có thể triệt tiêu lẫn nhau, dẫn đến số lượng mô hình cần thiết nhỏ hơn đáng kể so với lý thuyết.
 \end{enumerate}
 
-\textbf{Ý nghĩa thực tiễn:}
+\subsection{Thực nghiệm với bài toán Cộng nhị phân}
+
+Ngoài bài toán hoán vị, nhóm cũng tiến hành thực nghiệm với bài toán cộng nhị phân để đánh giá khả năng mở rộng của phương pháp đề xuất.
 
 \vspace{0.2cm}
+
+\textbf{Thiết lập thực nghiệm:}
+\begin{itemize}
+    \item \textbf{Bài toán:} Cộng hai số nhị phân $k$-bit với $k = 2$.
+    \item \textbf{Chiều rộng lớp ẩn:} $n_h = 50,000$ (giống các thực nghiệm trước).
+    \item \textbf{Kích thước ensemble:} Thay đổi từ 1 đến 300 mô hình.
+    \item \textbf{Tập kiểm tra:} 1000 cặp số ngẫu nhiên.
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Kết quả quan sát:}
+
+Khi tăng kích thước ensemble từ 1 đến 300 mô hình, độ chính xác \textbf{gần như không thay đổi} và duy trì ở mức rất thấp. Cụ thể:
+\begin{itemize}
+    \item Với 1 mô hình: Độ chính xác đạt khoảng 8-10\%.
+    \item Với 150 mô hình: Độ chính xác đạt khoảng 10\%.
+    \item Với 300 mô hình: Độ chính xác \textbf{vẫn chỉ duy trì ở mức 10\%}.
+\end{itemize}
+
+Kết quả này cho thấy với cấu hình phần cứng hiện tại, bài toán cộng nhị phân đòi hỏi \textbf{yêu cầu tính toán nặng hơn đáng kể} so với bài toán hoán vị để đạt được độ chính xác cao.
+
+\textbf{Phân tích nguyên nhân:}
+
+\begin{enumerate}
+    \item \textbf{Chiều rộng lớp ẩn không đủ lớn:}
+    
+    Lý thuyết NTK dựa trên giả định rằng chiều rộng lớp ẩn $n_h \rightarrow \infty$. Trong thực tế, với $n_h = 50,000$, mạng vẫn hoạt động trong chế độ \textit{chiều rộng vô hạn} thay vì chế độ NTK lý tưởng.
+    
+    Với bài toán cộng, số lượng tương quan không mong muốn $C_i \leq 1$, cao hơn so với hoán vị ($C_i = 0$). Điều này dẫn đến:
+    \begin{itemize}
+        \item Tỷ lệ $\sigma^2/\mu^2$ lớn hơn, yêu cầu nhiều mô hình hơn để triệt tiêu phương sai.
+        \item Hiệu ứng chiều rộng vô hạn trở nên đáng kể hơn, làm sai lệch dự đoán của bộ dự báo NTK so với mạng thực tế.
+    \end{itemize}
+    
+    \item \textbf{Giới hạn phần cứng:}
+    
+    Việc tăng chiều rộng lớp ẩn để tiệm cận chế độ NTK lý tưởng bị hạn chế bởi tài nguyên tính toán:
+    \begin{itemize}
+        \item \textbf{Bộ nhớ GPU:} Mỗi mô hình với $n_h = 50,000$ tiêu tốn đáng kể bộ nhớ. Việc tăng $n_h$ lên 100,000 hoặc cao hơn vượt quá khả năng của GPU hiện có.
+        \item \textbf{Thời gian huấn luyện:} Với ensemble gồm 300 mô hình, thời gian huấn luyện tổng cộng đã lên đến nhiều giờ. Việc tăng $n_h$ sẽ làm tăng thời gian này theo bậc hai.
+        \item \textbf{Tính toán ma trận NTK:} Với bài toán cộng, kích thước ma trận kernel tăng nhanh theo số bit, làm tăng chi phí tính toán nghịch đảo ma trận.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Kết luận từ thực nghiệm}
+
+Kết quả thực nghiệm cho thấy khoảng cách giữa lý thuyết và thực tiễn trong việc triển khai khung NTK. Mặc dù lý thuyết đảm bảo độ chính xác tuyệt đối với điều kiện $n_h \rightarrow \infty$, việc đạt được điều kiện này trong thực tế đòi hỏi:
+\begin{itemize}
+    \item Phần cứng tính toán mạnh hơn (GPU với bộ nhớ lớn hơn, hoặc cụm GPU phân tán).
+    \item Các kỹ thuật xấp xỉ kernel hiệu quả để giảm chi phí tính toán.
+    \item Nghiên cứu thêm về ảnh hưởng của chiều rộng vô hạn đến độ chính xác.
+\end{itemize}
+
+Đây là một hướng phát triển quan trọng cho các nghiên cứu tương lai về việc đưa khung lý thuyết NTK vào ứng dụng thực tiễn.
+
+\subsection{Ý nghĩa thực tiễn}
 
 Kết quả thực nghiệm xác nhận hai điều quan trọng:
 
 \begin{enumerate}
-    \item \textbf{Tính đúng đắn của lý thuyết:} Ngưỡng lý thuyết luôn là chặn trên hợp lệ cho số mô hình cần thiết
-    \item \textbf{Khả năng thực tiễn:} Trong ứng dụng thực tế, có thể sử dụng ít mô hình hơn so với ngưỡng lý thuyết mà vẫn đạt độ chính xác cao
+    \item \textbf{Tính đúng đắn của lý thuyết:} Ngưỡng lý thuyết luôn là chặn trên hợp lệ cho số mô hình cần thiết.
+    \item \textbf{Khả năng thực tiễn:} Trong ứng dụng thực tế, có thể sử dụng ít mô hình hơn so với ngưỡng lý thuyết mà vẫn đạt độ chính xác cao (như đã thấy trong bài toán hoán vị).
 \end{enumerate}
 
 \section{Tổng hợp và Đánh giá}

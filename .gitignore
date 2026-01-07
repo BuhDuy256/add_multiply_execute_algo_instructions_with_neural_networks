@@ -195,3 +195,44 @@ docs/reports/*.blg
 docs/reports/*.nav
 docs/reports/*.snm
 docs/reports/*.vrb
+
+# LaTeX build artifacts - final reports
+docs/final/reports/*.aux
+docs/final/reports/*.log
+docs/final/reports/*.out
+docs/final/reports/*.toc
+docs/final/reports/*.lof
+docs/final/reports/*.lot
+docs/final/reports/*.synctex.gz
+docs/final/reports/*.pdf
+docs/final/reports/*.fls
+docs/final/reports/*.fdb_latexmk
+docs/final/reports/*.bbl
+docs/final/reports/*.blg
+docs/final/reports/*.nav
+docs/final/reports/*.snm
+docs/final/reports/*.vrb
+
+# LaTeX build artifacts - final slides
+docs/final/slides/*.aux
+docs/final/slides/*.log
+docs/final/slides/*.out
+docs/final/slides/*.toc
+docs/final/slides/*.synctex.gz
+docs/final/slides/*.fls
+docs/final/slides/*.fdb_latexmk
+docs/final/slides/*.nav
+docs/final/slides/*.snm
+docs/final/slides/*.vrb
+
+# LaTeX build artifacts - midterm slide
+docs/midterm/slide/*.aux
+docs/midterm/slide/*.log
+docs/midterm/slide/*.out
+docs/midterm/slide/*.toc
+docs/midterm/slide/*.synctex.gz
+docs/midterm/slide/*.fls
+docs/midterm/slide/*.fdb_latexmk
+docs/midterm/slide/*.nav
+docs/midterm/slide/*.snm
+docs/midterm/slide/*.vrb

@@ -18,12 +18,12 @@ Xét một thuật toán hoạt động trên chuỗi bit $\mathbf{x} = (x_1, x_
 trong đó:
 \begin{quote}
 \begin{itemize}
-    \item $S_i$ là tập chỉ số các bit đầu vào của khối $i$
-    \item $\mathbf{x}_{[S_i]}$ là vector con của $\mathbf{x}$ tại các vị trí trong $S_i$
-    \item $T_i$ là tập các mẫu thuộc khối $i$
-    \item $\mathbf{t}_j$ là vector mẫu đầu vào thứ $j$
-    \item $\mathbf{o}_j$ là vector đầu ra tương ứng với mẫu $j$
-    \item $\mathbf{1}[\cdot]$ là hàm chỉ thị
+    \item $S_i$ là tập chỉ số các bit đầu vào của khối $i$.
+    \item $\mathbf{x}_{[S_i]}$ là vector con của $\mathbf{x}$ tại các vị trí trong $S_i$.
+    \item $T_i$ là tập các mẫu thuộc khối $i$.
+    \item $\mathbf{t}_j$ là vector mẫu đầu vào thứ $j$.
+    \item $\mathbf{o}_j$ là vector đầu ra tương ứng với mẫu $j$.
+    \item $\mathbf{1}[\cdot]$ là hàm chỉ thị.
 \end{itemize}
 \end{quote}
 
@@ -72,9 +72,9 @@ Mỗi mẫu được mã hóa thành vector $\mathbf{q}_{ij}$ theo cấu trúc p
 Ý nghĩa của cấu trúc này:
 \begin{quote}
 \begin{itemize}
-    \item Vector được chia thành $n$ phân đoạn, mỗi phân đoạn tương ứng với một khối của thuật toán
-    \item Chỉ phân đoạn thứ $i$ chứa thông tin mẫu $\mathbf{t}_{ij}$, các phân đoạn khác đều bằng 0
-    \item Điều này đảm bảo các mẫu thuộc các khối khác nhau có tích vô hướng bằng 0 với nhau
+    \item Vector được chia thành $n$ phân đoạn, mỗi phân đoạn tương ứng với một khối của thuật toán.
+    \item Chỉ phân đoạn thứ $i$ chứa thông tin mẫu $\mathbf{t}_{ij}$, các phân đoạn khác đều bằng 0.
+    \item Điều này đảm bảo các mẫu thuộc các khối khác nhau có tích vô hướng bằng 0 với nhau.
 \end{itemize}
 \end{quote}
 
@@ -90,10 +90,10 @@ Gọi $\Theta$ là ma trận NTK trên tập huấn luyện. Với dữ liệu �
 trong đó:
 \begin{quote}
 \begin{itemize}
-    \item $\alpha$ là hệ số đường chéo chính
-    \item $I_M$ là ma trận đơn vị kích thước $M \times M$
-    \item $\beta \mathbf{1}\mathbf{1}^\top$ là ma trận nhiễu hạng 1
-    \item $\mathbf{1}$ là vector toàn 1
+    \item $\alpha$ là hệ số đường chéo chính.
+    \item $I_M$ là ma trận đơn vị kích thước $M \times M$.
+    \item $\beta \mathbf{1}\mathbf{1}^\top$ là ma trận nhiễu hạng 1.
+    \item $\mathbf{1}$ là vector toàn 1.
 \end{itemize}
 \end{quote}
 
@@ -114,8 +114,8 @@ trong đó $y_i^* \in \{-1, +1\}$ là giá trị bit đầu ra đúng theo thu�
 
 Định lý 5.1 khẳng định rằng bộ dự đoán NTK bảo toàn thông tin về dấu của bit đầu ra:
 \begin{itemize}
-    \item Nếu bit đầu ra đúng là $+1$, thì $\mu(\hat{\mathbf{x}})_i > 0$
-    \item Nếu bit đầu ra đúng là $-1$, thì $\mu(\hat{\mathbf{x}})_i < 0$
+    \item Nếu bit đầu ra đúng là $+1$, thì $\mu(\hat{\mathbf{x}})_i > 0$.
+    \item Nếu bit đầu ra đúng là $-1$, thì $\mu(\hat{\mathbf{x}})_i < 0$.
 \end{itemize}
 
 Điều này có ý nghĩa thực tiễn quan trọng: mặc dù đầu ra thô của mạng là một giá trị thực (có thể không chính xác bằng $\pm 1$), việc áp dụng hàm làm tròn sẽ khôi phục giá trị chính xác:
@@ -139,10 +139,10 @@ Phân tích đầu ra của bộ dự đoán NTK cho thấy:
 trong đó:
 \begin{quote}
 \begin{itemize}
-    \item $w^1 > 0$ là \textit{trọng số tín hiệu}: Đóng góp từ mẫu khớp chính xác
-    \item $w^0$ là \textit{trọng số nhiễu}: Đóng góp từ các mẫu có tương quan khác không
-    \item $U_i$ là tập các chỉ số của các mẫu không khớp nhưng có tích vô hướng khác không với đầu vào
-    \item $y_j$ là nhãn của mẫu thứ $j$ trong tập nhiễu
+    \item $w^1 > 0$ là \textit{trọng số tín hiệu}: Đóng góp từ mẫu khớp chính xác.
+    \item $w^0$ là \textit{trọng số nhiễu}: Đóng góp từ các mẫu có tương quan khác không.
+    \item $U_i$ là tập các chỉ số của các mẫu không khớp nhưng có tích vô hướng khác không với đầu vào.
+    \item $y_j$ là nhãn của mẫu thứ $j$ trong tập nhiễu.
 \end{itemize}
 \end{quote}
 
@@ -169,13 +169,12 @@ Trong trường hợp xấu nhất, tất cả các tương quan không mong mu�
 
 Các tác giả đã chứng minh rằng các thuật toán được xét đều thỏa mãn giả thuyết 5.1:
 \begin{itemize}
-    \item \textbf{Phép hoán vị:} $C_i = 0$ (không có tương quan không mong muốn)
-    \item \textbf{Phép cộng:} $C_i \leq 1$ (tối đa 1 tương quan không mong muốn)
-    \item \textbf{Phép nhân:} $C_i = O(\log l)$ với $l$ là số bit
-    \item \textbf{SBN:} $C_i = O(\log l)$
+    \item \textbf{Phép hoán vị:} $C_i = 0$ (không có tương quan không mong muốn).
+    \item \textbf{Phép cộng:} $C_i \leq 1$ (tối đa 1 tương quan không mong muốn).
+    \item \textbf{Phép nhân:} $C_i = O(\log l)$ với $l$ là số bit.
+    \item \textbf{SBN:} $C_i = O(\log l)$.
 \end{itemize}
 
-Với thiết kế mẫu phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng nhanh hơn $C_i$ khi kích thước bài toán tăng, đảm bảo điều kiện được thỏa mãn.
 Với thiết kế mẫu phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng nhanh hơn $C_i$ khi kích thước bài toán tăng, đảm bảo điều kiện được thỏa mãn.
 
 \section{Triển khai thuật toán cụ thể}
@@ -188,8 +187,8 @@ Phép hoán vị $\pi: [l] \rightarrow [l]$ ánh xạ vị trí bit $i$ sang v�
 
 \textbf{Mã hóa mẫu:} Mỗi bit được xử lý độc lập. Với bit thứ $i$, có 2 mẫu:
 \begin{itemize}
-    \item Mẫu 1: Đầu vào $x_i = +1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $+1$
-    \item Mẫu 2: Đầu vào $x_i = -1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $-1$
+    \item Mẫu 1: Đầu vào $x_i = +1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $+1$.
+    \item Mẫu 2: Đầu vào $x_i = -1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $-1$.
 \end{itemize}
 
 \textbf{Số lượng mẫu:} $2l$ mẫu tổng cộng.
@@ -228,9 +227,9 @@ trong đó $\oplus$ là phép XOR, MAJ là hàm majority, và $c_{i-1}$ là bit 
 
 Phép nhân hai số nhị phân $l$-bit sử dụng thuật toán dịch và cộng cổ điển. Thuật toán lặp qua từng bit của số nhân và thực hiện:
 \begin{enumerate}
-    \item Kiểm tra bit phải cùng của số nhân
-    \item Nếu bit phải cùng = 1: Cộng số bị nhân vào kết quả tích lũy
-    \item Dịch trái số bị nhân và dịch phải số nhân
+    \item Kiểm tra bit phải cùng của số nhân.
+    \item Nếu bit phải cùng = 1: Cộng số bị nhân vào kết quả tích lũy.
+    \item Dịch trái số bị nhân và dịch phải số nhân.
 \end{enumerate}
 
 \textbf{Số bước lặp:} $l$ bước cho phép nhân $l$-bit.
@@ -240,9 +239,9 @@ Phép nhân hai số nhị phân $l$-bit sử dụng thuật toán dịch và c�
 \textbf{Mã hóa mẫu:} Mỗi bước lặp được mã hóa thành các mẫu riêng, bao gồm:
 
 \begin{itemize}
-    \item Mẫu kiểm tra bit phải cùng
-    \item Mẫu cộng có điều kiện
-    \item Mẫu dịch bit
+    \item Mẫu kiểm tra bit phải cùng.
+    \item Mẫu cộng có điều kiện.
+    \item Mẫu dịch bit.
 \end{itemize}
 
 \vspace{-0.1cm}
@@ -254,19 +253,19 @@ Phép nhân hai số nhị phân $l$-bit sử dụng thuật toán dịch và c�
 SBN là một chỉ thị máy tính đơn giản nhưng đủ mạnh để đạt tính đầy đủ Turing. Chỉ thị SBN(A, B, C) thực hiện:
 \begin{enumerate}
     \item Tính $\text{Mem}[A] \leftarrow \text{Mem}[A] - \text{Mem}[B]$
-    \item Nếu kết quả âm, nhảy đến địa chỉ C; ngược lại, tiếp tục tuần tự
+    \item Nếu kết quả âm, nhảy đến địa chỉ C; ngược lại, tiếp tục tuần tự.
 \end{enumerate}
 
 \textbf{Tính đầy đủ Turing:} SBN được chứng minh là đầy đủ Turing, nghĩa là bất kỳ hàm tính toán được nào cũng có thể được biểu diễn bằng một chuỗi hữu hạn các chỉ thị SBN.
 
 Mã hóa mẫu cho SBN: Bao gồm các thành phần:
 \begin{itemize}
-    \item Mẫu cho phép trừ: Tương tự phép cộng với số bù 2
-    \item Mẫu kiểm tra dấu kết quả
-    \item Mẫu cập nhật bộ đếm chương trình
-    \item Mẫu cho phép trừ: Tương tự phép cộng với số bù 2
-    \item Mẫu kiểm tra dấu kết quả
-    \item Mẫu cập nhật bộ đếm chương trình
+    \item Mẫu cho phép trừ: Tương tự phép cộng với số bù 2.
+    \item Mẫu kiểm tra dấu kết quả.
+    \item Mẫu cập nhật bộ đếm chương trình.
+    \item Mẫu cho phép trừ: Tương tự phép cộng với số bù 2.
+    \item Mẫu kiểm tra dấu kết quả.
+    \item Mẫu cập nhật bộ đếm chương trình.
 \end{itemize}
 
 \textbf{Ý nghĩa:} Việc chứng minh mạng nơ-ron có thể học chính xác SBN đồng nghĩa với việc mạng nơ-ron có khả năng, về nguyên tắc, học thực thi bất kỳ thuật toán nào có thể được mô tả bằng chương trình máy tính.
@@ -306,9 +305,9 @@ Phương sai của đầu ra trung bình giảm theo $1/N$:
 trong đó:
 \begin{quote}
 \begin{itemize}
-    \item $\mu$ là kỳ vọng của đầu ra (đã được chứng minh có dấu đúng)
-    \item $\sigma^2$ là phương sai của từng mô hình
-    \item $\delta$ là xác suất lỗi cho phép
+    \item $\mu$ là kỳ vọng của đầu ra (đã được chứng minh có dấu đúng).
+    \item $\sigma^2$ là phương sai của từng mô hình.
+    \item $\delta$ là xác suất lỗi cho phép.
 \end{itemize}
 \end{quote}
 
@@ -323,9 +322,9 @@ Phân tích cho thấy tỷ lệ $\sigma^2/\mu^2$ tăng theo $O(l^2)$ với $l$ 
 
 Kết quả này có ý nghĩa thực tiễn quan trọng:
 \begin{itemize}
-    \item Độ phức tạp chỉ tăng đa thức theo kích thước bài toán
-    \item Với $l = 64$ bit (số nguyên 64-bit), cần khoảng $N = O(4096)$ mô hình
-    \item Các mô hình có thể được huấn luyện song song, phù hợp với phần cứng GPU hiện đại
+    \item Độ phức tạp chỉ tăng đa thức theo kích thước bài toán.
+    \item Với $l = 64$ bit (số nguyên 64-bit), cần khoảng $N = O(4096)$ mô hình.
+    \item Các mô hình có thể được huấn luyện song song, phù hợp với phần cứng GPU hiện đại.
 \end{itemize}
 
 Kết luận, phương pháp đề xuất có khả năng mở rộng tốt cho các bài toán thực tế, không bị giới hạn bởi sự tăng trưởng hàm mũ thường gặp trong các phương pháp học máy truyền thống cho bài toán tổ hợp.
