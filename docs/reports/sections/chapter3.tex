@@ -101,8 +101,6 @@ Cấu trúc \textbf{ma trận đơn vị + nhiễu hạng 1} này cho phép phâ
 
 \section{Định lý về bộ dự báo NTK}
 
-Phần này trình bày kết quả lý thuyết then chốt về hành vi của bộ dự đoán NTK khi áp dụng cho dữ liệu khớp mẫu.
-
 \subsection{Định lý 5.1: Bảo toàn thông tin dấu}
 
     	\textbf{Định lý 5.1 (Hành vi của bộ dự báo NTK):} Cho mạng nơ-ron hai lớp trong chế độ NTK ở giới hạn chiều rộng vô hạn được huấn luyện trên tập dữ liệu mẫu $\mathcal{D}$. Gọi $\mu(\hat{\mathbf{x}})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng tại điểm kiểm thử $\hat{\mathbf{x}}$. Khi đó, với mỗi bit đầu ra thứ $i$:
@@ -182,8 +180,6 @@ Với thiết kế mẫu phù hợp, tỷ lệ $|w^1|/|w^0|$ tăng nhanh hơn $C
 
 \section{Triển khai thuật toán cụ thể}
 
-Phần này trình bày cách áp dụng khung khớp mẫu cho từng thuật toán cụ thể.
-
 \subsection{Phép hoán vị}
 
 Phép hoán vị $\pi: [l] \rightarrow [l]$ ánh xạ vị trí bit $i$ sang vị trí mới $\pi(i)$. Đây là thuật toán đơn giản nhất để minh họa phương pháp.
@@ -261,7 +257,7 @@ SBN là một chỉ thị máy tính đơn giản nhưng đủ mạnh để đ�
     \item Nếu kết quả âm, nhảy đến địa chỉ C; ngược lại, tiếp tục tuần tự
 \end{enumerate}
 
-\textbf{Tính Turing-complete:} SBN được chứng minh là Turing-complete, nghĩa là bất kỳ hàm tính toán được nào cũng có thể được biểu diễn bằng một chuỗi hữu hạn các chỉ thị SBN.
+\textbf{Tính đầy đủ Turing:} SBN được chứng minh là đầy đủ Turing, nghĩa là bất kỳ hàm tính toán được nào cũng có thể được biểu diễn bằng một chuỗi hữu hạn các chỉ thị SBN.
 
 Mã hóa mẫu cho SBN: Bao gồm các thành phần:
 \begin{itemize}

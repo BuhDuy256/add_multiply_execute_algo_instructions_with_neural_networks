@@ -167,9 +167,9 @@ trong đó:
 
 Việc không sử dụng hệ số chệch đơn giản hóa phân tích lý thuyết mà không làm mất tính tổng quát về mặt biểu diễn, vì hệ số chệch có thể được mô phỏng bằng cách thêm một chiều hằng số vào đầu vào.
 
-\subsection{NTK Parametrization}
+\subsection{Tham số hóa NTK}
 
-Để đảm bảo tính hội tụ trong giới hạn chiều rộng vô hạn, các trọng số được khởi tạo theo chuẩn \textit{NTK parametrization}. Cụ thể:
+Để đảm bảo tính hội tụ trong giới hạn chiều rộng vô hạn, các trọng số được khởi tạo theo chuẩn \textit{Tham số hóa NTK}. Cụ thể:
 \begin{quote}
 \begin{itemize}
     \item Các phần tử của $W^1$ được khởi tạo i.i.d. từ phân phối $\mathcal{N}(0, 1)$
@@ -185,8 +185,6 @@ Hệ số $1/m$ trong phương sai của $W^2$ là then chốt. Nó đảm bảo
 Nếu không có hệ số này, đầu ra sẽ có phương sai tăng theo $m$, làm mất tính ổn định khi $m \rightarrow \infty$.
 
 \section{Điều kiện về khả năng học chính xác}
-
-Để mạng nơ-ron có thể học thực thi chính xác các chỉ thị thuật toán, cần có các điều kiện đảm bảo rằng thông tin tín hiệu không bị nhiễu làm suy giảm. Phần này trình bày các điều kiện then chốt được đề xuất trong nghiên cứu.
 
 \subsection{Giả thuyết 5.1: Kiểm soát tương quan không mong muốn}
 
