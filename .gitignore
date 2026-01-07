@@ -178,3 +178,20 @@ pyrightconfig.json
 # Personal Docs folder
 personal_docs/
 training/results/
+
+# LaTeX build artifacts
+docs/reports/*.aux
+docs/reports/*.log
+docs/reports/*.out
+docs/reports/*.toc
+docs/reports/*.lof
+docs/reports/*.lot
+docs/reports/*.synctex.gz
+docs/reports/*.pdf
+docs/reports/*.fls
+docs/reports/*.fdb_latexmk
+docs/reports/*.bbl
+docs/reports/*.blg
+docs/reports/*.nav
+docs/reports/*.snm
+docs/reports/*.vrb
