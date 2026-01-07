@@ -1,0 +1,13 @@
+\chapter{PHÂN TÍCH PHÊ BÌNH}
+
+\section{Hạn chế của phương pháp}
+
+Mặc dù đạt được các kết quả lý thuyết quan trọng, phương pháp vẫn tồn tại một số hạn chế cần được nhận thức rõ:
+
+\begin{itemize}
+    \item \textbf{Tính trực giao của dữ liệu:} Phương pháp phụ thuộc mạnh vào giả định rằng dữ liệu huấn luyện được trực giao hóa và cấu trúc hóa theo dạng phân vùng khối. Trong các tập dữ liệu tự nhiên, tính chất trực giao này khó đạt được một cách tự động.
+    
+    \item \textbf{Bộ nhớ hữu hạn:} Mô hình bị giới hạn bởi kích thước đầu vào cố định. Khi thay đổi kích thước bit - ví dụ từ 10 bit lên 20 bit - mạng cần được huấn luyện lại hoàn toàn do kiến trúc không tự động mở rộng. Điều này hạn chế tính linh hoạt trong ứng dụng thực tế.
+    
+    \item \textbf{Khả năng tổng quát hóa độ dài:} Phương pháp chưa đạt được khả năng tổng quát hóa độ dài - khả năng tổng quát hóa cho các chuỗi đầu vào dài hơn so với dữ liệu huấn luyện. Đây là một hạn chế so với các kiến trúc RNN hay Transformer hiện đại \cite{vaswani_2017}, vốn có khả năng xử lý ngoài phân phối về độ dài một cách tự nhiên hơn.
+\end{itemize}

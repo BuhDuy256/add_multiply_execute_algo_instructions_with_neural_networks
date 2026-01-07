@@ -1,0 +1,24 @@
+# LaTeX compile files
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.bbl
+*.blg
+*.nav
+*.snm
+*.vrb
+*.idx
+*.ilg
+*.ind
+*.bcf
+*.run.xml
+
+# PDF output (uncomment if you don't want to track PDFs)
+# *.pdf

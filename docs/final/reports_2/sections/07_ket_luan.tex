@@ -1,0 +1,53 @@
+\chapter{KẾT LUẬN}
+
+\section{Tổng kết nghiên cứu}
+
+Nghiên cứu này đã giải quyết thành công câu hỏi cốt lõi về khả năng học và thực thi chính xác tuyệt đối các thuật toán nhị phân của mạng nơ-ron hai lớp trong giới hạn chiều rộng vô hạn ($n_h \rightarrow \infty$). Thông qua việc kết hợp kỹ thuật khớp mẫu với phân tích Neural Tangent Kernel (NTK), nghiên cứu đã đưa ra các chứng minh lý thuyết vững chắc được xác nhận bởi thực nghiệm.
+
+\textbf{Các kết quả chính đạt được:}
+
+\begin{enumerate}
+    \item \textbf{Chứng minh \textit{Khả năng học chính xác}:} Nghiên cứu đã chứng minh khả năng học được chính xác cho bốn nhóm tác vụ cơ bản:
+    \begin{itemize}
+        \item Phép hoán vị
+        \item Phép cộng nhị phân
+        \item Phép nhân nhị phân
+        \item Chỉ thị SBN
+    \end{itemize}
+    
+    \item \textbf{Hiệu quả dữ liệu vượt trội:} Phương pháp chỉ yêu cầu số lượng mẫu huấn luyện theo bậc logarit so với kích thước không gian đầu vào ($O(\log 2^l) = O(l)$ thay vì $O(2^l)$), giúp việc huấn luyện khả thi cho các bài toán với số bit lớn.
+    
+    \item \textbf{Vai trò của lý thuyết NTK:} Khung toán học NTK cho phép dự báo chính xác hành vi của mạng mà không cần huấn luyện thực tế, cung cấp công cụ phân tích mạnh mẽ cho việc thiết kế và đánh giá hệ thống.
+\end{enumerate}
+
+\section{Ý nghĩa của nghiên cứu}
+
+\textbf{Tính phổ quát của kết quả:}
+
+\vspace{0.2cm}
+
+Việc thực thi thành công chỉ thị SBN - vốn được chứng minh là có tính đầy đủ Turing - có ý nghĩa sâu sắc: về nguyên tắc, mạng nơ-ron có khả năng thực thi mọi hàm số tính toán được. Điều này thiết lập cầu nối lý thuyết giữa khả năng biểu diễn của mạng nơ-ron và lý thuyết tính toán cổ điển.
+
+\vspace{0.2cm}
+
+\textbf{Đóng góp lý thuyết:}
+
+\vspace{0.2cm}
+
+Đây là chứng minh dựa trên NTK đầu tiên cho việc thực thi thuật toán chính xác. Khác với các nghiên cứu trước đó chỉ tập trung vào xấp xỉ các hàm trơn, nghiên cứu này chứng minh rằng mạng nơ-ron có thể học các hàm rời rạc với độ chính xác tuyệt đối thông qua cơ chế làm tròn.
+
+\section{Hướng phát triển tương lai}
+
+Dựa trên các kết quả và hạn chế đã phân tích, một số hướng nghiên cứu tiềm năng được đề xuất:
+
+\begin{enumerate}
+    \item \textbf{Dữ liệu có tương quan:} Nghiên cứu khả năng học được chính xác khi dữ liệu huấn luyện có tương quan thay vì tuân theo giả định trực giao nghiêm ngặt.
+    
+    \item \textbf{Kiến trúc có độ dài thay đổi:} Mở rộng khung lý thuyết NTK sang các kiến trúc có khả năng xử lý đầu vào với độ dài thay đổi như Transformer, RNN, hoặc GNN trên đồ thị có bậc bị chặn.
+    
+    \item \textbf{Học chỉ thị từ dữ liệu:} Khám phá khả năng mạng tự suy diễn ra các chỉ thị nguyên thủy từ các cặp đầu vào-đầu ra thực tế, thay vì được cung cấp sẵn các mẫu như trong phương pháp hiện tại.
+\end{enumerate}
+
+\vspace{1em}
+
+\textbf{Kết luận:} Nghiên cứu này đã chứng minh rằng ranh giới giữa tính toán logic-thuật toán và học máy không phải là không thể vượt qua. Việc mạng nơ-ron có thể học thực thi chính xác các phép toán cơ bản - và thậm chí là các chỉ thị có tính đầy đủ Turing - mở ra triển vọng về một thế hệ hệ thống AI mới: kết hợp khả năng học từ dữ liệu của mạng nơ-ron với độ tin cậy và tính chính xác của tính toán thuật toán truyền thống.

@@ -1,0 +1,80 @@
+\documentclass[12pt,a4paper]{report}
+
+% --- CÁC PACKAGE CẦN THIẾT ---
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel} % Hỗ trợ tiếng Việt
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb, amsfonts} % Soạn thảo công thức toán học
+\usepackage{graphicx} % Chèn hình ảnh
+\usepackage{subcaption} % Chèn hình con
+\usepackage[hidelinks]{hyperref} % Tạo liên kết nhưng không đóng khung đỏ
+\usepackage{listings} % Để trình bày mã nguồn Python
+\usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{geometry}
+ \geometry{a4paper, margin=2.5cm}
+\usepackage{float} % hỗ trợ [H] cho bảng
+\usepackage{array} % hỗ trợ cột m{...} trong tabular
+\newcolumntype{S}[1]{>{\raggedright\arraybackslash}#1} % S{m{..}}: cột canh trái, xuống dòng đúng
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}} % C{..}: cột canh giữa, xuống dòng đúng
+\usepackage{multirow} % hỗ trợ \multirow trong bảng công việc
+\usepackage{titlesec} % Tùy chỉnh tiêu đề chương
+\usepackage{tocloft} % Tùy chỉnh mục lục
+\usepackage{indentfirst} % Thụt dòng đầu tiên cho mỗi đoạn
+\setlength{\parindent}{1.5em} % Độ thụt lề đầu dòng
+
+% --- CẤU HÌNH TRÌNH BÀY MÃ NGUỒN (PYTHON) ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{codegreen},
+    stringstyle=\color{codepurple},
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    frame=single
+}
+
+% --- ĐỊNH NGHĨA TRANG BÌA ---
+\begin{document}
+
+% Tránh cảnh báo hyperref trùng page anchor do bìa không đánh số
+\hypersetup{pageanchor=false}
+\input{sections/titlepage}
+\clearpage
+\hypersetup{pageanchor=true}
+
+% Đánh số trang Ả Rập từ đầu (bắt đầu từ 1)
+\pagenumbering{arabic}
+
+\input{sections/group_info}
+
+\input{sections/toc}
+
+\input{sections/glossary}
+
+% CẤU TRÚC MỚI THEO YÊU CẦU
+\input{sections/01_gioi_thieu_dong_luc}
+
+\input{sections/02_nghien_cuu_lien_quan}
+
+\input{sections/03_phuong_phap_de_xuat}
+
+\input{sections/04_phan_tich_thuc_nghiem}
+
+\input{sections/05_minh_chung_thuc_hien}
+
+\input{sections/06_phan_tich_phe_binh}
+
+\input{sections/07_ket_luan}
+
+\input{sections/bibliography}
+
+% \input{sections/appendix}
+
+\end{document}
