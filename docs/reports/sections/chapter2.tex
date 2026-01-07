@@ -45,7 +45,7 @@ Tác giả đưa SBN vào để nhấn mạnh rằng khung khớp mẫu và phâ
 
 \section{Neural Tangent Kernel (NTK)}
 
-NTK là một công cụ lý thuyết mạnh mẽ để phân tích động lực học huấn luyện của mạng nơ-ron. Ý tưởng cốt lõi là mô tả sự thay đổi của đầu ra mạng theo thời gian huấn luyện thông qua một kernel cố định.
+NTK là một công cụ lý thuyết mạnh mẽ để phân tích động lực học huấn luyện của mạng nơ-ron \cite{jacot_2018}. Ý tưởng cốt lõi là mô tả sự thay đổi của đầu ra mạng theo thời gian huấn luyện thông qua một kernel cố định.
 
 \subsection{Ma trận Jacobian}
 
@@ -70,7 +70,7 @@ Phần tử $(i,j)$ của ma trận kernel này đo lường mức độ tương
 
 \subsection{Ý nghĩa vật lý của NTK}
 
-NTK cho phép hiểu rõ cách mạng nơ-ron \textit{học} từ dữ liệu. Khi huấn luyện bằng gradient descent, sự thay đổi của đầu ra mạng tại một điểm $\mathbf{x}$ không chỉ phụ thuộc vào gradient tại điểm đó mà còn phụ thuộc vào gradient tại tất cả các điểm dữ liệu khác thông qua kernel. Đây chính là cơ chế ``học chuyển giao'' nội tại trong mạng nơ-ron: thông tin học được từ một mẫu có thể ảnh hưởng đến dự đoán tại các mẫu khác.
+NTK cho phép hiểu rõ cách mạng nơ-ron \textit{học} từ dữ liệu. Khi huấn luyện bằng gradient descent, sự thay đổi của đầu ra mạng tại một điểm $\mathbf{x}$ không chỉ phụ thuộc vào gradient tại điểm đó mà còn phụ thuộc vào gradient tại tất cả các điểm dữ liệu khác thông qua kernel. Đây chính là cơ chế \textit{học chuyển giao} nội tại trong mạng nơ-ron: thông tin học được từ một mẫu có thể ảnh hưởng đến dự đoán tại các mẫu khác.
 
 \section{Giới hạn chiều rộng vô hạn và Động lực học}
 
@@ -190,7 +190,7 @@ Nếu không có hệ số này, đầu ra sẽ có phương sai tăng theo $m$,
 
 \subsection{Giả thuyết 5.1: Kiểm soát tương quan không mong muốn}
 
-Xét một bước tính toán của thuật toán với đầu vào được biểu diễn dưới dạng mẫu (template). Đầu ra của bộ dự đoán NTK có thể được phân tích thành hai thành phần:
+Xét một bước tính toán của thuật toán với đầu vào được biểu diễn dưới dạng mẫu. Đầu ra của bộ dự đoán NTK có thể được phân tích thành hai thành phần:
 \begin{equation}
     \hat{y} = w^1 \cdot (\text{tín hiệu chính xác}) + w^0 \cdot (\text{tổng các tương quan không mong muốn})
 \end{equation}
@@ -203,7 +203,7 @@ trong đó:
 \end{itemize}
 \end{quote}
 
-	\textbf{Định nghĩa tương quan không mong muốn:} Một tương quan được gọi là ``không mong muốn'' khi một mẫu trong tập huấn luyện có tích vô hướng khác không với đầu vào hiện tại, mặc dù mẫu đó không đại diện cho quy tắc cần áp dụng. Gọi $C$ là số lượng các tương quan không mong muốn như vậy.
+	\textbf{Định nghĩa tương quan không mong muốn:} Một tương quan được gọi là không mong muốn khi một mẫu trong tập huấn luyện có tích vô hướng khác không với đầu vào hiện tại, mặc dù mẫu đó không đại diện cho quy tắc cần áp dụng. Gọi $C$ là số lượng các tương quan không mong muốn như vậy.
 
 \textbf{Điều kiện đủ để học chính xác:} Để đầu ra $\hat{y}$ có dấu đúng (từ đó có thể làm tròn về giá trị chính xác), cần đảm bảo rằng thành phần tín hiệu lấn át thành phần nhiễu:
 \begin{equation}

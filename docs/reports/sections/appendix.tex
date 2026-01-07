@@ -9,7 +9,7 @@ Phụ lục này trình bày các kết quả toán học nền tảng được 
 
 \subsection{Định lý Sherman-Morrison}
 
-Định lý \textit{Sherman-Morrison} (1950) là công cụ quan trọng để tính nghịch đảo của ma trận khi có sự thay đổi hạng 1 (rank-1 update). Đây là nền tảng cho việc phân tích ma trận NTK có cấu trúc ``scaled identity + rank-1 noise''.
+Định lý \textit{Sherman-Morrison} (1950) là công cụ quan trọng để tính nghịch đảo của ma trận khi có sự thay đổi hạng 1 (rank-1 update). Đây là nền tảng cho việc phân tích ma trận NTK có cấu trúc \textbf{ma trận đơn vị + rank-1 noise}.
 
 \textbf{Định lý (Sherman-Morrison):} Cho $A$ là ma trận khả nghịch kích thước $n \times n$ và $u, v$ là các vector cột kích thước $n$. Nếu $1 + v^\top A^{-1} u \neq 0$, thì:
 \begin{equation}

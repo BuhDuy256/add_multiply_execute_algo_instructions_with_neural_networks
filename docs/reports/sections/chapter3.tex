@@ -8,6 +8,8 @@
 
 Xét một thuật toán hoạt động trên chuỗi bit $\mathbf{x} = (x_1, x_2, \ldots, x_l)$ với $l$ bit. Thuật toán được phân rã thành $n$ khối, mỗi khối $i$ chịu trách nhiệm tính toán một phần đầu ra dựa trên một tập con các bit đầu vào. Mỗi khối được đặc trưng bởi một hàm cục bộ $f_i$ thao tác trên các bit trong phạm vi của nó.
 
+\vspace{0.2cm}
+
 \textbf{Hàm khớp mẫu cục bộ:} Mỗi hàm cục bộ $f_i: \{-1, +1\}^{b_i} \rightarrow \{-1, +1\}^{o_i}$ nhận đầu vào là $b_i$ bit và trả về $o_i$ bit đầu ra. Hàm này được định nghĩa thông qua một tập các mẫu:
 \begin{equation}
     f_i(\mathbf{x}_{[S_i]}) = \bigvee_{j \in T_i} \mathbf{1}[\mathbf{x}_{[S_i]} = \mathbf{t}_j] \cdot \mathbf{o}_j
@@ -25,12 +27,14 @@ trong đó:
 \end{itemize}
 \end{quote}
 
-        \textbf{Hàm tổng hợp toàn cục:} Đầu ra của thuật toán được tổng hợp từ các hàm cục bộ thông qua phép tuyển theo bit (OR theo bit):
+\vspace{0.2cm}
+
+\textbf{Hàm tổng hợp toàn cục:} Đầu ra của thuật toán được tổng hợp từ các hàm cục bộ thông qua phép tuyển theo bit (OR theo bit):
 \begin{equation}
     f(\hat{\mathbf{x}}) = \bigvee_{i=1}^{n} f_i(\hat{\mathbf{x}}_{[S_i]})
 \end{equation}
 
-Phép tuyển $\bigvee$ hoạt động như phép ``OR'' trên các bit: nếu bất kỳ hàm cục bộ nào trả về bit 1 tại một vị trí, bit đầu ra tại vị trí đó sẽ là 1.
+Phép tuyển $\bigvee$ hoạt động như phép OR trên các bit: nếu bất kỳ hàm cục bộ nào trả về bit 1 tại một vị trí, bit đầu ra tại vị trí đó sẽ là 1.
 
 \subsection{Cơ chế thực thi lặp}
 
@@ -45,11 +49,11 @@ trong đó $\hat{\mathbf{x}}_t$ là trạng thái tại bước thứ $t$. Quá 
 
 \section{Cấu trúc dữ liệu và Trực giao hóa}
 
-Để huấn luyện mạng nơ-ron học được các mẫu (template), cần có chiến lược mã hóa phù hợp biến đổi các quy tắc thuật toán thành dữ liệu huấn luyện.
+Để huấn luyện mạng nơ-ron học được các mẫu, cần có chiến lược mã hóa phù hợp biến đổi các quy tắc thuật toán thành dữ liệu huấn luyện.
 
-\subsection{Mô hình ``Bag of Rules''}
+\subsection{Mô hình Bag of Rule}
 
-Chiến lược mã hóa được sử dụng là gom tất cả các quy tắc cục bộ của thuật toán vào một không gian vector chung, gọi là mô hình ``Bag of Rules''. Mỗi quy tắc cục bộ được biểu diễn như một cặp (đầu vào, đầu ra) trong không gian này.
+Chiến lược mã hóa được sử dụng là gom tất cả các quy tắc cục bộ của thuật toán vào một không gian vector chung, gọi là mô hình Bag of Rules. Mỗi quy tắc cục bộ được biểu diễn như một cặp (đầu vào, đầu ra) trong không gian này.
 
 Cụ thể, với thuật toán có $n$ khối và tổng cộng $M$ quy tắc cục bộ, tập huấn luyện có dạng:
 \begin{equation}
@@ -93,7 +97,7 @@ trong đó:
 \end{itemize}
 \end{quote}
 
-Cấu trúc ``scaled identity + nhiễu hạng 1'' này cho phép phân tích chính xác hành vi của bộ dự đoán NTK và là nền tảng cho các định lý về khả năng học chính xác.
+Cấu trúc \textbf{ma trận đơn vị + nhiễu hạng 1} này cho phép phân tích chính xác hành vi của bộ dự đoán NTK và là nền tảng cho các định lý về khả năng học chính xác.
 
 \section{Định lý về bộ dự báo NTK}
 
@@ -101,7 +105,7 @@ Phần này trình bày kết quả lý thuyết then chốt về hành vi của
 
 \subsection{Định lý 5.1: Bảo toàn thông tin dấu}
 
-    	\textbf{Định lý 5.1 (Hành vi bộ dự báo NTK):} Cho mạng nơ-ron hai lớp trong chế độ NTK ở giới hạn chiều rộng vô hạn được huấn luyện trên tập dữ liệu mẫu $\mathcal{D}$. Gọi $\mu(\hat{\mathbf{x}})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng tại điểm kiểm thử $\hat{\mathbf{x}}$. Khi đó, với mỗi bit đầu ra thứ $i$:
+    	\textbf{Định lý 5.1 (Hành vi của bộ dự báo NTK):} Cho mạng nơ-ron hai lớp trong chế độ NTK ở giới hạn chiều rộng vô hạn được huấn luyện trên tập dữ liệu mẫu $\mathcal{D}$. Gọi $\mu(\hat{\mathbf{x}})$ là kỳ vọng của phân phối giới hạn của đầu ra mạng tại điểm kiểm thử $\hat{\mathbf{x}}$. Khi đó, với mỗi bit đầu ra thứ $i$:
 \begin{equation}
     \text{sign}(\mu(\hat{\mathbf{x}})_i) = y_i^*
 \end{equation}
@@ -144,7 +148,7 @@ trong đó:
 \end{itemize}
 \end{quote}
 
-        \textbf{Giả thiết 5.1:} Gọi $C_i = |U_i|$ là số lượng tương quan không mong muốn tại bit thứ $i$. Điều kiện để đầu ra có dấu đúng là:
+        \textbf{Giả thuyết 5.1:} Gọi $C_i = |U_i|$ là số lượng tương quan không mong muốn tại bit thứ $i$. Điều kiện để đầu ra có dấu đúng là:
 \begin{equation}
     C_i < -\frac{w^1}{w^0}
 \end{equation}
@@ -153,7 +157,7 @@ Lưu ý rằng $w^0 < 0$ trong các trường hợp được xét, do đó $-w^1
 
 \subsection{Phân tích trường hợp xấu nhất}
 
-Trong trường hợp xấu nhất, tất cả các tương quan không mong muốn đều ``đồng pha'' (có cùng dấu với nhiễu), tổng nhiễu có thể đạt:
+Trong trường hợp xấu nhất, tất cả các tương quan không mong muốn đều đồng pha (có cùng dấu với nhiễu), tổng nhiễu có thể đạt:
 \begin{equation}
     \left|\sum_{j \in U_i} y_j\right| \leq C_i
 \end{equation}
@@ -165,7 +169,7 @@ Trong trường hợp xấu nhất, tất cả các tương quan không mong mu�
 
 \subsection{Kết quả cho các thuật toán cụ thể}
 
-Các tác giả đã chứng minh rằng các thuật toán được xét đều thỏa mãn Giả thuyết 5.1:
+Các tác giả đã chứng minh rằng các thuật toán được xét đều thỏa mãn giả thuyết 5.1:
 \begin{itemize}
     \item \textbf{Phép hoán vị:} $C_i = 0$ (không có tương quan không mong muốn)
     \item \textbf{Phép cộng:} $C_i \leq 1$ (tối đa 1 tương quan không mong muốn)
@@ -184,21 +188,27 @@ Phần này trình bày cách áp dụng khung khớp mẫu cho từng thuật t
 
 Phép hoán vị $\pi: [l] \rightarrow [l]$ ánh xạ vị trí bit $i$ sang vị trí mới $\pi(i)$. Đây là thuật toán đơn giản nhất để minh họa phương pháp.
 
-        \textbf{Mã hóa mẫu:} Mỗi bit được xử lý độc lập. Với bit thứ $i$, có 2 mẫu:
+\vspace{0.2cm}
+
+\textbf{Mã hóa mẫu:} Mỗi bit được xử lý độc lập. Với bit thứ $i$, có 2 mẫu:
 \begin{itemize}
     \item Mẫu 1: Đầu vào $x_i = +1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $+1$
     \item Mẫu 2: Đầu vào $x_i = -1 \Rightarrow$ Đầu ra tại vị trí $\pi(i)$ là $-1$
 \end{itemize}
 
-        \textbf{Số lượng mẫu:} $2l$ mẫu tổng cộng.
+\textbf{Số lượng mẫu:} $2l$ mẫu tổng cộng.
 
-        \textbf{Tương quan không mong muốn:} Vì mỗi mẫu chỉ phụ thuộc vào một bit đầu vào duy nhất và các bit được mã hóa trong các block riêng biệt, không có tương quan không mong muốn ($C_i = 0$).
+\vspace{0.2cm}
+
+\textbf{Tương quan không mong muốn:} Vì mỗi mẫu chỉ phụ thuộc vào một bit đầu vào duy nhất và các bit được mã hóa trong các khối riêng biệt, không có tương quan không mong muốn ($C_i = 0$).
 
 \subsection{Phép cộng}
 
 Phép cộng hai số nhị phân $l$-bit được triển khai thông qua mô phỏng bộ cộng ripple-carry. Thuật toán gồm 2 giai đoạn:
 
-		\textbf{Giai đoạn 1 - Cộng theo bit:} Tính tổng từng bit và bit nhớ cục bộ:
+\vspace{0.2cm}
+
+\textbf{Giai đoạn 1 - Cộng theo bit:} Tính tổng từng bit và bit nhớ cục bộ:
 \begin{align}
     s_i &= a_i \oplus b_i \oplus c_{i-1} \\
     c_i &= \text{MAJ}(a_i, b_i, c_{i-1})
@@ -206,11 +216,17 @@ Phép cộng hai số nhị phân $l$-bit được triển khai thông qua mô p
 
 trong đó $\oplus$ là phép XOR, MAJ là hàm majority, và $c_{i-1}$ là bit nhớ từ vị trí trước.
 
-\textbf{Giai đoạn 2 - Lan truyền bit nhớ:} Bit nhớ được lan truyền từ phải sang trái. Quá trình này yêu cầu $O(\log l)$ bước lặp do kỹ thuật parallel prefix.
+\vspace{0.2cm}
 
-        \textbf{Mẫu cho mỗi vị trí:} Mỗi vị trí bit $i$ có $2^3 = 8$ mẫu (tương ứng với 8 tổ hợp của $a_i, b_i, c_{i-1}$).
+\textbf{Giai đoạn 2 - Lan truyền bit nhớ:} Bit nhớ được lan truyền từ phải sang trái. Quá trình này yêu cầu $O(\log l)$ bước lặp do kỹ thuật tiền tố song song.
 
-        \textbf{Tương quan không mong muốn:} Tối đa $C_i = 1$, xảy ra khi hai mẫu có cùng giá trị $(a_i, b_i)$ nhưng khác $c_{i-1}$.
+\vspace{0.2cm}
+
+\textbf{Mẫu cho mỗi vị trí:} Mỗi vị trí bit $i$ có $2^3 = 8$ mẫu (tương ứng với 8 tổ hợp của $a_i, b_i, c_{i-1}$).
+
+\vspace{0.2cm}
+
+\textbf{Tương quan không mong muốn:} Tối đa $C_i = 1$, xảy ra khi hai mẫu có cùng giá trị $(a_i, b_i)$ nhưng khác $c_{i-1}$.
 
 \subsection{Phép nhân}
 
@@ -221,20 +237,25 @@ Phép nhân hai số nhị phân $l$-bit sử dụng thuật toán dịch và c�
     \item Dịch trái số bị nhân và dịch phải số nhân
 \end{enumerate}
 
-        \textbf{Số bước lặp:} $l$ bước cho phép nhân $l$-bit.
+\textbf{Số bước lặp:} $l$ bước cho phép nhân $l$-bit.
 
-        \textbf{Mã hóa mẫu:} Mỗi bước lặp được mã hóa thành các mẫu riêng, bao gồm:
+\vspace{0.3cm}
+
+\textbf{Mã hóa mẫu:} Mỗi bước lặp được mã hóa thành các mẫu riêng, bao gồm:
+
 \begin{itemize}
     \item Mẫu kiểm tra bit phải cùng
     \item Mẫu cộng có điều kiện
     \item Mẫu dịch bit
 \end{itemize}
 
+\vspace{-0.1cm}
+
 \textbf{Tương quan không mong muốn:} $C_i = O(\log l)$, phát sinh từ sự chồng chéo giữa các bước lặp.
 
 \subsection{Chỉ thị SBN (Subtract and Branch if Negative)}
 
-SBN là một chỉ thị máy tính đơn giản nhưng đủ mạnh để đạt tính Turing-complete. Chỉ thị SBN(A, B, C) thực hiện:
+SBN là một chỉ thị máy tính đơn giản nhưng đủ mạnh để đạt tính đầy đủ Turing. Chỉ thị SBN(A, B, C) thực hiện:
 \begin{enumerate}
     \item Tính $\text{Mem}[A] \leftarrow \text{Mem}[A] - \text{Mem}[B]$
     \item Nếu kết quả âm, nhảy đến địa chỉ C; ngược lại, tiếp tục tuần tự
@@ -246,19 +267,19 @@ Mã hóa mẫu cho SBN: Bao gồm các thành phần:
 \begin{itemize}
     \item Mẫu cho phép trừ: Tương tự phép cộng với số bù 2
     \item Mẫu kiểm tra dấu kết quả
-    \item Mẫu cập nhật program counter
+    \item Mẫu cập nhật bộ đếm chương trình
     \item Mẫu cho phép trừ: Tương tự phép cộng với số bù 2
     \item Mẫu kiểm tra dấu kết quả
-    \item Mẫu cập nhật program counter
+    \item Mẫu cập nhật bộ đếm chương trình
 \end{itemize}
 
 \textbf{Ý nghĩa:} Việc chứng minh mạng nơ-ron có thể học chính xác SBN đồng nghĩa với việc mạng nơ-ron có khả năng, về nguyên tắc, học thực thi bất kỳ thuật toán nào có thể được mô tả bằng chương trình máy tính.
 
 \section{Độ phức tạp tập hợp}
 
-Mặc dù lý thuyết NTK đảm bảo tính đúng đắn về kỳ vọng, phương sai của từng mô hình riêng lẻ có thể ảnh hưởng đến kết quả thực tế. Để giảm thiểu rủi ro này, phương pháp sử dụng kỹ thuật ensemble.
+Mặc dù lý thuyết NTK đảm bảo tính đúng đắn về kỳ vọng, phương sai của từng mô hình riêng lẻ có thể ảnh hưởng đến kết quả thực tế. Để giảm thiểu rủi ro này, phương pháp sử dụng kỹ thuật kết hợp nhiều mô hình.
 
-\subsection{Tại sao cần Ensemble?}
+\subsection{Tại sao cần kỹ thuật kết hợp nhiều mô hình?}
 
 Trong thực tế, với mạng có chiều rộng hữu hạn $m$, đầu ra có phân phối:
 \begin{equation}
@@ -267,7 +288,9 @@ Trong thực tế, với mạng có chiều rộng hữu hạn $m$, đầu ra c�
 
 trong đó $\sigma^2$ là phương sai. Ngay cả khi $\mu$ có dấu đúng, phương sai lớn có thể khiến một số lần thực thi cho kết quả sai.
 
-Kỹ thuật ensemble giải quyết vấn đề này bằng cách huấn luyện $N$ mô hình độc lập và lấy trung bình:
+\vspace{0.2cm}
+
+Kỹ thuật giải quyết vấn đề này bằng cách huấn luyện $N$ mô hình độc lập và lấy trung bình:
 \begin{equation}
     \bar{F}(\hat{\mathbf{x}}) = \frac{1}{N} \sum_{k=1}^{N} F_k(\hat{\mathbf{x}})
 \end{equation}
@@ -279,7 +302,7 @@ Phương sai của đầu ra trung bình giảm theo $1/N$:
 
 \subsection{Công thức tính số lượng mô hình tối thiểu}
 
-Để đảm bảo xác suất lỗi không vượt quá $\delta$, số lượng mô hình $N$ cần thỏa mãn (Equation 8 trong paper):
+Để đảm bảo xác suất lỗi không vượt quá $\delta$, số lượng mô hình $N$ cần thỏa mãn (Công thức 8 trong paper):
 \begin{equation}
     N \geq \frac{2\sigma^2}{\mu^2} \ln\left(\frac{2}{\delta}\right)
 \end{equation}
@@ -293,7 +316,7 @@ trong đó:
 \end{itemize}
 \end{quote}
 
-Công thức này dựa trên bất đẳng thức Hoeffding cho tổng các biến ngẫu nhiên độc lập.
+Công thức này dựa trên các bất đẳng thức tập trung cho tổng các biến ngẫu nhiên Gaussian độc lập.
 
 \subsection{Độ phức tạp theo kích thước bài toán}
 
@@ -304,9 +327,9 @@ Phân tích cho thấy tỷ lệ $\sigma^2/\mu^2$ tăng theo $O(l^2)$ với $l$ 
 
 Kết quả này có ý nghĩa thực tiễn quan trọng:
 \begin{itemize}
-    \item Độ phức tạp chỉ tăng đa thức (polynomial) theo kích thước bài toán
+    \item Độ phức tạp chỉ tăng đa thức theo kích thước bài toán
     \item Với $l = 64$ bit (số nguyên 64-bit), cần khoảng $N = O(4096)$ mô hình
     \item Các mô hình có thể được huấn luyện song song, phù hợp với phần cứng GPU hiện đại
 \end{itemize}
 
-Kết luận, phương pháp đề xuất có khả năng mở rộng tốt (scalable) cho các bài toán thực tế, không bị giới hạn bởi sự tăng trưởng exponential thường gặp trong các phương pháp học máy truyền thống cho bài toán tổ hợp.
+Kết luận, phương pháp đề xuất có khả năng mở rộng tốt cho các bài toán thực tế, không bị giới hạn bởi sự tăng trưởng exponential thường gặp trong các phương pháp học máy truyền thống cho bài toán tổ hợp.
