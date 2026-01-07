@@ -1,8 +1,6 @@
-\chapter{MINH CHỨNG THỰC HIỆN}
+\chapter{MÔ PHỎNG THỰC NGHIỆM}
 
-\section{Thực nghiệm huấn luyện}
-
-\subsection{Lựa chọn bài toán}
+\section{Lựa chọn bài toán}
 
 Nghiên cứu chọn bài toán \textbf{Hoán vị} làm đối tượng thực nghiệm chính với các lý do:
 \begin{itemize}
@@ -11,7 +9,7 @@ Nghiên cứu chọn bài toán \textbf{Hoán vị} làm đối tượng thực 
     \item \textbf{Tính đại diện:} Mặc dù đơn giản hơn, hoán vị vẫn đủ để chứng minh tính đúng đắn của lý thuyết về tập kết hợp nhiều mô hình và khả năng đạt độ chính xác tuyệt đối
 \end{itemize}
 
-\subsection{Bài toán Hoán vị}
+\section{Bài toán Hoán vị}
 
 \textbf{Định nghĩa bài toán:}
 Cho hoán vị $\pi: [n] \rightarrow [n]$ ngẫu nhiên, mạng nơ-ron được huấn luyện để học ánh xạ này trên các vector cơ sở chuẩn.
@@ -33,7 +31,7 @@ Vector kiểm tra được coi là đúng nếu và chỉ nếu:
 
 trong đó $\bar{F}$ là đầu ra trung bình của tập hợp các mô hình.
 
-\subsection{Độ chính xác theo kích thước của tập hợp các mô hình}
+\section{Độ chính xác theo kích thước của tập hợp các mô hình}
 
 \textbf{Mục tiêu thực nghiệm:}
 So sánh số lượng mô hình thực tế cần thiết để đạt độ chính xác mục tiêu (90\%, 95\%, 99\%) với ngưỡng lý thuyết từ Công thức tính số lượng mô hình tối thiểu:
@@ -58,7 +56,7 @@ So sánh số lượng mô hình thực tế cần thiết để đạt độ ch
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/experiments.pdf}
-    \caption{Thực nghiệm 1 (trái) trình bày số mô hình cần thiết để đạt độ chính xác 90\% theo kích thước đầu vào $k$, so sánh với ngưỡng lý thuyết từ công thức tinh số lượng mô hình tối thiểu. Thực nghiệm 2 (phải) trình bày độ chính xác theo số mô hình với các kích thước đầu vào $k$ khác nhau.}
+    \caption{Kết quả thực nghiệm từ bài báo gốc \cite{de_luca_2025}. Thực nghiệm 1 (trái) trình bày số mô hình cần thiết để đạt độ chính xác 90\% theo kích thước đầu vào $k$, so sánh với ngưỡng lý thuyết từ công thức tính số lượng mô hình tối thiểu. Thực nghiệm 2 (phải) trình bày độ chính xác theo số mô hình với các kích thước đầu vào $k$ khác nhau.}
     \label{fig:ensemble_experiments}
 \end{figure}
 
@@ -82,7 +80,7 @@ So sánh số lượng mô hình thực tế cần thiết để đạt độ ch
 \end{figure}
 
 
-\subsection{Phân tích kết quả}
+\section{Phân tích kết quả}
 
 Các kết quả phân tích cho thấy ba điểm chính:
 
@@ -94,7 +92,7 @@ Các kết quả phân tích cho thấy ba điểm chính:
     \item \textbf{Tính khả thi thực tiễn:} Vì số lượng mô hình chỉ tăng theo hàm đa thức nên việc triển khai là hoàn toàn khả thi. Trong thực tế, các phân phối thường tốt hơn giả định xấu nhất và các sai số có thể triệt tiêu lẫn nhau, dẫn đến số lượng mô hình cần thiết nhỏ hơn đáng kể so với lý thuyết.
 \end{enumerate}
 
-\subsection{Thực nghiệm với bài toán Cộng nhị phân}
+\section{Thực nghiệm với bài toán Cộng nhị phân}
 
 Ngoài bài toán hoán vị, nhóm cũng tiến hành thực nghiệm với bài toán cộng nhị phân để đánh giá khả năng mở rộng của phương pháp đề xuất.
 
@@ -144,7 +142,7 @@ Kết quả này cho thấy với cấu hình phần cứng hiện tại, bài t
     \end{itemize}
 \end{enumerate}
 
-\subsection{Kết luận từ thực nghiệm}
+\section{Kết luận từ thực nghiệm}
 
 Kết quả thực nghiệm cho thấy khoảng cách giữa lý thuyết và thực tiễn trong việc triển khai khung NTK. Mặc dù lý thuyết đảm bảo độ chính xác tuyệt đối với điều kiện $n_h \rightarrow \infty$, việc đạt được điều kiện này trong thực tế đòi hỏi:
 \begin{itemize}
@@ -155,7 +153,7 @@ Kết quả thực nghiệm cho thấy khoảng cách giữa lý thuyết và th
 
 Đây là một hướng phát triển quan trọng cho các nghiên cứu tương lai về việc đưa khung lý thuyết NTK vào ứng dụng thực tiễn.
 
-\subsection{Ý nghĩa thực tiễn}
+\section{Ý nghĩa thực tiễn}
 
 Kết quả thực nghiệm xác nhận hai điều quan trọng:
 
