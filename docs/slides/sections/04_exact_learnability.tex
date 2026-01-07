@@ -3,7 +3,7 @@
 
 % ==================== PART I: NTK PREDICTOR BEHAVIOR ====================
 \begin{frame}{Phần I: Huấn luyện với dữ liệu trực chuẩn hoá}
-  \textbf{Mã hóa Template thành Training Data:}
+  \textbf{Mã hóa Template thành dữ liệu huấn luyện:}
   \begin{itemize}
     \item Template $(x^{(i,j)}, y^{(i,j)}) \in T_i$ $\to$ vector $q_{ij} \in \mathbb{R}^{k'}$
     \item $q_{ij}$ có cấu trúc block-partitioned: chỉ block $i$ khác 0
@@ -33,7 +33,7 @@
 
 \end{frame}
 
-\begin{frame}{Chiến lược Encode: "Bag of Rules" \& Training Data}
+\begin{frame}{Chiến lược Encode: "Bag of Rules"}
   \textbf{Tổng hợp Templates:}
   Với chuỗi $L$ bit, ta có tập hợp tất cả các quy tắc cục bộ cho mọi $i$:
   \[ T_{total} = \bigcup_{i=0}^{L-1} \{ \text{Rules tại } i \} \]
@@ -41,7 +41,8 @@
   \textbf{Mã hóa (Encoding):}
   Ta gộp tất cả $N$ rules cục bộ vào một không gian vector chung $\mathbb{R}^N$. Mỗi rule $t_k \in T_{total}$ được one-hot encoding.
 
-  \textbf{Training Data (Identity Matrix):}
+\textbf{Dữ liệu huấn luyện (ma trận đơn vị / Identity matrix):}
+
   \[
     X_{train} = I_N = 
     \begin{bmatrix}
@@ -74,17 +75,18 @@
 
   \vspace{0.3cm}
   \textbf{Quan trọng:}
-  \begin{itemize}
-    \item Training: $O(b)$ samples
-    \item Test: $O(2^b)$ possible inputs 
-  \end{itemize}
+ \begin{itemize}
+  \item \textbf{Huấn luyện:} cần $O(b)$ mẫu dữ liệu.
+  \item \textbf{Kiểm thử:} có $O(2^b)$ đầu vào khả dĩ.
+\end{itemize}
+
 \end{frame}
 
-\begin{frame}{Theorem 5.1: NTK Predictor Behavior}
-  \textbf{Assumption 5.1:} Số tương quan không mong muốn $<$ tỷ lệ $-w_1/w_0$
+\begin{frame}{Định lý 5.1: NTK Predictor Behavior}
+  \textbf{Giả định 5.1:} Số tương quan không mong muốn $<$ tỷ lệ $-w_1/w_0$
 
   \vspace{0.3cm}
-  \textbf{Theorem:} Dưới Assumption 5.1, NTK predictor bảo toàn dấu:
+  \textbf{Định lý:} Dưới giả định 5.1, NTK predictor bảo toàn dấu:
   \[
     \begin{cases}
       \mu(\hat{x})_i \le 0 & \text{nếu } f(\hat{x})_i = 0 \\
@@ -95,7 +97,7 @@
   $\Rightarrow$ \textbf{Rounding $\mu(\hat{x})_i$ cho kết quả chính xác!}
 \end{frame}
 
-\begin{frame}{Proof Sketch của Theorem 5.1}
+\begin{frame}{Proof Sketch của định lý 5.1}
   NTK predictor có dạng:
   \[
     \mu(\hat{x})_i = \sum_{(j,l) \in I^+} f(q_{jl})_i \cdot w_1 + \sum_{(j,l) \in I^-} f(q_{jl})_i \cdot w_0
@@ -112,13 +114,14 @@
 \end{frame}
 
 % ==================== PART II: ENSEMBLE COMPLEXITY ====================
-\begin{frame}{Phần 2: Ensemble Complexity}
-  \textbf{Vấn đề:} Theorem 5.1 đúng cho \emph{kỳ vọng} $\mu(\hat{x})$.
+\begin{frame}{Phần 2: Độ phức tạp của ensemble}
+  \textbf{Vấn đề:} Định lý 5.1 đúng cho \emph{kỳ vọng} $\mu(\hat{x})$.
   
   Thực tế: mỗi model có variance $\sigma^2(\hat{x})$.
 
   \vspace{0.3cm}
-  \textbf{Giải pháp:} Ensemble $N$ models:
+ \textbf{Tổ hợp (ensemble) gồm $N$ mô hình:}
+
   \[
     G(\hat{x}) = \frac{1}{N}\sum_{j=1}^N F^j(\hat{x})
   \]
@@ -138,7 +141,7 @@
     \begin{itemize}
         \item \textbf{Phân tích tiệm cận (Lemma 6.1):} 
             \begin{itemize}
-                \item Variance: $\sigma^2(\hat{x}) \in O(1/k')$ [cite: 489]
+                \item Variance: $\sigma^2(\hat{x}) \in O(1/k')$ 
                 \item Mean: $|\mu(\hat{x})_i|$ đạt tối thiểu $\Theta(1/\sqrt{k'})$ khi $n_{\hat{x}} = ck'$ 
                 \item Tỉ lệ: $\frac{\sigma^2}{\mu^2} \in O(k')$ 
             \end{itemize}
@@ -151,7 +154,7 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Remark 6.1: Kết quả Ensemble Complexity ($N$)}
+\begin{frame}{Remark 6.1: Kết quả độ phức tạp của ensemble}
     \textbf{Độ phức tạp cho các tác vụ với số bit $\ell$:} 
     
     \begin{center}
