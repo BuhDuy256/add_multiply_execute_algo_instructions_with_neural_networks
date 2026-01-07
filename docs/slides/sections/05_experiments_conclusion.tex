@@ -11,7 +11,7 @@
 
   \vspace{0.3cm}
   \textbf{Kết quả:} Ensemble complexity tăng theo $O(\ell^2 \log \ell)$ như lý thuyết dự đoán.
-\end{frame}  
+\end{frame}
 
 \begin{frame}{Paper Figure 5: Experiment 1}
   \centering
@@ -78,16 +78,16 @@
 \begin{frame}{Hạn chế và hướng phát triển}
   \textbf{Hạn chế:}
   \begin{itemize}
-    \item Giả định data orthogonality
-    \item Bounded memory (retrain khi thay đổi input size)
+    \item Giả định dữ liệu trực giao (tính orthogonality giữa các mẫu huấn luyện).
+    \item Bộ nhớ bị giới hạn (cần huấn luyện lại khi kích thước đầu vào thay đổi).
   \end{itemize}
 
   \vspace{0.3cm}
   \textbf{Hướng phát triển:}
   \begin{itemize}
-    \item Correlated training examples
-    \item GNN trên đồ thị bounded degree
-    \item Mở rộng cho Transformer
+    \item Mở rộng sang trường hợp các mẫu huấn luyện có tương quan.
+    \item Nghiên cứu áp dụng GNN trên đồ thị có bậc bị chặn (bounded degree).
+    \item Mở rộng cho Transformer.
   \end{itemize}
 \end{frame}
 
