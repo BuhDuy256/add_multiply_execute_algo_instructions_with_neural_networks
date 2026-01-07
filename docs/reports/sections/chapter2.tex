@@ -76,9 +76,9 @@ NTK cho phép hiểu rõ cách mạng nơ-ron \textit{học} từ dữ liệu. K
 
 Một trong những đóng góp quan trọng nhất của lý thuyết NTK là khám phá hành vi của mạng nơ-ron khi chiều rộng lớp ẩn tiến tới vô hạn. Trong giới hạn này, việc huấn luyện mạng nơ-ron trở nên đơn giản hóa đáng kể và có thể được phân tích chính xác.
 
-\subsection{Chế độ Lazy Training}
+\subsection{Chế độ huấn luyện lười}
 
-Khi chiều rộng lớp ẩn $m \rightarrow \infty$, mạng nơ-ron hoạt động trong chế độ được gọi là \textit{lazy training}. Trong chế độ này, các tham số của mạng thay đổi cực nhỏ quanh điểm khởi tạo trong suốt quá trình huấn luyện:
+Khi chiều rộng lớp ẩn $m \rightarrow \infty$, mạng nơ-ron hoạt động trong chế độ được gọi là \textit{huấn luyện lười}. Trong chế độ này, các tham số của mạng thay đổi cực nhỏ quanh điểm khởi tạo trong suốt quá trình huấn luyện:
 \begin{equation}
     \|\theta(t) - \theta(0)\| \approx O\left(\frac{1}{\sqrt{m}}\right) \rightarrow 0 \quad \text{khi } m \rightarrow \infty
 \end{equation}
@@ -87,7 +87,7 @@ Khi chiều rộng lớp ẩn $m \rightarrow \infty$, mạng nơ-ron hoạt đ�
 
 \subsection{Sự ổn định của Kernel (Kernel đóng băng)}
 
-Một hệ quả quan trọng của lazy training là NTK trở nên ổn định (hay đóng băng) trong suốt quá trình huấn luyện. Cụ thể, khi $m \rightarrow \infty$:
+Một hệ quả quan trọng của huấn luyện lười là NTK trở nên ổn định (hay đóng băng) trong suốt quá trình huấn luyện. Cụ thể, khi $m \rightarrow \infty$:
 \begin{equation}
     K_m(\theta(t)) \rightarrow \Theta(\mathbf{x}, \mathbf{x}') \quad \text{với mọi } t \geq 0
 \end{equation}
