@@ -29,7 +29,7 @@ Cách khởi tạo này đảm bảo rằng khi $n_h \rightarrow \infty$, độn
 
 \begin{itemize}
     \item \textbf{Thuật toán tối ưu:} \textit{Full-batch gradient descent} được sử dụng thay vì mini-batch, đảm bảo gradient được tính trên toàn bộ tập huấn luyện
-    \item \textbf{Learning rate:} Được chọn đủ nhỏ để đảm bảo hội tụ ổn định trong chế độ lazy training
+    \item \textbf{Learning rate:} Được chọn đủ nhỏ để đảm bảo hội tụ ổn định trong chế độ huấn luyện lười
     \item \textbf{Tiêu chí dừng:} Huấn luyện cho đến khi loss giảm đến ngưỡng đủ nhỏ hoặc đạt số epoch tối đa
 \end{itemize}
 
@@ -117,7 +117,7 @@ Theo phân tích trong chương 3, tỷ lệ $\sigma^2/\mu^2$ được dự đo�
 Nghiên cứu chọn bài toán \textbf{Hoán vị} làm đối tượng thực nghiệm chính với các lý do:
 \begin{itemize}
     \item \textbf{Độ phức tạp tập hợp thấp hơn:} So với phép cộng và nhân, phép hoán vị có $C_i = 0$ (không có tương quan không mong muốn), dẫn đến tỷ lệ $\sigma^2/\mu^2$ nhỏ hơn
-    \item \textbf{Tài nguyên tính toán:} Số Kích thước tập hợp các mô hình cần thiết nằm trong khả năng của phần cứng hiện có
+    \item \textbf{Tài nguyên tính toán:} Kích thước tập hợp các mô hình cần thiết nằm trong khả năng của phần cứng hiện có
     \item \textbf{Tính đại diện:} Mặc dù đơn giản hơn, hoán vị vẫn đủ để chứng minh tính đúng đắn của lý thuyết về tập kết hợp nhiều mô hình và khả năng đạt độ chính xác tuyệt đối
 \end{itemize}
 
@@ -194,22 +194,15 @@ So sánh số lượng mô hình thực tế cần thiết để đạt độ ch
 
 \subsection{Phân tích kết quả}
 
-\textbf{Tính bảo thủ của ngưỡng lý thuyết:}
+Các kết quả phân tích cho thấy ba điểm chính:
 
-\vspace{0.2cm}
+\begin{enumerate}
+    \item \textbf{Sự phù hợp về dạng hàm:} Hàm thực nghiệm có hình dạng tương đồng với hàm lý thuyết. Điều này xác nhận rằng thực nghiệm tăng trưởng đúng theo quy luật mà lý thuyết đã dự báo.
+    
+    \item \textbf{Tính bảo thủ của ngưỡng lý thuyết:} Ngưỡng chặn lý thuyết được xây dựng dựa trên các bất đẳng thức tập trung cho biến ngẫu nhiên Gaussian và kỹ thuật \textit{union bound} (trường hợp xấu nhất). Do đó, ngưỡng này luôn đảm bảo tính an toàn và là chặn trên chặt chẽ cho thực tế.
 
-Ngưỡng chặn lý thuyết được xây dựng dựa trên:
-\begin{itemize}
-    \item Bất đẳng thức tập trung cho tổng các biến ngẫu nhiên con-Gaussian
-    \item Kỹ thuật \textit{union bound} để đảm bảo tất cả các bit đầu ra đều đúng đồng thời
-\end{itemize}
-
-Do sử dụng các bất đẳng thức trường hợp xấu nhất, ngưỡng này có tính chất \textbf{bảo thủ cao}. Trong thực tế:
-\begin{itemize}
-    \item Các phân phối thực tế thường tốt hơn giả định trường hợp xấu nhất
-    \item Tương quan giữa các sai số ở các bit khác nhau có thể có lợi
-    \item Kết quả là số mô hình thực tế cần thiết thường nhỏ hơn đáng kể so với ngưỡng lý thuyết
-\end{itemize}
+    \item \textbf{Tính khả thi thực tiễn:} Vì số lượng mô hình chỉ tăng theo hàm đa thức nên việc triển khai là hoàn toàn khả thi. Trong thực tế, các phân phối thường tốt hơn giả định xấu nhất và các sai số có thể triệt tiêu lẫn nhau, dẫn đến số lượng mô hình cần thiết nhỏ hơn đáng kể so với lý thuyết.
+\end{enumerate}
 
 \textbf{Ý nghĩa thực tiễn:}
 
