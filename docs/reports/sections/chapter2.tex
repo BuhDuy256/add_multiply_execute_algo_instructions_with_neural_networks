@@ -116,11 +116,11 @@ Nghiệm của phương trình này có dạng giải tích tường minh:
     f(t) = \mathbf{y} + e^{-\Theta t}(f(0) - \mathbf{y})
 \end{equation}
 
-trong đó $e^{-\Theta t}$ là exponential của ma trận. Khi $t \rightarrow \infty$, nếu $\Theta$ là ma trận xác định dương, ta có $f(t) \rightarrow \mathbf{y}$, nghĩa là mạng học được chính xác nhãn đầu ra.
+trong đó $e^{-\Theta t}$ là hàm mũ của ma trận. Khi $t \rightarrow \infty$, nếu $\Theta$ là ma trận xác định dương, ta có $f(t) \rightarrow \mathbf{y}$, nghĩa là mạng học được chính xác nhãn đầu ra.
 
-\subsection{Tương đương với Kernel Regression}
+\subsection{Tương đương với Hồi quy hạt nhân}
 
-Kết quả quan trọng nhất của phân tích trên là việc huấn luyện mạng nơ-ron trong giới hạn chiều rộng vô hạn hoàn toàn tương đương với bài toán \textit{kernel regression} cổ điển. Cho một điểm test mới $\mathbf{x}^*$, dự đoán của mạng sau khi huấn luyện hội tụ là:
+Kết quả quan trọng nhất của phân tích trên là việc huấn luyện mạng nơ-ron trong giới hạn chiều rộng vô hạn hoàn toàn tương đương với bài toán \textit{Hồi quy hạt nhân} cổ điển. Cho một điểm test mới $\mathbf{x}^*$, dự đoán của mạng sau khi huấn luyện hội tụ là:
 \begin{equation}
     f_\infty(\mathbf{x}^*) = \Theta(\mathbf{x}^*, \mathcal{X}) \Theta(\mathcal{X}, \mathcal{X})^{-1} \mathbf{y}
 \end{equation}
@@ -134,7 +134,7 @@ trong đó:
 \end{itemize}
 \end{quote}
 
-$\Rightarrow$ Công thức này chính là nghiệm của bài toán kernel regression tiêu chuẩn. Điều này cho thấy mạng nơ-ron sâu, trong giới hạn chiều rộng vô hạn, hoạt động như một phương pháp kernel cổ điển với một kernel đặc biệt được xác định bởi kiến trúc mạng.
+$\Rightarrow$ Công thức này chính là nghiệm của bài toán Hồi quy hạt nhân tiêu chuẩn. Điều này cho thấy mạng nơ-ron sâu, trong giới hạn chiều rộng vô hạn, hoạt động như một phương pháp kernel cổ điển với một kernel đặc biệt được xác định bởi kiến trúc mạng.
 
 \section{Kiến trúc mạng nơ-ron hai lớp}
 
