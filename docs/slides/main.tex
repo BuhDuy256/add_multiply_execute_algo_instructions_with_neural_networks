@@ -5,15 +5,28 @@
 \usepackage[vietnamese]{babel}
 \usepackage{lmodern} % Đã có font hỗ trợ tốt tiếng Việt
 \usepackage{csquotes} % Thêm gói này để biblatex không báo lỗi
-
+% \setbeamertemplate{bibliography item}{\insertbiblabel}
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{bm}
 \usepackage{pgfplots}
 
 % \usepackage{enumitem} <--- Gây lỗi, đã bỏ
 
-\usepackage[style=verbose,backend=biber]{biblatex}
+\usepackage[
+  backend=biber,
+  style=authoryear,
+  sorting=none,
+  bibencoding=utf8
+]{biblatex}
 \addbibresource{references.bib}
+
+% Fix: "in" bị dính (inNAACL-HLT -> in NAACL-HLT)
+\renewbibmacro*{in:}{\printtext{\bibstring{in}\space}}
+
+% 2) Fix: bỏ ngoặc kép quanh title để hết dấu ?
+\DeclareFieldFormat[article,inproceedings,book,online,misc]{title}{#1}
+
+
 
 \pgfplotsset{compat=1.10}
 \PassOptionsToPackage{unicode}{hyperref}
@@ -55,14 +68,25 @@
 }
 
 % --- THÔNG TIN BÀI THUYẾT TRÌNH ---
-\title[Exact Learnability in NNs]{Khả năng học chính xác thuật toán của mạng nơ-ron}
-\subtitle{Báo cáo cuối kỳ\\[0.35em]\footnotesize Bài báo: \textit{Learning to Add, Multiply, and Execute Algorithmic Instructions Exactly with Neural Networks}}
+\title[Exact Learnability in NNs]{\large Báo cáo đồ án cuối kỳ\\[0.2em]
+\normalsize Khả năng học chính xác thuật toán\\
+\normalsize của mạng nơ-ron}
+
+\subtitle{\scriptsize Bài báo gốc:\\[0.2em]
+\scriptsize \textit{Learning to Add, Multiply, and Execute}\\
+\scriptsize \textit{Algorithmic Instructions Exactly with Neural Networks}}
+
+\author[Nhóm 11]{\textbf{Nhóm 11}\\[0.35em]\scriptsize
+23127006 -- Trần Nguyễn Khải Luân\\
+23127179 -- Nguyễn Bảo Duy\\
+23127333 -- Trương Quốc Cường\\
+23127539 -- Nguyễn Thanh Tiến}
+
+\institute[HCMUS]{\scriptsize Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM\\[0.25em]
+\scriptsize \textit{Giảng viên hướng dẫn:} Lê Nhựt Nam}
 
 
-\author[Nhóm 11]{\textbf{Nhóm 11}\\[0.4em]\small 23127006 -- Trần Nguyễn Khải Luân\\ 23127179 -- Nguyễn Bảo Duy\\ 23127333 -- Trương Quốc Cường\\ 23127539 -- Nguyễn Thanh Tiến}
-\institute[HCMUS]{\small Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM\\[0.3em]\footnotesize \textit{Giảng viên hướng dẫn:} Lê Nhựt Nam}
 
-\date{\today}
 
 \begin{document}
 
@@ -86,7 +110,7 @@
 
 \input{sections/05_experiments_conclusion.tex}
 
-\input{references.tex}
 \nocite{*}
+\input{references.tex}
 
 \end{document}
