@@ -28,15 +28,18 @@ Các bộ dữ liệu tiêu chuẩn cho bài toán số học thường không �
 
 \section{Câu hỏi nghiên cứu}
 
-Câu hỏi nghiên cứu trọng tâm mà tác giả đặt ra là:
+Nghiên cứu đặt ra một câu hỏi tổng quát, gồm \textbf{ba phần} tương ứng với (i) khía cạnh \textbf{lý thuyết}, (ii) khía cạnh \textbf{hiệu quả dữ liệu}, và (iii) khía cạnh \textbf{kết nối với thực nghiệm}:
+\begin{quote}
+    	\textit{(1) Về mặt lý thuyết, liệu có thể chứng minh rằng một mạng nơ-ron học được cơ chế khớp mẫu để thực thi \textbf{chính xác} các chỉ thị thuật toán, dưới các giả định như NTK và mô hình nhiễu; (2) lượng dữ liệu huấn luyện tối thiểu cần thiết (độ phức tạp mẫu) là bao nhiêu; và (3) trong thực tế khi mạng có độ rộng hữu hạn và dữ liệu hữu hạn, các bảo đảm/dự đoán từ lý thuyết được phản ánh như thế nào?}
+\end{quote}
 
-$\Rightarrow$ \textit{Liệu mạng nơ-ron có thể học thực thi chính xác các chỉ thị thuật toán thông qua cơ chế khớp mẫu, và nếu có thể, lượng dữ liệu huấn luyện tối thiểu cần thiết là bao nhiêu?}
 
-Câu hỏi này bao hàm nhiều khía cạnh quan trọng:
+Từ đó, báo cáo cụ thể hóa câu hỏi nghiên cứu thành \textbf{ba phần}:
+
 \begin{itemize}
-    \item \textbf{Tính khả thi về mặt học:} Liệu gradient descent có thể hội tụ đến một giải pháp thực hiện chính xác thuật toán hay không?
-    \item \textbf{Hiệu quả dữ liệu:} Số lượng ví dụ huấn luyện cần thiết có thể được kiểm soát ở mức nào? Liệu có thể đạt được độ phức tạp mẫu logarit thay vì tuyến tính hay đa thức theo kích thước đầu vào?
-    \item \textbf{Tính phổ quát:} Kết quả có thể mở rộng cho lớp các chỉ thị thuật toán nào? Liệu có thể đạt được tính đầy đủ Turing không?
+    \item \textbf{Phần 1 (Lý thuyết/NTK).} Trong khuôn khổ NTK ở giới hạn chiều rộng vô hạn, liệu hạ gradient có thể hội tụ đến nghiệm thực thi \textbf{đúng} thuật toán (ở mức bit) hay không?
+    \item \textbf{Phần 2 (Thực nghiệm/mạng hữu hạn).} Khi rời khỏi giả định chiều rộng vô hạn (mạng hữu hạn và dữ liệu hữu hạn), mô hình còn có thể học và khái quát hóa việc thực thi chỉ thị thuật toán ở mức độ nào? Mức suy giảm so với dự đoán/bảo đảm lý thuyết thể hiện ra sao theo độ dài bit, theo seed/khởi tạo, và theo quy mô dữ liệu?
+    \item \textbf{Phần 3 (Độ phức tạp mẫu).} Lượng dữ liệu huấn luyện tối thiểu phụ thuộc như thế nào vào kích thước đầu vào?
 \end{itemize}
 
 \section{Đóng góp của báo cáo}
